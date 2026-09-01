@@ -1,0 +1,20 @@
+{
+  "name": "gng",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Simple website project",
+  "scripts": {
+    "start": "npx serve -s . -l 3000",
+    "dev": "npx serve -s . -l 3000"
+  },
+  "keywords": [
+    "website",
+    "cloud",
+    "static-site"
+  ],
+  "author": "yilmazgng",
+  "license": "MIT",
+  "dependencies": {
+    "serve": "^14.2.1"
+  }
+}
