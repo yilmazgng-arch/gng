@@ -785,6 +785,38 @@
   .order-item .o-total{font-weight:700;font-variant-numeric:tabular-nums;}
   .order-item .o-items{color:var(--espresso-70);font-size:0.76rem;line-height:1.5;}
   .order-empty{font-size:0.8rem;color:var(--espresso-70);text-align:center;}
+
+  /* ---------- Hesabım sayfası (hesabim.html) ---------- */
+  .hesabim-wrap{padding:clamp(40px,7vw,72px) 0;}
+  .hesabim-logged-out{max-width:420px;margin:0 auto;text-align:center;padding:40px 0;}
+  .hesabim-logged-out h2{font-size:clamp(1.4rem,3vw,1.8rem);margin-bottom:10px;}
+  .hesabim-logged-out p{color:var(--espresso-70);margin-bottom:22px;}
+  .hesabim-grid{display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:start;}
+  @media (max-width:860px){ .hesabim-grid{grid-template-columns:1fr;} }
+  .hesabim-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);padding:26px 24px;}
+  .hesabim-card + .hesabim-card{margin-top:22px;}
+  .hesabim-card-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;}
+  .hesabim-card-title h3{font-size:1.02rem;}
+  .hesabim-card-title .btn-link{font-size:0.78rem;color:var(--caramel-dk);text-decoration:underline;text-underline-offset:2px;background:none;border:none;cursor:pointer;padding:2px 0;}
+  .hesabim-card .auth-profile{text-align:center;}
+  .hesabim-card .orders-wrap{margin:0;padding-top:0;border-top:none;}
+  .hesabim-card .order-list{max-height:none;}
+
+  .address-list{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+  @media (max-width:640px){ .address-list{grid-template-columns:1fr;} }
+  .address-card{border:1px solid var(--line);border-radius:var(--radius-m);padding:16px 16px 14px;font-size:0.84rem;}
+  .addr-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+  .addr-label-badge{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;background:var(--surface-2);border-radius:999px;padding:4px 10px;}
+  .addr-default-badge{font-size:0.68rem;font-weight:700;color:var(--caramel-dk);border:1px solid var(--caramel);border-radius:999px;padding:3px 9px;}
+  .addr-name{font-weight:600;margin-bottom:2px;}
+  .addr-line{color:var(--espresso-70);font-size:0.78rem;line-height:1.5;}
+  .addr-actions{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;}
+  .addr-actions button{font-size:0.74rem;background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px;color:var(--espresso-70);}
+  .addr-actions button:hover{color:var(--espresso);}
+  .addr-actions .addr-delete-btn{color:#a4432f;}
+  .address-empty{font-size:0.82rem;color:var(--espresso-70);margin-bottom:14px;}
+  #addressFormWrap{border-top:1px solid var(--line);margin-top:6px;padding-top:18px;}
+  #addressFormWrap .auth-field{margin-bottom:12px;}
   .orders-loading{font-size:0.8rem;color:var(--espresso-70);text-align:center;}
 
   /* ---------- Bilgi sayfaları (Gizlilik / KVKK / İade) ---------- */
@@ -1143,6 +1175,7 @@ var firebaseReady = false;
 var currentUser = null;
 var openAuth; // Değerlendirme formundan da çağrılabilmesi için — bkz. yukarıdaki not.
 var currentModalProductId = null; // Ürün modalı açıkken giriş yapılırsa değerlendirme formunu yenileyebilmek için.
+var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepet/sipariş IIFE'si) hem hesap sayfası kullanıyor, bu yüzden burada.
 
 (function(){
   "use strict";
@@ -1172,6 +1205,8 @@ var currentModalProductId = null; // Ürün modalı açıkken giriş yapılırsa
     "Elbiseler": "elbiseler.html"
   };
   var CURRENT_PAGE_CATEGORY = null;
+  var CURRENT_PAGE_ACCOUNT = false; // sadece hesabim.html'de true — hesap ikonuna tıklayınca oraya yönlendirmek için.
+  var ACCOUNT_PAGE_URL = "hesabim.html";
   var realCategories = DEFAULT_REAL_CATEGORIES.slice();
   var PRODUCTS = DEFAULT_PRODUCTS.slice();
   var nextProductNumId = Math.max.apply(null, DEFAULT_PRODUCTS.map(function(p){return p.id;}).concat([0])) + 1;
@@ -1236,7 +1271,14 @@ var currentModalProductId = null; // Ürün modalı açıkken giriş yapılırsa
       lines.push('Toplam: ' + money(subtotal));
     }
     lines.push('');
-    lines.push('Teslimat bilgilerimi paylaşmak istiyorum.');
+    var defAddr = currentUserAddresses.filter(function(a){ return a.isDefault; })[0] || currentUserAddresses[0];
+    if(defAddr){
+      lines.push('Teslimat Adresi:');
+      lines.push(defAddr.fullName + ' — ' + defAddr.phone);
+      lines.push(defAddr.line1 + ', ' + [defAddr.district, defAddr.city].filter(Boolean).join('/') + (defAddr.postalCode ? ' ' + defAddr.postalCode : ''));
+    } else {
+      lines.push('Teslimat bilgilerimi paylaşmak istiyorum.');
+    }
     return lines.join('\n');
   }
 
@@ -2632,7 +2674,13 @@ var currentModalProductId = null; // Ürün modalı açıkken giriş yapılırsa
             currentUserPhone = ph || null;
             showToast('Profil güncellendi');
             updateAccountButton();
-            renderProfile();
+            if(CURRENT_PAGE_ACCOUNT){
+              wrap.hidden = true; wrap.innerHTML = '';
+              if(editBtn) editBtn.hidden = false;
+              renderAccountPage();
+            } else {
+              renderProfile();
+            }
           }).catch(function(err){
             errEl.textContent = 'Güncellenemedi, tekrar dene.';
             saveBtn.disabled = false;
@@ -2723,14 +2771,209 @@ var currentModalProductId = null; // Ürün modalı açıkken giriş yapılırsa
       }).join('');
     }
 
+    // ---------- Adres defteri (users/{uid}/addresses) ----------
+    function addressesCol(){
+      return firebase.firestore().collection('users').doc(currentUser.uid).collection('addresses');
+    }
+    function loadUserAddresses(){
+      if(!firebaseReady || !currentUser) return Promise.resolve([]);
+      try{
+        return addressesCol().get().then(function(snap){
+          var list = [];
+          snap.forEach(function(doc){ list.push(Object.assign({id: doc.id}, doc.data())); });
+          list.sort(function(a,b){ return (b.isDefault?1:0) - (a.isDefault?1:0); });
+          currentUserAddresses = list;
+          return list;
+        }).catch(function(err){
+          console.warn('Adresler alınamadı:', err && err.message);
+          currentUserAddresses = [];
+          return [];
+        });
+      }catch(e){
+        // Adres defteri yüklenemese bile hesap sayfasının geri kalanı (profil/siparişler) çalışmaya devam etmeli.
+        console.warn('Adresler alınamadı:', e && e.message);
+        currentUserAddresses = [];
+        return Promise.resolve([]);
+      }
+    }
+    function addressCardHtml(a){
+      return '<div class="address-card" data-addr-id="'+a.id+'">' +
+        '<div class="addr-top">' +
+          '<span class="addr-label-badge">' + escapeHtmlLocal(a.label || 'Adres') + '</span>' +
+          (a.isDefault ? '<span class="addr-default-badge">Varsayılan</span>' : '') +
+        '</div>' +
+        '<div class="addr-name">' + escapeHtmlLocal(a.fullName || '') + (a.phone ? ' · ' + escapeHtmlLocal(a.phone) : '') + '</div>' +
+        '<div class="addr-line">' + escapeHtmlLocal(a.line1 || '') + '</div>' +
+        '<div class="addr-line">' + escapeHtmlLocal([a.district, a.city].filter(Boolean).join('/')) + (a.postalCode ? ' ' + escapeHtmlLocal(a.postalCode) : '') + '</div>' +
+        '<div class="addr-actions">' +
+          '<button type="button" class="addr-edit-btn" data-edit-addr="'+a.id+'">Düzenle</button>' +
+          (!a.isDefault ? '<button type="button" class="addr-default-btn" data-default-addr="'+a.id+'">Varsayılan Yap</button>' : '') +
+          '<button type="button" class="addr-delete-btn" data-delete-addr="'+a.id+'">Sil</button>' +
+        '</div>' +
+      '</div>';
+    }
+    function renderAddressBook(){
+      var listEl = document.getElementById('addressList');
+      if(!listEl) return;
+      if(!currentUserAddresses.length){
+        listEl.innerHTML = '<p class="address-empty">Henüz kayıtlı adresin yok.</p>';
+        return;
+      }
+      listEl.innerHTML = currentUserAddresses.map(addressCardHtml).join('');
+    }
+    function showAddressForm(existing){
+      var wrap = document.getElementById('addressFormWrap');
+      if(!wrap || !currentUser) return;
+      var isEdit = !!existing;
+      wrap.hidden = false;
+      wrap.innerHTML =
+        '<div class="auth-row2">' +
+          '<div class="auth-field"><label>Etiket</label><input type="text" id="addrLabel" placeholder="Ev, İş..." value="'+escapeHtmlLocal(existing ? existing.label : '')+'"></div>' +
+          '<div class="auth-field"><label>Ad Soyad</label><input type="text" id="addrFullName" value="'+escapeHtmlLocal(existing ? existing.fullName : (currentUser.displayName||''))+'"></div>' +
+        '</div>' +
+        '<div class="auth-field"><label>Telefon</label><input type="tel" id="addrPhone" placeholder="05XX XXX XX XX" value="'+escapeHtmlLocal(existing ? existing.phone : (currentUserPhone||''))+'"></div>' +
+        '<div class="auth-field"><label>Açık Adres</label><input type="text" id="addrLine1" placeholder="Mahalle, sokak, no, daire..." value="'+escapeHtmlLocal(existing ? existing.line1 : '')+'"></div>' +
+        '<div class="auth-row2">' +
+          '<div class="auth-field"><label>İlçe</label><input type="text" id="addrDistrict" value="'+escapeHtmlLocal(existing ? existing.district : '')+'"></div>' +
+          '<div class="auth-field"><label>İl</label><input type="text" id="addrCity" value="'+escapeHtmlLocal(existing ? existing.city : '')+'"></div>' +
+        '</div>' +
+        '<div class="auth-field"><label>Posta Kodu</label><input type="text" id="addrPostal" value="'+escapeHtmlLocal(existing ? (existing.postalCode||'') : '')+'"></div>' +
+        '<div class="auth-consent"><input type="checkbox" id="addrIsDefault"' + ((existing && existing.isDefault) || !currentUserAddresses.length ? ' checked' : '') + '><label for="addrIsDefault">Varsayılan adresim yap</label></div>' +
+        '<div class="auth-error" id="addrFormError"></div>' +
+        '<div class="profile-edit-actions">' +
+          '<button type="button" class="btn" id="addrSaveBtn">'+(isEdit?'Güncelle':'Adresi Kaydet')+'</button>' +
+          '<button type="button" class="btn ghost" id="addrCancelBtn">Vazgeç</button>' +
+        '</div>';
+      document.getElementById('addrCancelBtn').addEventListener('click', function(){ wrap.hidden = true; wrap.innerHTML = ''; });
+      document.getElementById('addrSaveBtn').addEventListener('click', function(){
+        var label = document.getElementById('addrLabel').value.trim() || 'Adres';
+        var fullName = document.getElementById('addrFullName').value.trim();
+        var phone = document.getElementById('addrPhone').value.trim();
+        var line1 = document.getElementById('addrLine1').value.trim();
+        var district = document.getElementById('addrDistrict').value.trim();
+        var city = document.getElementById('addrCity').value.trim();
+        var postalCode = document.getElementById('addrPostal').value.trim();
+        var isDefault = document.getElementById('addrIsDefault').checked;
+        var errEl = document.getElementById('addrFormError');
+        if(!fullName || !phone || !line1 || !city || !district){
+          errEl.textContent = 'Ad Soyad, telefon, açık adres, il ve ilçe zorunlu.';
+          return;
+        }
+        errEl.textContent = '';
+        var saveBtn = document.getElementById('addrSaveBtn');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Kaydediliyor…';
+        var data = {label:label, fullName:fullName, phone:phone, line1:line1, district:district, city:city, postalCode:postalCode, isDefault:isDefault};
+        var col = addressesCol();
+        var ref = isEdit ? col.doc(existing.id) : col.doc();
+        var chain = ref.set(data, {merge:true});
+        if(isDefault){
+          chain = chain.then(function(){
+            var batch = firebase.firestore().batch();
+            currentUserAddresses.forEach(function(a){
+              if(a.id !== ref.id && a.isDefault) batch.update(col.doc(a.id), {isDefault:false});
+            });
+            return batch.commit();
+          });
+        }
+        chain.then(function(){
+          showToast(isEdit ? 'Adres güncellendi' : 'Adres eklendi');
+          wrap.hidden = true; wrap.innerHTML = '';
+          return loadUserAddresses();
+        }).then(function(){
+          renderAddressBook();
+        }).catch(function(err){
+          errEl.textContent = 'Kaydedilemedi, tekrar dene.';
+          saveBtn.disabled = false;
+          saveBtn.textContent = isEdit ? 'Güncelle' : 'Adresi Kaydet';
+          console.warn('Adres kaydedilemedi:', err && err.message);
+        });
+      });
+    }
+    // Delegasyon: adres kartları loadUserAddresses()/renderAddressBook() ile sonradan
+    // oluşturuluyor, bu yüzden [data-info] linklerindeki gibi document üzerinden dinliyoruz.
+    document.addEventListener('click', function(e){
+      var addBtn = e.target.closest && e.target.closest('#addAddressBtn');
+      if(addBtn){ showAddressForm(null); return; }
+      var editBtn2 = e.target.closest && e.target.closest('[data-edit-addr]');
+      if(editBtn2){
+        var eid = editBtn2.getAttribute('data-edit-addr');
+        var addr = currentUserAddresses.filter(function(a){ return a.id === eid; })[0];
+        if(addr) showAddressForm(addr);
+        return;
+      }
+      var defBtn = e.target.closest && e.target.closest('[data-default-addr]');
+      if(defBtn){
+        var did = defBtn.getAttribute('data-default-addr');
+        var col2 = addressesCol();
+        var batch2 = firebase.firestore().batch();
+        currentUserAddresses.forEach(function(a){ batch2.update(col2.doc(a.id), {isDefault: a.id === did}); });
+        batch2.commit().then(function(){ return loadUserAddresses(); }).then(function(){ renderAddressBook(); showToast('Varsayılan adres güncellendi'); })
+          .catch(function(err){ console.warn('Varsayılan adres güncellenemedi:', err && err.message); });
+        return;
+      }
+      var delBtn = e.target.closest && e.target.closest('[data-delete-addr]');
+      if(delBtn){
+        var did2 = delBtn.getAttribute('data-delete-addr');
+        addressesCol().doc(did2).delete().then(function(){ return loadUserAddresses(); }).then(function(){ renderAddressBook(); showToast('Adres silindi'); })
+          .catch(function(err){ console.warn('Adres silinemedi:', err && err.message); });
+        return;
+      }
+    });
+
+    // ---------- Hesabım sayfası (hesabim.html) ----------
+    function showHesabimLoggedOut(){
+      var out = document.getElementById('hesabimLoggedOut');
+      var inn = document.getElementById('hesabimLoggedIn');
+      if(out) out.hidden = false;
+      if(inn) inn.hidden = true;
+    }
+    function showHesabimLoggedIn(){
+      var out = document.getElementById('hesabimLoggedOut');
+      var inn = document.getElementById('hesabimLoggedIn');
+      if(out) out.hidden = true;
+      if(inn) inn.hidden = false;
+      renderAccountPage();
+    }
+    function renderAccountPage(){
+      if(!currentUser) return;
+      var nameEl = document.getElementById('acctNameDisplay');
+      var emailEl = document.getElementById('acctEmail');
+      var avatarEl = document.getElementById('acctAvatar');
+      if(nameEl) nameEl.textContent = currentUser.displayName || 'Sonya Müşterisi';
+      if(emailEl) emailEl.textContent = currentUser.email;
+      if(avatarEl) avatarEl.textContent = initials(currentUser.displayName, currentUser.email);
+      var editBtn3 = document.getElementById('profileEditBtn');
+      if(editBtn3) editBtn3.onclick = showProfileEditForm;
+      var signOutBtn2 = document.getElementById('signOutBtn');
+      if(signOutBtn2) signOutBtn2.onclick = function(){
+        firebase.auth().signOut().then(function(){
+          showToast('Çıkış yapıldı');
+          window.location.href = 'index.html';
+        });
+      };
+      loadUserAddresses().then(renderAddressBook);
+      loadMyOrders();
+    }
+
     openAuth = function(){
-      if(currentUser){ mode = 'profile'; renderProfile(); }
-      else { mode = 'login'; renderAuthForm(); }
+      if(currentUser){
+        if(CURRENT_PAGE_ACCOUNT){
+          var accEl = document.getElementById('hesabim-page');
+          if(accEl) accEl.scrollIntoView({behavior:'smooth'});
+          return;
+        }
+        window.location.href = ACCOUNT_PAGE_URL;
+        return;
+      }
+      mode = 'login'; renderAuthForm();
       authWrap.classList.add('open');
     };
     function closeAuth(){ authWrap.classList.remove('open'); }
 
     accountBtn.addEventListener('click', openAuth);
+    var hesabimLoginBtn = document.getElementById('hesabimLoginBtn');
+    if(hesabimLoginBtn) hesabimLoginBtn.addEventListener('click', openAuth);
     if(authCloseBtn) authCloseBtn.addEventListener('click', closeAuth);
     authWrap.addEventListener('click', function(e){ if(e.target === authWrap) closeAuth(); });
     document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeAuth(); });
@@ -2755,8 +2998,12 @@ var currentModalProductId = null; // Ürün modalı açıkken giriş yapılırsa
             renderGrid();
             if(changed) syncFavsToAccount();
           }).catch(function(){ currentUserPhone = null; });
+          loadUserAddresses().then(function(){ if(CURRENT_PAGE_ACCOUNT) renderAddressBook(); });
+          if(CURRENT_PAGE_ACCOUNT) showHesabimLoggedIn();
         } else {
           currentUserPhone = null;
+          currentUserAddresses = [];
+          if(CURRENT_PAGE_ACCOUNT) showHesabimLoggedOut();
         }
         // Ürün modalı açıkken giriş/çıkış yapılırsa değerlendirme formunu güncelle
         // (aksi halde modal kapatılıp yeniden açılana kadar eski durumda kalır).
