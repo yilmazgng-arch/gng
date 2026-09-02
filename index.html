@@ -753,10 +753,28 @@
 
   .auth-profile{text-align:center;}
   .auth-profile .avatar{width:64px;height:64px;border-radius:50%;background:var(--espresso);color:var(--mocha-ink);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:1.4rem;font-weight:600;margin:0 auto 14px;}
-  .auth-profile h3{font-size:1.2rem;margin-bottom:4px;}
-  .auth-profile .email{color:var(--espresso-70);font-size:0.84rem;margin-bottom:22px;}
+  .auth-profile h3{font-size:1.2rem;}
+  .auth-profile .email{color:var(--espresso-70);font-size:0.84rem;margin-bottom:18px;}
   .auth-profile .btn{width:100%;justify-content:center;}
   .user-initial{width:23px;height:23px;border-radius:50%;background:var(--espresso);color:var(--mocha-ink);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;font-family:'Fraunces',serif;}
+
+  .profile-name-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:4px;}
+  .profile-edit-btn{font-size:0.72rem;color:var(--espresso-70);text-decoration:underline;text-underline-offset:2px;background:none;border:none;cursor:pointer;padding:2px 0;}
+  .profile-edit-btn:hover{color:var(--espresso);}
+  #profileEditForm{text-align:left;margin-bottom:18px;}
+  #profileEditForm .auth-field{margin-bottom:10px;}
+  .profile-edit-actions{display:flex;gap:10px;margin-top:4px;}
+  .profile-edit-actions .btn{width:auto;flex:1;padding:11px 14px;font-size:0.82rem;}
+
+  .loyalty-card{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--surface-2);border-radius:var(--radius-m);padding:16px 14px;margin-bottom:22px;}
+  .loyalty-points{font-family:'Fraunces',serif;font-size:2rem;font-weight:600;color:var(--espresso);line-height:1;}
+  .loyalty-label{font-size:0.76rem;font-weight:700;letter-spacing:0.04em;color:var(--espresso);}
+  .loyalty-note{font-size:0.7rem;color:var(--espresso-70);margin-top:2px;}
+
+  .my-coupon-chip{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:var(--radius-m);padding:10px 14px;font-size:0.8rem;margin-bottom:8px;}
+  .my-coupon-chip:last-child{margin-bottom:0;}
+  .my-coupon-chip .code{font-weight:700;letter-spacing:0.03em;color:var(--caramel-dk);}
+  .my-coupon-chip .count{color:var(--espresso-70);font-size:0.72rem;}
 
   .orders-wrap{text-align:left;margin:22px 0;padding-top:18px;border-top:1px solid var(--line);}
   .orders-title{font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--espresso-70);margin-bottom:10px;}
@@ -2536,11 +2554,24 @@ var currentModalProductId = null; // Ürün modalı açıkken giriş yapılırsa
       authBody.innerHTML =
         '<div class="auth-profile">' +
           '<div class="avatar">' + initials(currentUser.displayName, currentUser.email) + '</div>' +
-          '<h3>' + (currentUser.displayName || 'Sonya Müşterisi') + '</h3>' +
-          '<div class="email">' + currentUser.email + '</div>' +
+          '<div class="profile-name-row">' +
+            '<h3 id="profileNameDisplay">' + escapeHtmlLocal(currentUser.displayName || 'Sonya Müşterisi') + '</h3>' +
+            '<button type="button" class="profile-edit-btn" id="profileEditBtn">Düzenle</button>' +
+          '</div>' +
+          '<div class="email">' + escapeHtmlLocal(currentUser.email) + '</div>' +
+          '<div id="profileEditForm" hidden></div>' +
+          '<div class="loyalty-card">' +
+            '<span class="loyalty-points" id="loyaltyPoints">0</span>' +
+            '<span class="loyalty-label">Sadakat Puanın</span>' +
+            '<span class="loyalty-note">Her 50₺ alışverişte 1 puan kazanırsın</span>' +
+          '</div>' +
           '<div class="orders-wrap">' +
             '<div class="orders-title">Siparişlerim</div>' +
             '<div id="ordersList" class="orders-loading">Yükleniyor…</div>' +
+          '</div>' +
+          '<div class="orders-wrap" id="myCouponsWrap" hidden>' +
+            '<div class="orders-title">Kullandığım Kuponlar</div>' +
+            '<div id="myCouponsList"></div>' +
           '</div>' +
           '<button class="btn ghost" id="signOutBtn">Çıkış Yap</button>' +
         '</div>';
@@ -2550,9 +2581,75 @@ var currentModalProductId = null; // Ürün modalı açıkken giriş yapılırsa
           closeAuth();
         });
       });
+      document.getElementById('profileEditBtn').addEventListener('click', showProfileEditForm);
       loadMyOrders();
     }
 
+    function showProfileEditForm(){
+      var wrap = document.getElementById('profileEditForm');
+      var editBtn = document.getElementById('profileEditBtn');
+      if(!wrap || !currentUser) return;
+      var uid = currentUser.uid;
+      firebase.firestore().collection('users').doc(uid).get().then(function(doc){
+        wrap = document.getElementById('profileEditForm'); // profil arada kapanmış/yeniden açılmış olabilir
+        if(!wrap) return;
+        var d = doc.exists ? doc.data() : {};
+        var nameParts = (currentUser.displayName || '').trim().split(/\s+/);
+        var firstName = d.firstName || nameParts[0] || '';
+        var lastName = d.lastName || nameParts.slice(1).join(' ') || '';
+        var phone = (typeof d.phone === 'string' && d.phone) ? d.phone : (currentUserPhone || '');
+        wrap.hidden = false;
+        if(editBtn) editBtn.hidden = true;
+        wrap.innerHTML =
+          '<div class="auth-row2">' +
+            '<div class="auth-field"><label>Ad</label><input type="text" id="editFirstName" value="'+escapeHtmlLocal(firstName)+'"></div>' +
+            '<div class="auth-field"><label>Soyad</label><input type="text" id="editLastName" value="'+escapeHtmlLocal(lastName)+'"></div>' +
+          '</div>' +
+          '<div class="auth-field"><label>Telefon</label><input type="tel" id="editPhone" value="'+escapeHtmlLocal(phone)+'" placeholder="05XX XXX XX XX"></div>' +
+          '<div class="auth-error" id="profileEditError"></div>' +
+          '<div class="profile-edit-actions">' +
+            '<button type="button" class="btn" id="profileSaveBtn">Kaydet</button>' +
+            '<button type="button" class="btn ghost" id="profileCancelBtn">Vazgeç</button>' +
+          '</div>';
+        document.getElementById('profileCancelBtn').addEventListener('click', function(){
+          wrap.hidden = true;
+          wrap.innerHTML = '';
+          if(editBtn) editBtn.hidden = false;
+        });
+        document.getElementById('profileSaveBtn').addEventListener('click', function(){
+          var fn = document.getElementById('editFirstName').value.trim();
+          var ln = document.getElementById('editLastName').value.trim();
+          var ph = document.getElementById('editPhone').value.trim();
+          var errEl = document.getElementById('profileEditError');
+          if(!fn){ errEl.textContent = 'Ad boş olamaz.'; return; }
+          errEl.textContent = '';
+          var fullName = (fn + ' ' + ln).trim();
+          var saveBtn = document.getElementById('profileSaveBtn');
+          saveBtn.disabled = true;
+          saveBtn.textContent = 'Kaydediliyor…';
+          currentUser.updateProfile({displayName: fullName}).then(function(){
+            return firebase.firestore().collection('users').doc(uid).set({
+              firstName: fn, lastName: ln, name: fullName, phone: ph || null
+            }, {merge:true});
+          }).then(function(){
+            currentUserPhone = ph || null;
+            showToast('Profil güncellendi');
+            updateAccountButton();
+            renderProfile();
+          }).catch(function(err){
+            errEl.textContent = 'Güncellenemedi, tekrar dene.';
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Kaydet';
+            console.warn('Profil güncelleme hatası:', err && err.message);
+          });
+        });
+      }).catch(function(){
+        var errWrap = document.getElementById('profileEditForm');
+        if(errWrap){ errWrap.hidden = false; errWrap.innerHTML = '<p class="auth-hint">Profil bilgileri yüklenemedi, tekrar dene.</p>'; }
+      });
+    }
+
+    var LOYALTY_TL_PER_POINT = 50;
     function loadMyOrders(){
       var listEl = document.getElementById('ordersList');
       if(!listEl || !firebaseReady || !currentUser) return;
@@ -2566,6 +2663,8 @@ var currentModalProductId = null; // Ürün modalı açıkken giriş yapılırsa
           var tb = (b.createdAt && b.createdAt.toDate) ? b.createdAt.toDate().getTime() : 0;
           return tb - ta;
         });
+        renderLoyaltyPoints(orders);
+        renderMyCoupons(orders);
         if(!orders.length){
           listEl.className = 'order-empty';
           listEl.textContent = 'Henüz sipariş geçmişin yok.';
@@ -2577,7 +2676,7 @@ var currentModalProductId = null; // Ürün modalı açıkken giriş yapılırsa
           var itemsText = (o.items || []).map(function(it){ return (it.name || 'Ürün') + ' (' + it.size + ') x' + it.qty; }).join(', ');
           var channelLabel = o.channel === 'whatsapp' ? 'WhatsApp' : 'Instagram';
           var orderTotal = typeof o.total === 'number' ? o.total : (o.subtotal || 0);
-          var couponNote = o.couponCode ? (' · Kupon: ' + o.couponCode) : '';
+          var couponNote = o.couponCode ? (' · Kupon: ' + escapeHtmlLocal(o.couponCode)) : '';
           return '<div class="order-item">' +
             '<div class="o-head"><span class="o-date">' + (date ? date + ' · ' : '') + channelLabel + couponNote + '</span><span class="o-total">' + money(orderTotal) + '</span></div>' +
             '<div class="o-items">' + escapeHtmlLocal(itemsText) + '</div>' +
@@ -2590,6 +2689,41 @@ var currentModalProductId = null; // Ürün modalı açıkken giriş yapılırsa
         listEl.textContent = 'Sipariş geçmişi yüklenemedi.';
         console.warn('Sipariş geçmişi alınamadı:', err && err.message);
       });
+    }
+
+    // Puanlar hiçbir yerde saklanmıyor — her seferinde gerçek sipariş toplamlarından anlık
+    // hesaplanıyor. Böylece kimse tarayıcı konsolundan kendi puanını değiştiremez.
+    function renderLoyaltyPoints(orders){
+      var el = document.getElementById('loyaltyPoints');
+      if(!el) return;
+      var totalSpent = orders.reduce(function(sum, o){
+        return sum + (typeof o.total === 'number' ? o.total : (o.subtotal || 0));
+      }, 0);
+      var points = Math.floor(totalSpent / LOYALTY_TL_PER_POINT);
+      el.textContent = points;
+    }
+
+    function renderMyCoupons(orders){
+      var wrap = document.getElementById('myCouponsWrap');
+      var listEl = document.getElementById('myCouponsList');
+      if(!wrap || !listEl) return;
+      var byCode = {};
+      orders.forEach(function(o){
+        if(!o.couponCode) return;
+        var t = (o.createdAt && o.createdAt.toDate) ? o.createdAt.toDate().getTime() : 0;
+        if(!byCode[o.couponCode] || byCode[o.couponCode].t < t){
+          byCode[o.couponCode] = { code: o.couponCode, t: t, count: (byCode[o.couponCode] ? byCode[o.couponCode].count : 0) + 1 };
+        } else {
+          byCode[o.couponCode].count++;
+        }
+      });
+      var codes = Object.keys(byCode).map(function(c){ return byCode[c]; }).sort(function(a,b){ return b.t - a.t; });
+      if(!codes.length){ wrap.hidden = true; return; }
+      wrap.hidden = false;
+      listEl.innerHTML = codes.map(function(c){
+        return '<div class="my-coupon-chip"><span class="code">' + escapeHtmlLocal(c.code) + '</span>' +
+          (c.count > 1 ? '<span class="count">' + c.count + ' kez kullanıldı</span>' : '') + '</div>';
+      }).join('');
     }
 
     openAuth = function(){
@@ -2725,7 +2859,7 @@ var currentModalProductId = null; // Ürün modalı açıkken giriş yapılırsa
         return normalize(p.name).indexOf(q) > -1 || normalize(p.cat).indexOf(q) > -1 || normalize(p.desc).indexOf(q) > -1;
       });
       if(!matches.length){
-        searchResults.innerHTML = '<div class="search-empty">"' + query + '" için sonuç bulunamadı</div>';
+        searchResults.innerHTML = '<div class="search-empty">"' + escapeHtmlLocal(query) + '" için sonuç bulunamadı</div>';
         return;
       }
       searchResults.innerHTML = matches.map(function(p){
