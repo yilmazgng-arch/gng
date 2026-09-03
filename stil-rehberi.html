@@ -20,14 +20,14 @@
 <meta property="og:site_name" content="Sonya Collection">
 <meta property="og:title" content="Stil Rehberi — Sonya Collection">
 <meta property="og:description" content="Parçalarını nasıl kombinlersin? Kombin önerileri ve kumaş bakım ipuçları.">
-<meta property="og:image" content="https://sonyacollection.com/og-image.jpg">
+<meta property="og:image" content="https://sonyacollection.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="https://sonyacollection.com/stil-rehberi.html">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Stil Rehberi — Sonya Collection">
 <meta name="twitter:description" content="Parçalarını nasıl kombinlersin? Kombin önerileri ve kumaş bakım ipuçları.">
-<meta name="twitter:image" content="https://sonyacollection.com/og-image.jpg">
+<meta name="twitter:image" content="https://sonyacollection.com/og-image.png">
 <link rel="canonical" href="https://sonyacollection.com/stil-rehberi.html">
 <script type="application/ld+json">
 {
@@ -35,7 +35,7 @@
   "@type": "ClothingStore",
   "name": "Sonya Collection",
   "url": "https://sonyacollection.com/",
-  "image": "https://sonyacollection.com/og-image.jpg",
+  "image": "https://sonyacollection.com/og-image.png",
   "logo": "https://sonyacollection.com/icon-512.png",
   "description": "Pelerin, kimono, takım ve elbiseden oluşan sıcak kahve tonlarında bir kadın giyim koleksiyonu.",
   "priceRange": "₺₺",
@@ -60,6 +60,7 @@
   /* ============ Tokens ============ */
   :root{
     --cream:      #FBF7F1;
+    --cream-rgb:  251,247,241;
     --surface:    #FFFEFB;
     --surface-2:  #F3EADA;
     --espresso:   #59442F;
@@ -81,28 +82,29 @@
      device — brand presentation shouldn't shift automatically with a visitor's
      system dark-mode setting, so there's still no prefers-color-scheme swap.
      A manual, elle-açılabilen karanlık mod (below) is opt-in only, toggled via
-     the header button, same pattern as the yüksek kontrast toggle. */
+     the header button. */
   :root[data-theme="dark"]{
-    --cream:      #1B1712;
-    --surface:    #241E17;
-    --surface-2:  #2E261D;
+    --cream:      #2B2116;
+    --cream-rgb:  43,33,22;
+    --surface:    #372A1B;
+    --surface-2:  #443422;
     --espresso:   #F2E9DA;
     --espresso-70:#F2E9DAB3;
     --caramel:    #D9A468;
     --caramel-dk: #E8B67E;
     --latte:      #8A6F4E;
-    --line:       #3B3225;
+    --line:       #4E3D28;
     --accent-ink: #241E17;
     --mocha:      #C7B8A2;
     --mocha-rgb:  199,184,162;
     --mocha-ink:  #241E17;
-    --shadow:     0 20px 45px -25px rgba(0,0,0,0.55);
+    --shadow:     0 20px 45px -25px rgba(0,0,0,0.5);
   }
   :root[data-theme="dark"] header{background:color-mix(in srgb, var(--cream) 88%, transparent);}
   :root[data-theme="dark"] img{filter:brightness(.94);}
 
   *{box-sizing:border-box;}
-  html{-webkit-font-smoothing:antialiased;}
+  html{-webkit-font-smoothing:antialiased;overflow-x:hidden;}
   body{
     margin:0;
     background:var(--cream);
@@ -182,6 +184,7 @@
     display:flex;align-items:center;justify-content:space-between;
     gap:24px;padding:16px clamp(20px,4vw,48px);
   }
+  .logo-group{display:flex;align-items:center;gap:10px;}
   .logo{display:flex;flex-direction:column;line-height:1;gap:2px;}
   .logo .name{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:600;letter-spacing:0.03em;}
   .logo .sub{font-size:0.62rem;letter-spacing:0.32em;text-transform:uppercase;color:var(--caramel);}
@@ -195,7 +198,7 @@
   nav.main-nav a.nav-sale{color:var(--caramel-dk);}
   nav.main-nav a.nav-sale:hover{border-color:var(--caramel-dk);}
   .mobile-nav a.nav-sale{color:var(--caramel-dk);}
-  .header-icons{display:flex;align-items:center;gap:6px;}
+  .header-icons{display:flex;align-items:center;gap:12px;}
   .icon-btn{
     position:relative;
     width:40px;height:40px;border-radius:50%;
@@ -244,7 +247,7 @@
     position:absolute;inset:0;z-index:2;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     text-align:center;color:var(--espresso);padding:clamp(24px,5vw,40px);
-    text-shadow:0 1px 2px rgba(251,247,241,.95), 0 2px 10px rgba(251,247,241,.9), 0 4px 34px rgba(251,247,241,.85);
+    text-shadow:0 1px 2px rgba(var(--cream-rgb),.95), 0 2px 8px rgba(var(--cream-rgb),.85), 0 3px 18px rgba(var(--cream-rgb),.7);
   }
   .vitrin-content .tag{
     font-family:'Fraunces',serif;font-style:italic;font-weight:500;
@@ -381,8 +384,11 @@
   }
   .fav-btn:hover{transform:scale(1.08);}
   .fav-btn svg{width:16px;height:16px;}
-  .fav-btn.active{color:var(--caramel-dk);}
-  .fav-btn.active svg{fill:var(--caramel-dk);}
+  .fav-btn.active{background:color-mix(in srgb, #E0435A 14%, var(--surface) 86%);border-color:color-mix(in srgb, #E0435A 40%, var(--line) 60%);color:#E0435A;}
+  .fav-btn.active svg{fill:#E0435A;}
+  .fav-btn.fav-pop{animation:favPop .4s ease;}
+  @keyframes favPop{0%{transform:scale(1);}35%{transform:scale(1.35);}60%{transform:scale(.9);}100%{transform:scale(1);}}
+  @media (prefers-reduced-motion: reduce){ .fav-btn.fav-pop{animation:none !important;} }
   .card-tag{
     position:absolute;top:10px;left:10px;
     background:var(--surface);border:1px solid var(--line);border-radius:999px;
@@ -653,6 +659,27 @@
     z-index:61;
   }
   .drawer.open{transform:translateX(0);}
+  /* Ödeme onayı adımı: dar kenar çekmecesi yerine ekranın ortasında geniş,
+     ürün detay penceresine benzer bir pencereye dönüşür — ödeme yöntemi
+     butonlarına en az kaydırmayla ulaşılsın diye. */
+  .drawer.checkout-mode{
+    top:50%;right:auto;left:50%;height:auto;max-height:86vh;
+    width:min(560px,92vw);border-left:none;border:1px solid var(--line);
+    border-radius:var(--radius-l,18px);box-shadow:0 32px 90px -24px rgba(var(--mocha-rgb),0.45);
+    transform:translate(-50%,-50%) scale(.96);opacity:0;
+    transition:transform .35s cubic-bezier(.2,.9,.25,1), opacity .35s ease;
+  }
+  .drawer.checkout-mode.open{transform:translate(-50%,-50%) scale(1);opacity:1;}
+  @media (max-width:640px){
+    .drawer.checkout-mode{top:auto;bottom:0;left:0;right:0;transform:translateY(100%);width:100%;height:auto;max-height:92vh;border-radius:18px 18px 0 0;opacity:1;}
+    .drawer.checkout-mode.open{transform:translateY(0);}
+  }
+  .checkout-section-label{font-size:0.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--espresso-70);margin:4px 0 -4px;}
+  .checkout-section-label-2{margin-top:8px;}
+  .cart-summary-list{display:flex;flex-direction:column;gap:10px;}
+  .cart-item-compact{grid-template-columns:44px 1fr auto;padding-bottom:10px;}
+  .cart-item-compact .thumb{width:44px;height:56px;}
+  .cart-item-compact h4{font-size:0.84rem;margin-bottom:2px;}
   .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--line);}
   .drawer-head h3{font-size:1.15rem;}
   .close-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--espresso);display:flex;align-items:center;justify-content:center;}
@@ -689,6 +716,8 @@
   .bundle-nudge{font-size:0.76rem;color:var(--espresso-70);background:var(--surface-2);border-radius:var(--radius-m);padding:8px 12px;margin:8px 0;text-align:center;}
   .bundle-nudge.active{color:#2e9e5b;font-weight:700;background:rgba(46,158,91,0.1);}
   .checkout-note{font-size:0.78rem;color:var(--espresso-70);line-height:1.5;background:var(--surface-2);border-radius:var(--radius-m);padding:12px 14px;margin:0 0 2px;}
+  .giftcard-inline-link{display:block;text-align:center;font-size:0.82rem;font-weight:600;color:var(--caramel-dk);margin:6px 0 2px;text-decoration:underline;text-underline-offset:2px;}
+  .giftcard-inline-link:hover{color:var(--espresso);}
   .bank-info-box{background:var(--surface-2);border-radius:var(--radius-m);padding:12px 14px;margin:0 0 8px;display:flex;flex-direction:column;gap:6px;}
   .bank-info-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:0.78rem;color:var(--espresso-70);}
   .bank-info-row b{color:var(--espresso);font-weight:700;text-align:right;}
@@ -807,9 +836,20 @@
   /* ============ Responsive ============ */
   @media (max-width:980px){
     nav.main-nav{display:none;}
-    .nav-toggle-btn{display:flex;order:-1;}
+    .nav-toggle-btn{display:flex;}
     .grid{grid-template-columns:repeat(2,1fr);}
     .foot-grid{grid-template-columns:1fr 1fr;}
+    /* Dar ekranlarda logo + 5 üst ikon (karanlık mod/ara/hesap/favori/sepet) tam sığmayabiliyor;
+       ikonları biraz küçültüp aralarında yine de belirgin bir boşluk bırakıyoruz. En dar
+       telefonlarda hâlâ sığmazsa header-row kendi içinde yatay kaydırılabiliyor, böylece
+       sepet ikonu hiçbir zaman ekran dışında/görünmez kalmıyor. */
+    .header-row{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;}
+    .header-row::-webkit-scrollbar{display:none;}
+    .logo-group{gap:6px;flex-shrink:0;}
+    .header-icons{gap:7px;flex-shrink:0;}
+    .icon-btn{width:33px;height:33px;}
+    .icon-btn svg{width:16px;height:16px;}
+    .logo .name{font-size:1.32rem;}
   }
   @media (max-width:700px){
     .hero-gallery{
@@ -1025,6 +1065,10 @@
   .hesabim-card-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;}
   .hesabim-card-title h3{font-size:1.02rem;}
   .hesabim-card-title .btn-link{font-size:0.78rem;color:var(--caramel-dk);text-decoration:underline;text-underline-offset:2px;background:none;border:none;cursor:pointer;padding:2px 0;}
+  .account-actions-list{display:flex;flex-direction:column;gap:2px;}
+  .account-actions-list a{font-size:0.88rem;font-weight:600;color:var(--espresso);padding:12px 2px;border-bottom:1px solid var(--line);transition:color .2s;}
+  .account-actions-list a:last-child{border-bottom:none;}
+  .account-actions-list a:hover{color:var(--caramel-dk);}
   .hesabim-card .auth-profile{text-align:center;}
   .hesabim-card .orders-wrap{margin:0;padding-top:0;border-top:none;}
   .hesabim-card .order-list{max-height:none;}
@@ -1148,17 +1192,8 @@
   .r-helpful.voted{color:var(--caramel-dk);border-color:var(--caramel);}
   .r-helpful:disabled{cursor:default;}
 
-  /* ---------- Erişilebilirlik: yüksek kontrast modu ---------- */
-  .contrast-toggle-btn{font-family:'Fraunces',serif;font-weight:700;font-size:0.9rem;}
-  .contrast-toggle-btn.active{background:var(--espresso);color:var(--mocha-ink);border-radius:50%;}
+  /* ---------- Karanlık mod ikon durumu ---------- */
   .theme-toggle-btn.active{background:var(--espresso);color:var(--mocha-ink);border-radius:50%;}
-  :root[data-contrast="high"]{
-    --espresso-70:#59442F; /* soluk metinler tam opak espresso'ya döner */
-    --line:#B9A688; /* çerçeveler daha belirgin */
-  }
-  :root[data-contrast="high"] body{background:#FFFFFF;}
-  :root[data-contrast="high"] .btn.ghost{border-width:2px;}
-  :root[data-contrast="high"] a{text-decoration:underline;text-underline-offset:2px;}
 
   /* ---------- Favori listesini paylaş ---------- */
   .fav-share-btn{margin-right:auto;}
@@ -1299,10 +1334,13 @@
 <!-- ============ Header ============ -->
 <header>
   <div class="header-row wrap">
-    <a href="index.html#top" class="logo">
-      <span class="name">Sonya</span>
-      <span class="sub">Collection</span>
-    </a>
+    <div class="logo-group">
+      <button class="icon-btn nav-toggle-btn" id="navToggle" aria-label="Menü" aria-expanded="false"><svg><use href="#i-menu"/></svg></button>
+      <a href="index.html#top" class="logo">
+        <span class="name">Sonya</span>
+        <span class="sub">Collection</span>
+      </a>
+    </div>
     <nav class="main-nav">
       <a href="index.html">Anasayfa</a>
       <a href="yeni-sezon.html">Yeni Sezon</a>
@@ -1310,8 +1348,6 @@
       <span id="navCatMarker" hidden></span>
     </nav>
     <div class="header-icons">
-      <button class="icon-btn nav-toggle-btn" id="navToggle" aria-label="Menü" aria-expanded="false"><svg><use href="#i-menu"/></svg></button>
-      <button class="icon-btn contrast-toggle-btn" id="contrastToggle" aria-label="Yüksek kontrast görünüm" title="Yüksek kontrast görünüm" aria-pressed="false">A</button>
       <button class="icon-btn theme-toggle-btn" id="themeToggle" aria-label="Karanlık mod" title="Karanlık mod" aria-pressed="false"><svg><use href="#i-moon"/></svg></button>
       <button class="icon-btn" id="searchBtn" aria-label="Ara" title="Ara"><svg><use href="#i-search"/></svg></button>
       <button class="icon-btn" id="accountBtn" aria-label="Hesabım" title="Hesabım"><svg><use href="#i-user"/></svg></button>
@@ -1516,10 +1552,6 @@
         <li><a href="#bize-ulasin">İletişim</a></li>
         <li><a href="#" data-info="gizlilik">Gizlilik Politikası</a></li>
         <li><a href="#" data-info="iade">İade &amp; Değişim</a></li>
-        <li><a href="#" data-action="return-request">İade/Değişim Talebi Oluştur</a></li>
-        <li><a href="#" data-action="gift-card">🎁 Hediye Çeki</a></li>
-        <li><a href="#" data-action="style-share">📸 Stilini Paylaş, Ödül Kazan</a></li>
-        <li><a href="#" data-action="measurements">📏 Ölçü Profilim</a></li>
         <li><a href="#" data-info="kvkk">Kişisel Verilerin Korunması</a></li>
       </ul>
     </div>
@@ -1675,13 +1707,6 @@
   </div>
 </div>
 
-<!-- ============ Stil paylaşım ödülü ============ -->
-<div class="welcome-wrap" id="styleShareWrap">
-  <div class="welcome-modal">
-    <button class="close-btn modal-close" id="styleShareClose" type="button" aria-label="Kapat"><svg><use href="#i-close"/></svg></button>
-    <div id="styleShareBody"></div>
-  </div>
-</div>
 
 <!-- ============ Kişisel Ölçü Profili ============ -->
 <div class="welcome-wrap" id="measureWrap">
@@ -1770,31 +1795,21 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
 
   // ---------- State ----------
   var FAV_VIEW = "__favorilerim__";
+  // Anasayfada "Bu Haftanın Seçkisi" ürün vitrini (#magaza) kaldırıldığı için, o sayfada bir
+  // kategoriye/favorilere yönlendirme gerektiğinde vitrine kaydırmak yerine ilgili kategori
+  // sayfasına gidiyoruz. Diğer tüm sayfalarda #magaza görünür olduğundan bu harita hiç devreye
+  // girmez, oradaki mevcut "kaydır" davranışı aynen çalışmaya devam eder.
+  var SHOP_REDIRECT_MAP = { "Pelerinler":"pelerinler.html", "Kimonolar":"kimonolar.html", "Takımlar":"takimlar.html", "Elbiseler":"elbiseler.html" };
+  function goToShopSection(cat){
+    var m = document.getElementById('magaza');
+    if(m && m.hidden){
+      window.location.href = SHOP_REDIRECT_MAP[cat] || (cat === "İndirim" ? "indirim.html" : "yeni-sezon.html");
+      return;
+    }
+    if(m) m.scrollIntoView({behavior:'smooth', block:'start'});
+  }
   var state = { cart:{}, favs:{}, filter:"Elbiseler", sort:"onerilen", cardColor:{}, fabricFilter:"" };
   var compareIds = []; // Ürün karşılaştırma listesi — bilinçli olarak sayfa yenilenince sıfırlanır (kısa süreli bir karşılaştırma aracı)
-
-  // ---------- Erişilebilirlik: yüksek kontrast modu ----------
-  // Marka bilinçli olarak sistem karanlık-mod tercihini takip etmiyor (bkz. yukarıdaki not),
-  // ama görme zorluğu yaşayan ziyaretçiler için elle açılabilen bir kontrast seçeneği sunuyoruz.
-  var CONTRAST_KEY = 'sonya_contrast';
-  (function(){
-    try{
-      var on = localStorage.getItem(CONTRAST_KEY) === '1';
-      if(on) document.documentElement.setAttribute('data-contrast', 'high');
-      var btn = document.getElementById('contrastToggle');
-      if(btn){
-        btn.setAttribute('aria-pressed', String(on));
-        btn.classList.toggle('active', on);
-        btn.addEventListener('click', function(){
-          var next = document.documentElement.getAttribute('data-contrast') !== 'high';
-          document.documentElement.setAttribute('data-contrast', next ? 'high' : 'normal');
-          btn.setAttribute('aria-pressed', String(next));
-          btn.classList.toggle('active', next);
-          try{ localStorage.setItem(CONTRAST_KEY, next ? '1' : '0'); }catch(e){}
-        });
-      }
-    }catch(e){ /* localStorage yoksa da site normal görünümde sorunsuz çalışır */ }
-  })();
 
   // ---------- Karanlık mod ---------- (elle açılan, sistem tercihini takip etmeyen — bkz. yukarıdaki CSS notu)
   var THEME_KEY = 'sonya_theme';
@@ -2068,7 +2083,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
   // kendi başka bir cihazına) göstermek için — sipariş özetinden farklı olarak adres
   // veya "sipariş vermek istiyorum" ifadesi içermez, sadece ürün listesi + toplam.
   function buildCartShareText(){
-    var lines = ['Sonya Collection\'dan sepetime bak:', ''];
+    var lines = ['SONYA COLLECTION', '', 'Sepetimden seçtiklerime bir bak:', ''];
     var subtotal = 0;
     Object.keys(state.cart).forEach(function(key){
       var parsed = parseCartKey(key);
@@ -2077,12 +2092,17 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       var qty = state.cart[key];
       var line = p.price * qty;
       subtotal += line;
-      lines.push('• ' + p.name + ' (Beden: ' + parsed.size + (parsed.color ? ', Renk: ' + parsed.color : '') + ') x' + qty + ' — ' + money(line));
+      var colorLabel = parsed.color ? ', ' + nearestColorName(parsed.color) : '';
+      lines.push('— ' + p.name + ' · Beden ' + parsed.size + colorLabel + ' · ' + qty + ' adet · ' + money(line));
     });
     lines.push('');
     lines.push('Toplam: ' + money(subtotal));
     lines.push('');
-    lines.push(window.location.origin + window.location.pathname);
+    lines.push('Tüm koleksiyona göz at:');
+    // Rastgele bir sürüm parametresi ekliyoruz ki WhatsApp bu linki her paylaşımda
+    // "yeni" bir URL olarak görüp önizleme görselini taze çeksin — aksi halde daha
+    // önce (eski/bozuk) önizlemesi çekilmiş aynı adres için önbelleğe takılı kalabiliyor.
+    lines.push(window.location.origin + window.location.pathname + '?paylas=' + Date.now().toString(36));
     return lines.join('\n');
   }
 
@@ -2848,7 +2868,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     state.filter = cat;
     document.querySelectorAll('.chip').forEach(function(c){c.classList.toggle('active', c.dataset.cat===cat);});
     renderGrid();
-    document.getElementById('magaza').scrollIntoView({behavior:'smooth', block:'start'});
+    goToShopSection(cat);
   }
   function renderFilters(){
     filtersEl.innerHTML = '';
@@ -3200,13 +3220,24 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     renderCart();
   }
   function toggleFav(id){
+    var nowFav = !state.favs[id];
     if(state.favs[id]) delete state.favs[id]; else state.favs[id] = true;
     persist();
     syncFavsToAccount();
     updateCounts();
     renderGrid();
     var favBtn = document.querySelector('[data-fav="'+id+'"]');
-    if(favBtn){ favBtn.classList.toggle('active', !!state.favs[id]); favBtn.setAttribute('aria-pressed', !!state.favs[id]); }
+    if(favBtn){
+      favBtn.classList.toggle('active', !!state.favs[id]);
+      favBtn.setAttribute('aria-pressed', !!state.favs[id]);
+      favBtn.classList.remove('fav-pop');
+      void favBtn.offsetWidth;
+      favBtn.classList.add('fav-pop');
+    }
+    var p = byId(id);
+    if(typeof showToast === 'function'){
+      showToast(nowFav ? '♥ ' + (p ? p.name + ' favorilere eklendi' : 'Favorilere eklendi') : (p ? p.name + ' favorilerden çıkarıldı' : 'Favorilerden çıkarıldı'));
+    }
   }
   // Favoriler hem localStorage'da hem — giriş yapılmışsa — hesaba bağlı olarak
   // Firestore'da tutulur, böylece kullanıcı başka bir cihazdan giriş yaptığında
@@ -3356,6 +3387,8 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
   function renderCart(){
     var body = document.getElementById('cartBody');
     var foot = document.getElementById('cartFoot');
+    var drawerEl = document.getElementById('cartDrawer');
+    if(drawerEl) drawerEl.classList.toggle('checkout-mode', checkoutStep === 'confirm');
     var keys = Object.keys(state.cart);
     if(keys.length === 0){
       checkoutStep = 'cart';
@@ -3367,29 +3400,51 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       return;
     }
     var subtotal = 0;
-    body.innerHTML = keys.map(function(key){
-      var parsed = parseCartKey(key);
-      var p = byId(parsed.id);
-      var qty = state.cart[key];
-      var line = p.price * qty;
-      subtotal += line;
-      return '<div class="cart-item">' +
-        '<div class="thumb" style="background-image:url('+photoFor(p)+')"></div>' +
-        '<div>' +
-          '<h4>'+p.name+'</h4>' +
-          '<div class="meta">'+p.cat+' · Beden: '+parsed.size+(parsed.color ? ' · <span class="swatch" style="background:'+parsed.color+';display:inline-block;vertical-align:middle;"></span>' : '')+'</div>' +
-          '<div class="qty-row">' +
-            '<button class="qty-btn" data-dec="'+key+'" aria-label="Azalt">−</button>' +
-            '<span>'+qty+'</span>' +
-            '<button class="qty-btn" data-inc="'+key+'" aria-label="Artır">+</button>' +
+    if(checkoutStep === 'confirm'){
+      // Ödeme onayı aşamasında sepet listesi düzenlenebilir değil, kısa bir
+      // özet olarak gösterilir — amaç, ödeme yöntemi butonlarına en az
+      // kaydırmayla ulaşılabilmesi (miktar değiştirmek/ürün kaldırmak için
+      // "Sepete dön" ile geri dönülür).
+      body.innerHTML = '<div class="cart-summary-list">' + keys.map(function(key){
+        var parsed = parseCartKey(key);
+        var p = byId(parsed.id);
+        var qty = state.cart[key];
+        var line = p.price * qty;
+        subtotal += line;
+        return '<div class="cart-item cart-item-compact">' +
+          '<div class="thumb" style="background-image:url('+photoFor(p)+')"></div>' +
+          '<div>' +
+            '<h4>'+p.name+'</h4>' +
+            '<div class="meta">Beden: '+parsed.size+' · Adet: '+qty+'</div>' +
           '</div>' +
-        '</div>' +
-        '<div class="right">' +
-          '<span class="line-price">'+money(line)+'</span>' +
-          '<button class="remove-link" data-remove="'+key+'">Kaldır</button>' +
-        '</div>' +
-      '</div>';
-    }).join('');
+          '<div class="right"><span class="line-price">'+money(line)+'</span></div>' +
+        '</div>';
+      }).join('') + '</div>';
+    } else {
+      body.innerHTML = keys.map(function(key){
+        var parsed = parseCartKey(key);
+        var p = byId(parsed.id);
+        var qty = state.cart[key];
+        var line = p.price * qty;
+        subtotal += line;
+        return '<div class="cart-item">' +
+          '<div class="thumb" style="background-image:url('+photoFor(p)+')"></div>' +
+          '<div>' +
+            '<h4>'+p.name+'</h4>' +
+            '<div class="meta">'+p.cat+' · Beden: '+parsed.size+(parsed.color ? ' · <span class="swatch" style="background:'+parsed.color+';display:inline-block;vertical-align:middle;"></span>' : '')+'</div>' +
+            '<div class="qty-row">' +
+              '<button class="qty-btn" data-dec="'+key+'" aria-label="Azalt">−</button>' +
+              '<span>'+qty+'</span>' +
+              '<button class="qty-btn" data-inc="'+key+'" aria-label="Artır">+</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="right">' +
+            '<span class="line-price">'+money(line)+'</span>' +
+            '<button class="remove-link" data-remove="'+key+'">Kaldır</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
 
     var bundleDisc = bundleDiscount(subtotal);
     var discount = couponDiscount(subtotal) + bundleDisc;
@@ -3423,20 +3478,23 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         ? 'İstersen siparişini '+(whatsappReady ? 'WhatsApp ya da Instagram' : 'Instagram')+' üzerinden de tamamlayabilirsin — sipariş özetin otomatik hazırlanır, sen sadece gönderirsin.'
         : 'Sitede kartla ödeme şu an aktif değil. Siparişini tamamlamak için '+(whatsappReady ? 'WhatsApp ya da Instagram' : 'Instagram')+' üzerinden bize ulaş — sipariş özetin otomatik hazırlanır, sen sadece gönderirsin.';
       foot.innerHTML =
-        shipBarHtml +
-        bundleHtml +
-        couponRowHtml +
         totalsHtml +
         '<div class="checkout-trust"><span><svg><use href="#i-lock"/></svg>Güvenli</span><span><svg><use href="#i-return"/></svg>Kolay İade</span></div>' +
-        addressSelectorHtml() +
-        giftNoteFieldHtml() +
-        giftWrapFieldHtml() +
+        '<div class="checkout-section-label">Ödeme Yöntemini Seç</div>' +
         cardSectionHtml +
-        '<div class="checkout-note">'+noteText+'</div>' +
         (whatsappReady ? '<button class="btn'+(iyzicoAvailable ? ' ghost' : '')+'" id="orderWhatsapp"><svg><use href="#i-whats"/></svg>WhatsApp\'tan Sipariş Ver</button>' : '') +
         '<button class="btn'+((whatsappReady || iyzicoAvailable) ? ' ghost' : '')+'" id="orderInstagram"><svg><use href="#i-insta"/></svg>Instagram\'dan Sipariş Ver</button>' +
         (SETTINGS.codEnabled ? '<button class="btn ghost" id="orderCOD"><svg><use href="#i-bag"/></svg>Kapıda Ödeme ile Sipariş Ver</button>' : '') +
         (eftReady() ? (bankInfoHtml() + '<button class="btn ghost" id="orderEFT"><svg><use href="#i-lock"/></svg>Havale/EFT ile Sipariş Ver</button>') : '') +
+        '<div class="checkout-note">'+noteText+'</div>' +
+        '<a href="#" class="giftcard-inline-link" data-action="gift-card">🎁 Sevdiklerine hediye çeki almak ister misin?</a>' +
+        '<div class="checkout-section-label checkout-section-label-2">Sipariş Detayları</div>' +
+        addressSelectorHtml() +
+        giftNoteFieldHtml() +
+        giftWrapFieldHtml() +
+        couponRowHtml +
+        shipBarHtml +
+        bundleHtml +
         '<button class="back-link" id="backToCart">‹ Sepete dön</button>';
     } else {
       var hintChannel = isPlaceholderValue(SETTINGS.whatsapp) ? 'Instagram' : 'WhatsApp/Instagram';
@@ -3497,6 +3555,9 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       orderViaCOD();
     } else if(e.target.closest('#orderEFT')){
       orderViaEFT();
+    } else if(e.target.closest('[data-action="gift-card"]')){
+      e.preventDefault();
+      openGiftCardModal();
     } else if(e.target.closest('#copyIbanBtn')){
       try{
         navigator.clipboard.writeText(SETTINGS.iban);
@@ -3542,7 +3603,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     state.filter = FAV_VIEW;
     document.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
     renderGrid();
-    document.getElementById('magaza').scrollIntoView({behavior:'smooth', block:'start'});
+    goToShopSection(FAV_VIEW);
   });
   // ---------- Modal ----------
   var modalWrap = document.getElementById('modalWrap');
@@ -3597,7 +3658,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     });
     more = more.slice(0, 3);
     return productRowHtml('Bu Ürünle Kombinle', 'Birlikte şık duran parçalar', combo) +
-           productRowHtml('Bununla da İlgini Çekebilir', '', more);
+           productRowHtml('Bununla da İlgini Çekebilir', 'Seçkimizden öne çıkan diğer parçalar', more);
   }
   function trustRowHtml(){
     return '<div class="trust-row">' +
@@ -4020,7 +4081,6 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
   var closeReturnReqModal = wireSimpleModal('returnReqWrap', 'returnReqClose');
   var closeCompareModal = wireSimpleModal('compareWrap', 'compareClose');
   var closeGiftCardModal = wireSimpleModal('giftCardWrap', 'giftCardClose');
-  var closeStyleShareModal = wireSimpleModal('styleShareWrap', 'styleShareClose');
   var closeMeasureModal = wireSimpleModal('measureWrap', 'measureClose');
 
   // ---------- Kişisel Ölçü Profili ----------
@@ -4359,43 +4419,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       btn.disabled = false; btn.textContent = 'Talebi Gönder';
     });
   }
-  (function(){
-    var gcLink = document.querySelector('[data-action="gift-card"]');
-    if(gcLink) gcLink.addEventListener('click', function(e){ e.preventDefault(); openGiftCardModal(); });
-  })();
 
-  // ---------- Stil paylaşım ödülü ----------
-  // Tamamen bilgilendirici bir çağrı — hiçbir veri kaydetmiyor, doğrudan WhatsApp'a yönlendiriyor.
-  // Admin fotoğrafı görünce mevcut Instagram vitrini ve Kuponlar sekmelerini kullanarak elle ödüllendirir.
-  function renderStyleShareModal(){
-    var body = document.getElementById('styleShareBody');
-    var whatsappReady = !isPlaceholderValue(SETTINGS.whatsapp);
-    body.innerHTML =
-      '<span class="eyebrow welcome-eyebrow">📸 Stilini Paylaş, Ödül Kazan</span>' +
-      '<h3>Nasıl Çalışır?</h3>' +
-      '<p>Sonya Collection\'dan aldığın bir parçayı giydiğin bir fotoğrafı Instagram\'da bizi etiketleyerek paylaş, sonra fotoğrafı ve Instagram kullanıcı adını bize gönder. Beğendiğimiz paylaşımları vitrinimize ekliyor ve sana özel bir indirim kuponuyla teşekkür ediyoruz.</p>' +
-      (whatsappReady
-        ? '<button type="button" class="btn welcome-submit" id="ssWhatsappBtn"><svg><use href="#i-whats"/></svg>WhatsApp\'tan Gönder</button>'
-        : '<button type="button" class="btn welcome-submit" id="ssInstaBtn"><svg><use href="#i-insta"/></svg>Instagram\'dan Gönder</button>');
-    var wbtn = document.getElementById('ssWhatsappBtn');
-    if(wbtn) wbtn.addEventListener('click', function(){
-      var text = encodeURIComponent('Merhaba! Sonya Collection ürünümü giydiğim bir fotoğrafı paylaşmak istiyorum 📸');
-      window.open('https://wa.me/' + SETTINGS.whatsapp + '?text=' + text, '_blank');
-    });
-    var ibtn = document.getElementById('ssInstaBtn');
-    if(ibtn) ibtn.addEventListener('click', function(){
-      window.open('https://instagram.com/' + SETTINGS.instagram, '_blank');
-    });
-  }
-  (function(){
-    var ssLink = document.querySelector('[data-action="style-share"]');
-    if(ssLink) ssLink.addEventListener('click', function(e){
-      e.preventDefault();
-      renderStyleShareModal();
-      var wrap = document.getElementById('styleShareWrap');
-      if(wrap) wrap.classList.add('open');
-    });
-  })();
   (function(){
     var mpLink = document.querySelector('[data-action="measurements"]');
     if(mpLink) mpLink.addEventListener('click', function(e){ e.preventDefault(); openMeasureProfileModal(); });
@@ -5085,10 +5109,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
           document.querySelectorAll('.chip').forEach(function(c){ c.classList.toggle('active', c.dataset.cat === cat); });
           renderGrid();
           botReply(cat + ' kategorisine yönlendiriyorum, hemen aşağıda inceleyebilirsin.');
-          setTimeout(function(){
-            var target = document.getElementById('magaza');
-            if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
-          }, 450);
+          setTimeout(function(){ goToShopSection(cat); }, 450);
         });
         row.appendChild(b);
       });
@@ -5110,10 +5131,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
           state.filter = SALE_TAG;
           document.querySelectorAll('.chip').forEach(function(c){ c.classList.toggle('active', c.dataset.cat === SALE_TAG); });
           renderGrid();
-          setTimeout(function(){
-            var target = document.getElementById('magaza');
-            if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
-          }, 450);
+          setTimeout(function(){ goToShopSection(SALE_TAG); }, 450);
         });
         return;
       }
