@@ -1,0 +1,119 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /orders/{orderId} {
+      // Herkes (misafir dahil) sipariş oluşturabilir ama belge şekli doğrulanıyor:
+      // - uid alanı doluysa, sadece o giriş yapmış kullanıcının kendi uid'i olabilir
+      //   (başka birinin hesabına sahte sipariş yazılamaz).
+      // - items gerçek bir liste, subtotal/total sayı, channel metin olmalı.
+      // - couponCode varsa makul uzunlukta bir metin olmalı (enjeksiyon/aşırı büyük veri engeli).
+      allow create: if request.resource.data.items is list
+        && request.resource.data.items.size() > 0
+        && request.resource.data.items.size() <= 30
+        && request.resource.data.subtotal is number
+        && request.resource.data.subtotal >= 0
+        && request.resource.data.total is number
+        && request.resource.data.total >= 0
+        && request.resource.data.channel is string
+        && ('uid' in request.resource.data)
+        && (request.resource.data.uid == null
+          || (request.auth != null && request.resource.data.uid == request.auth.uid))
+        && ('couponCode' in request.resource.data)
+        && (request.resource.data.couponCode == null
+          || (request.resource.data.couponCode is string && request.resource.data.couponCode.size() <= 30));
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      // Yönetici sipariş durumunu güncelleyebilir (Alındı/Hazırlanıyor/Kargoda/Teslim Edildi/İptal) —
+      // ama SADECE status/adminNote/statusUpdatedAt alanlarını değiştirebilir: items/subtotal/total/uid
+      // gibi asıl sipariş verisi write kuralı seviyesinde donmuş kalır, admin hesabı ele geçirilse bile
+      // geçmiş bir siparişin tutarı/ürünleri değiştirilemez.
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'adminNote', 'statusUpdatedAt'])
+        && request.resource.data.status is string
+        && request.resource.data.status in ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']
+        && (!('adminNote' in request.resource.data)
+          || (request.resource.data.adminNote is string && request.resource.data.adminNote.size() <= 500));
+      allow delete: if false;
+    }
+
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /users/{uid}/addresses/{addressId} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      // hasOnly(): sadece bu 7 alana + isDefault'a izin verir, kullanıcı kendi belgesine
+      // rastgele boyutta/istenmeyen ek alan ekleyemez (depolama/veri kirliliği önlemi).
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['label','fullName','phone','line1','city','district','postalCode','isDefault'])
+        && request.resource.data.label is string && request.resource.data.label.size() <= 40
+        && request.resource.data.fullName is string && request.resource.data.fullName.size() <= 100
+        && request.resource.data.phone is string && request.resource.data.phone.size() <= 30
+        && request.resource.data.line1 is string && request.resource.data.line1.size() <= 300
+        && request.resource.data.city is string && request.resource.data.city.size() <= 60
+        && request.resource.data.district is string && request.resource.data.district.size() <= 60
+        && request.resource.data.postalCode is string && request.resource.data.postalCode.size() <= 12
+        && request.resource.data.isDefault is bool;
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.productId is number
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && (!('comment' in request.resource.data)
+          || (request.resource.data.comment is string && request.resource.data.comment.size() <= 1000))
+        && (!('name' in request.resource.data)
+          || (request.resource.data.name is string && request.resource.data.name.size() <= 100));
+      allow update: if false;
+      allow delete: if request.auth != null &&
+        (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
+    match /coupons/{code} {
+      // Herkes tek bir kodu doğrudan .doc(code).get() ile kontrol edebilir ("get"),
+      // ama tüm kuponları listeleyemez ("list") — sadece admin listeleyebilir.
+      allow get: if true;
+      allow list: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /restockRequests/{requestId} {
+      allow create: if request.resource.data.productId is number
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.email.size() <= 200
+        && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+  }
+}

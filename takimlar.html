@@ -35,8 +35,10 @@
   "name": "Sonya Collection",
   "url": "https://sonyacollection.com/",
   "image": "https://sonyacollection.com/og-image.jpg",
+  "logo": "https://sonyacollection.com/icon-512.png",
   "description": "Pelerin, kimono, takım ve elbiseden oluşan sıcak kahve tonlarında bir kadın giyim koleksiyonu.",
-  "priceRange": "₺₺"
+  "priceRange": "₺₺",
+  "sameAs": ["https://instagram.com/sonyacollectiion"]
 }
 </script>
 <script type="application/ld+json" id="productStructuredData"></script>
@@ -402,13 +404,13 @@
 
   /* ============ Yıldız puanı ============ */
   .stars{display:inline-flex;gap:2px;}
-  .stars .star{width:13px;height:13px;color:var(--line);}
-  .stars .star.on{color:var(--caramel-dk);}
+  .stars .star{width:15px;height:15px;color:#D9C6A8;}
+  .stars .star.on{color:var(--espresso);}
   .rating-row{display:flex;align-items:center;gap:7px;font-size:0.78rem;color:var(--espresso-70);}
   .rating-row b{color:var(--espresso);font-variant-numeric:tabular-nums;}
   .rating-row button{background:none;border:none;padding:0;color:inherit;font:inherit;text-decoration:underline;text-underline-offset:2px;}
   .card-rating{display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--espresso-70);margin-top:-2px;}
-  .card-rating .stars .star{width:11px;height:11px;}
+  .card-rating .stars .star{width:13px;height:13px;}
 
   /* ============ Güven rozetleri ============ */
   .trust-row{display:flex;flex-direction:column;gap:7px;margin-top:2px;}
@@ -423,7 +425,7 @@
   .related-title{font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--espresso-70);margin-bottom:10px;}
   .related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
   .related-card{cursor:pointer;text-align:left;background:none;border:none;padding:0;font-family:inherit;}
-  .related-card .r-thumb{aspect-ratio:3/4;border-radius:var(--radius-s);background-size:cover;background-position:center 18%;margin-bottom:6px;}
+  .related-card .r-thumb{display:block;width:100%;aspect-ratio:3/4;border-radius:var(--radius-s);background-size:cover;background-position:center 18%;margin-bottom:6px;background-color:var(--surface-2);}
   .related-card .r-name{font-size:0.72rem;font-weight:600;line-height:1.3;display:block;color:var(--espresso);}
   .related-card .r-price{font-size:0.72rem;font-weight:800;color:var(--espresso);margin-top:2px;display:block;}
 
@@ -464,12 +466,18 @@
   .testi-section{margin-top:20px;}
   .testi-head{text-align:center;max-width:560px;margin:0 auto 30px;display:flex;flex-direction:column;align-items:center;gap:10px;}
   .testi-head h2{font-size:clamp(1.5rem,2.8vw,2rem);}
-  .testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;}
+  .testi-grid{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 4px 14px;-webkit-overflow-scrolling:touch;}
   .testi-card{
+    flex:0 0 auto;width:min(280px,78vw);scroll-snap-align:start;
     background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);
-    padding:22px 22px 20px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);
+    padding:16px 16px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);
   }
-  .testi-card .stars .star{width:14px;height:14px;}
+  .testi-card .stars .star{width:18px;height:18px;}
+  .testi-product-thumb{
+    display:block;width:100%;aspect-ratio:4/3;border-radius:var(--radius-s);
+    background-size:cover;background-position:center 18%;background-color:var(--surface-2);
+    cursor:pointer;border:none;padding:0;
+  }
   .testi-comment{font-size:0.9rem;line-height:1.6;color:var(--espresso);flex:1;}
   .testi-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px;border-top:1px solid var(--line);}
   .testi-name{font-weight:700;font-size:0.82rem;}
@@ -961,7 +969,7 @@
 <!-- ============ Header ============ -->
 <header>
   <div class="header-row wrap">
-    <a href="#top" class="logo">
+    <a href="index.html#top" class="logo">
       <span class="name">Sonya</span>
       <span class="sub">Collection</span>
     </a>
@@ -1723,13 +1731,15 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       if((b.rating||0) !== (a.rating||0)) return (b.rating||0) - (a.rating||0);
       return (b.comment||'').length - (a.comment||'').length;
     });
-    var picked = all.slice(0, 6);
+    var picked = all.slice(0, 10);
     grid.innerHTML = picked.map(function(r){
       var p = byId(r.productId);
       var comment = String(r.comment);
       if(comment.length > 220) comment = comment.slice(0, 217) + '…';
       var date = reviewDateShort(r.createdAt);
+      var photoBtn = p ? '<button type="button" class="testi-product-thumb" data-open="'+p.id+'" style="background-image:url('+photoFor(p)+')" aria-label="'+escapeHtmlLocal(p.name)+'"></button>' : '';
       return '<div class="testi-card">' +
+        photoBtn +
         starsHtml(r.rating) +
         '<p class="testi-comment">' + escapeHtmlLocal(comment) + '</p>' +
         '<div class="testi-foot">' +
