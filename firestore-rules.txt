@@ -53,11 +53,17 @@ service cloud.firestore {
       // gibi asıl sipariş verisi write kuralı seviyesinde donmuş kalır, admin hesabı ele geçirilse bile
       // geçmiş bir siparişin tutarı/ürünleri değiştirilemez.
       allow update: if isAdmin()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'adminNote', 'statusUpdatedAt'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'adminNote', 'statusUpdatedAt', 'trackingCarrier', 'trackingCode'])
         && request.resource.data.status is string
         && request.resource.data.status in ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']
         && (!('adminNote' in request.resource.data)
-          || (request.resource.data.adminNote is string && request.resource.data.adminNote.size() <= 500));
+          || (request.resource.data.adminNote is string && request.resource.data.adminNote.size() <= 500))
+        && (!('trackingCarrier' in request.resource.data)
+          || request.resource.data.trackingCarrier == null
+          || (request.resource.data.trackingCarrier is string && request.resource.data.trackingCarrier.size() <= 40))
+        && (!('trackingCode' in request.resource.data)
+          || request.resource.data.trackingCode == null
+          || (request.resource.data.trackingCode is string && request.resource.data.trackingCode.size() <= 60));
       allow delete: if false;
     }
 
@@ -92,10 +98,54 @@ service cloud.firestore {
         && (!('comment' in request.resource.data)
           || (request.resource.data.comment is string && request.resource.data.comment.size() <= 1000))
         && (!('name' in request.resource.data)
-          || (request.resource.data.name is string && request.resource.data.name.size() <= 100));
-      allow update: if false;
+          || (request.resource.data.name is string && request.resource.data.name.size() <= 100))
+        && (!('photo' in request.resource.data)
+          || request.resource.data.photo == null
+          || (request.resource.data.photo is string && request.resource.data.photo.size() <= 500))
+        && (!('verifiedPurchase' in request.resource.data)
+          || request.resource.data.verifiedPurchase is bool);
+      // "Faydalı buldum" oylaması: herkes (misafir dahil) sadece helpfulCount alanını, sadece
+      // bir artırarak güncelleyebilir — başka hiçbir alana (rating/comment/uid vb.) dokunulamaz.
+      // Mükemmel bir kötüye kullanım engeli değil (aynı kişi F5'leyip tekrar oy verebilir),
+      // istemci tarafında localStorage ile tekrar oy vermeyi engelliyoruz; asıl veri
+      // (rating/comment/photo) bu yolla asla değiştirilemez.
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['helpfulCount'])
+        && request.resource.data.helpfulCount is number
+        && request.resource.data.helpfulCount == (resource.data.helpfulCount is number ? resource.data.helpfulCount : 0) + 1;
       allow delete: if request.auth != null &&
         (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
+    match /leads/{leadId} {
+      // Karşılama kuponu açılır penceresinden bırakılan e-postalar — herkes (misafir dahil)
+      // bir kayıt oluşturabilir ama sadece admin listeleyip okuyabilir/silebilir.
+      // hasOnly(): sadece bu 4 alana izin verir — rastgele ek alan/veri kirliliği önlemi.
+      allow create: if request.resource.data.keys().hasOnly(['email','source','page','createdAt'])
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.email.size() <= 200
+        && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+        && (!('source' in request.resource.data)
+          || (request.resource.data.source is string && request.resource.data.source.size() <= 60))
+        && (!('page' in request.resource.data)
+          || (request.resource.data.page is string && request.resource.data.page.size() <= 200));
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /instagramPosts/{postId} {
+      // Yönetici panelinde elle eklenen, ana sayfadaki Instagram vitrini gönderileri.
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['photo','link','caption','order'])
+        && request.resource.data.photo is string
+        && request.resource.data.photo.size() <= 500
+        && (!('link' in request.resource.data)
+          || (request.resource.data.link is string && request.resource.data.link.size() <= 300))
+        && (!('caption' in request.resource.data)
+          || (request.resource.data.caption is string && request.resource.data.caption.size() <= 200))
+        && (!('order' in request.resource.data)
+          || request.resource.data.order is number);
+      allow delete: if isAdmin();
     }
 
     match /coupons/{code} {
@@ -104,6 +154,123 @@ service cloud.firestore {
       allow get: if true;
       allow list: if isAdmin();
       allow write: if isAdmin();
+      // Kendi referans kodunu oluşturma ("Arkadaşını Davet Et"): giriş yapmış herkes,
+      // SADECE "REF-" ile başlayan ve kendi uid'ine bağlı, sabit %10 indirimli, aktif bir kupon
+      // oluşturabilir — başka hiçbir kupona (admin kuponları dahil) dokunamaz, var olan bir kodun
+      // üzerine de yazamaz (create, update değil).
+      allow create: if request.auth != null
+        && code.matches('^REF-[A-Za-z0-9]{4,16}$')
+        && request.resource.data.keys().hasOnly(['type','value','active','isReferral','referrerUid'])
+        && request.resource.data.referrerUid == request.auth.uid
+        && request.resource.data.type == 'percent'
+        && request.resource.data.value == 10
+        && request.resource.data.active == true
+        && request.resource.data.isReferral == true;
+      // Sadakat puanı harcama ("Puanları harcanabilir yap"): giriş yapmış herkes, SADECE
+      // "LOYAL-" ile başlayan ve kendi uid'ine bağlı, sabit 50₺'lik, aktif bir kupon oluşturabilir.
+      // Puan bakiyesi client'ta (kendi geçmiş siparişlerinden) hesaplanır; sahte kod üretimi,
+      // sitedeki tüm siparişler zaten satıcı tarafından elle onaylandığı için pratikte zararsızdır
+      // (coupons koleksiyonunun geneli için de geçerli olan, bu projenin baştan beri kabul ettiği
+      // güven modeli — bkz. orders/{orderId} yorumu).
+      allow create: if request.auth != null
+        && code.matches('^LOYAL-[A-Za-z0-9]{4,16}$')
+        && request.resource.data.keys().hasOnly(['type','value','active','isLoyaltyRedemption','uid'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.type == 'amount'
+        && request.resource.data.value == 50
+        && request.resource.data.active == true
+        && request.resource.data.isLoyaltyRedemption == true;
+      // Doğum günü kuponu: giriş yapmış herkes, SADECE "BDAY-" ile başlayan ve kendi uid'ine
+      // bağlı, admin panelinden ayarlanan yüzdelik indirimli, aktif bir kupon oluşturabilir.
+      // Gerçekten doğum gününde olup olmadığı (users/{uid}.birthday) ve aynı yıl içinde daha
+      // önce alınıp alınmadığı istemci tarafında kontrol edilir — coupons koleksiyonunun geneli
+      // için geçerli olan, bu projenin baştan beri kabul ettiği güven modeli (bkz. REF-/LOYAL-
+      // yorumları ve orders/{orderId} yorumu).
+      allow create: if request.auth != null
+        && code.matches('^BDAY-[A-Za-z0-9]{4,16}-[0-9]{4}$')
+        && request.resource.data.keys().hasOnly(['type','value','active','isBirthday','uid'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.type == 'percent'
+        && request.resource.data.value is number
+        && request.resource.data.value > 0
+        && request.resource.data.value <= 50
+        && request.resource.data.active == true
+        && request.resource.data.isBirthday == true;
+    }
+
+    match /recentSales/{saleId} {
+      // "Az önce satıldı" bildirim şeridi — sadece ürün adı ve zaman damgası, HİÇBİR kişisel
+      // veri (müşteri adı/e-postası/telefonu/sipariş tutarı) içermez. Herkes okuyabilir (site
+      // bunu göstermek için okur), herkes (sipariş tamamlayan misafir dahil) yeni bir kayıt
+      // ekleyebilir ama sadece bu iki alanla — mevcut bir kayıt asla güncellenemez/silinemez.
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['productName','createdAt'])
+        && request.resource.data.productName is string
+        && request.resource.data.productName.size() > 0
+        && request.resource.data.productName.size() <= 120
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if isAdmin();
+    }
+
+    match /productQuestions/{questionId} {
+      // Ürün Soru-Cevap: herkes (misafir dahil) bir soru bırakabilir, herkes okuyabilir
+      // (yanıtlanmamış sorular da dahil — şeffaf), sadece admin yanıtlayabilir/silebilir.
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['productId','question','name','answer','createdAt'])
+        && request.resource.data.productId is number
+        && request.resource.data.question is string
+        && request.resource.data.question.size() > 3
+        && request.resource.data.question.size() <= 500
+        && request.resource.data.answer == null
+        && (!('name' in request.resource.data)
+          || (request.resource.data.name is string && request.resource.data.name.size() <= 60));
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['answer','answeredAt'])
+        && request.resource.data.answer is string
+        && request.resource.data.answer.size() <= 1000;
+      allow delete: if isAdmin();
+    }
+
+    match /productViews/{productId}/viewers/{viewerId} {
+      // Gerçek zamanlı "şu an bakılıyor" göstergesi: her ziyaretçi kendi geçici "buradayım"
+      // belgesini yazar/siler — kişisel veri içermez, sadece bir zaman damgası. Süresi geçmiş
+      // belgeler istemci tarafında zaten sayılmıyor (bkz. PRESENCE_STALE_MS); Firebase Console →
+      // Firestore → TTL'de bu koleksiyon için "expireAt" alanına TTL politikası tanımlanırsa
+      // eski belgeler otomatik silinir (isteğe bağlı depolama temizliği).
+      allow read: if true;
+      allow write: if request.resource.data.keys().hasOnly(['ts']);
+      allow delete: if true;
+    }
+
+    match /settings/lowStockAlertMeta {
+      // Kritik stok e-posta uyarısı için "en son ne zaman gönderildi" damgası — herkes
+      // (bir ziyaretçinin tarayıcısı) güncelleyebilir ama SADECE lastSentAt alanını.
+      allow read: if true;
+      allow write: if request.resource.data.keys().hasOnly(['lastSentAt']);
+    }
+
+    match /returnRequests/{requestId} {
+      // İade/Değişim self-servis talep formu — herkes (misafir dahil) bir talep oluşturabilir,
+      // sadece admin listeleyip durumunu güncelleyebilir/silebilir. hasOnly(): rastgele ek alan
+      // veya veri kirliliği engeli (leads/instagramPosts ile aynı desen).
+      allow create: if request.resource.data.keys().hasOnly(['email','type','productName','orderId','reason','createdAt'])
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.email.size() <= 200
+        && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+        && request.resource.data.type is string
+        && request.resource.data.type in ['iade', 'degisim']
+        && (!('productName' in request.resource.data)
+          || (request.resource.data.productName is string && request.resource.data.productName.size() <= 200))
+        && (!('orderId' in request.resource.data)
+          || (request.resource.data.orderId is string && request.resource.data.orderId.size() <= 100))
+        && (!('reason' in request.resource.data)
+          || (request.resource.data.reason is string && request.resource.data.reason.size() <= 500));
+      allow read, delete: if isAdmin();
+      // Admin sadece durum/not güncelleyebilir — müşterinin girdiği asıl talep verisi donmuş kalır.
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'adminNote'])
+        && request.resource.data.status is string;
     }
 
     match /restockRequests/{requestId} {
@@ -114,6 +281,35 @@ service cloud.firestore {
         && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
       allow read, delete: if isAdmin();
       allow update: if false;
+    }
+
+    match /giftCardRequests/{requestId} {
+      // Dijital Hediye Çeki talebi — herkes (misafir dahil) bir talep oluşturabilir, sadece
+      // admin listeleyip "Tamamlandı" olarak işaretleyebilir/silebilir. Gerçek kupon kodu
+      // burada üretilmiyor — admin, ödeme onayından sonra mevcut Kuponlar sekmesinden elle oluşturur.
+      allow create: if request.resource.data.keys().hasOnly(['amount','email','status','createdAt'])
+        && request.resource.data.amount is number
+        && request.resource.data.amount >= 50
+        && request.resource.data.amount <= 100000
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.email.size() <= 200
+        && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+        && request.resource.data.status == 'pending';
+      allow read, delete: if isAdmin();
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['pending', 'done'];
+    }
+
+    match /pushTokens/{token} {
+      // Web push bildirimleri: ziyaretçi bildirime izin verince kendi FCM token'ını yazar —
+      // kişisel veri içermez (rastgele bir cihaz/tarayıcı kimliği). Bildirim GÖNDERME işlemi
+      // koda değil, admin'in Firebase Console → Cloud Messaging ekranına dayanır.
+      allow read: if isAdmin();
+      allow write: if request.resource.data.keys().hasOnly(['token','ts'])
+        && request.resource.data.token is string;
+      allow delete: if isAdmin();
     }
   }
 }

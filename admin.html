@@ -280,6 +280,10 @@ a{color:inherit;}
 }
 .color-swatch{width:16px;height:16px;border-radius:50%;border:1px solid rgba(0,0,0,0.12);}
 .color-chip button{background:none;border:none;color:var(--espresso-70);font-size:0.9rem;line-height:1;padding:0 2px;}
+.color-photo-thumb{width:22px;height:22px;border-radius:6px;background-size:cover;background-position:center;border:1px solid var(--line);cursor:pointer;}
+.color-photo-add{background:none;border:1px dashed var(--line);border-radius:6px;color:var(--espresso-70);font-size:0.68rem;font-weight:700;padding:3px 6px;cursor:pointer;white-space:nowrap;}
+.color-photo-add:hover{border-color:var(--caramel-dk);color:var(--caramel-dk);}
+.color-photo-rm{background:none;border:none;color:var(--espresso-70);font-size:0.78rem !important;line-height:1;padding:0 2px !important;}
 .color-add{display:flex;gap:8px;}
 .color-add input[type=color]{width:40px;padding:2px;height:38px;}
 .color-add input[type=text]{flex:1;}
@@ -316,6 +320,12 @@ a{color:inherit;}
 .top-prod-row .qty{color:var(--caramel-dk);font-weight:700;white-space:nowrap;}
 @media (max-width:900px){ .stat-grid{grid-template-columns:repeat(2,1fr);} }
 @media (max-width:560px){ .stat-grid{grid-template-columns:1fr;} }
+.sales-chart{display:flex;align-items:flex-end;gap:6px;height:150px;padding-top:8px;}
+.sc-col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;cursor:default;}
+.sc-bar-wrap{flex:1;width:100%;display:flex;align-items:flex-end;}
+.sc-bar{width:100%;background:var(--caramel);border-radius:4px 4px 0 0;min-height:3px;transition:background .15s ease;}
+.sc-col:hover .sc-bar{background:var(--caramel-dk);}
+.sc-label{font-size:0.62rem;color:var(--espresso-70);margin-top:6px;white-space:nowrap;}
 .low-stock-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:0.86rem;}
 .low-stock-row:last-child{border-bottom:none;}
 .low-stock-row .name{flex:1;font-weight:600;}
@@ -380,6 +390,8 @@ a{color:inherit;}
 .order-card .oc-controls select{width:auto;min-width:150px;}
 .order-card .oc-controls input[type="text"]{flex:1;min-width:160px;}
 @media (max-width:560px){ .order-card .oc-controls{flex-direction:column;align-items:stretch;} .order-card .oc-controls select, .order-card .oc-controls input{width:100%;} }
+.order-card .oc-tracking{margin-top:8px;}
+.oc-referral-badge{color:#b5732a;font-weight:700;}
 
 /* ---------- CSV içe/dışa aktarma ---------- */
 .csv-summary{background:var(--surface-2);border-radius:var(--radius-m);padding:12px 14px;margin-bottom:14px;font-size:0.84rem;color:var(--espresso);line-height:1.6;}
@@ -579,6 +591,9 @@ a{color:inherit;}
     <button class="tab-btn" data-tab="yorumlar">Yorumlar</button>
     <button class="tab-btn" data-tab="kuponlar">Kuponlar</button>
     <button class="tab-btn" data-tab="stoktalepleri">Stok Talepleri</button>
+    <button class="tab-btn" data-tab="iadeler">İadeler<span class="tab-badge" id="returnTabBadge" hidden></span></button>
+    <button class="tab-btn" data-tab="sorucevap">Soru-Cevap<span class="tab-badge" id="qTabBadge" hidden></span></button>
+    <button class="tab-btn" data-tab="pazarlama">Pazarlama</button>
     <button class="tab-btn" data-tab="ayarlar">Ayarlar</button>
     <button class="tab-btn" data-tab="kurulum">İlk Kurulum</button>
   </div>
@@ -597,6 +612,10 @@ a{color:inherit;}
       <div class="card" id="lowStockCard" style="display:none;">
         <h3 class="card-title">Düşük Stok Uyarısı</h3>
         <div id="lowStockList"></div>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Haftalık Satış Trendi</h3>
+        <div class="sales-chart" id="salesChart"></div>
       </div>
       <div class="card">
         <div class="card-title-row">
@@ -711,6 +730,88 @@ a{color:inherit;}
       </div>
     </section>
 
+    <!-- ---------- İadeler ---------- -->
+    <section class="panel" id="panel-iadeler">
+      <div class="panel-head">
+        <div>
+          <h2>İade / Değişim Talepleri</h2>
+          <div class="sub" id="returnCountLabel">Yükleniyor…</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="empty-state" style="margin-bottom:14px;">Sitedeki "İade/Değişim Talebi Oluştur" formundan gelen talepler burada listelenir. Müşteriyle Instagram/WhatsApp üzerinden iletişime geçtikten sonra durumunu güncelle.</div>
+        <div id="returnList"></div>
+      </div>
+    </section>
+
+    <!-- ---------- Soru-Cevap ---------- -->
+    <section class="panel" id="panel-sorucevap">
+      <div class="panel-head">
+        <div>
+          <h2>Ürün Soru-Cevap</h2>
+          <div class="sub" id="qCountLabel">Yükleniyor…</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="empty-state" style="margin-bottom:14px;">Ürün sayfalarından gelen sorular burada listelenir. Yanıtladığın soru, herkesin görebileceği şekilde ilgili ürün sayfasında yayınlanır.</div>
+        <div id="qList"></div>
+      </div>
+    </section>
+
+    <!-- ---------- Pazarlama ---------- -->
+    <section class="panel" id="panel-pazarlama">
+      <div class="panel-head">
+        <div>
+          <h2>Pazarlama</h2>
+          <div class="sub">Toplanan e-postalar ve Instagram vitrini.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="settings-section">
+          <h3>Kampanya Geri Sayımı</h3>
+          <p class="sec-sub">Sitenin üstünde gerçek bir bitiş tarihine bağlı bir geri sayım çubuğu gösterir — sahte aciliyet olmasın diye yalnızca gerçek bir tarih girildiğinde görünür, tarih geçince otomatik kaybolur.</p>
+          <div class="row2">
+            <div class="field">
+              <label for="setCampaignLabel">Kampanya Adı</label>
+              <input type="text" id="setCampaignLabel" placeholder="Örn: Sonbahar İndirimi" maxlength="60">
+            </div>
+            <div class="field">
+              <label for="setCampaignEndsAt">Bitiş Tarihi &amp; Saati</label>
+              <input type="datetime-local" id="setCampaignEndsAt">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="settings-section">
+          <h3>Hediye Çeki Talepleri</h3>
+          <p class="sec-sub" id="giftCardCountLabel">Yükleniyor…</p>
+          <div id="giftCardReqList"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="settings-section">
+          <h3>Toplanan E-postalar</h3>
+          <p class="sec-sub" id="leadCountLabel">Yükleniyor…</p>
+          <div id="leadList"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="settings-section">
+          <h3>Instagram Vitrini</h3>
+          <p class="sec-sub">Ana sayfaya, seçtiğin gerçek Instagram gönderilerinden oluşan bir vitrin ekler. Otomatik/canlı bir akış değildir (Instagram'ın kendi API'sine bağlanmak ayrı bir başvuru süreci gerektirir) — istediğin gönderinin fotoğrafını buradan yükleyip, istersen gönderinin linkini de ekleyerek elle ekliyorsun. Hiç gönderi eklemezsen bu bölüm sitede hiç görünmez.</p>
+          <div id="instaPostList"></div>
+          <div class="add-inline" style="flex-wrap:wrap;align-items:flex-start;">
+            <button type="button" class="btn btn-ghost" id="instaAddPhotoBtn" style="width:auto;">+ Fotoğraf Seç</button>
+            <input type="text" id="instaNewLink" placeholder="Gönderi linki (opsiyonel) — instagram.com/p/...">
+            <input type="text" id="instaNewCaption" placeholder="Kısa başlık (opsiyonel)">
+          </div>
+          <input type="file" id="instaPhotoInput" accept="image/*" style="display:none;">
+          <div class="upload-bar" id="instaUploadBar"><div id="instaUploadBarFill"></div></div>
+        </div>
+      </div>
+    </section>
+
     <!-- ---------- Ayarlar ---------- -->
     <section class="panel" id="panel-ayarlar">
       <div class="panel-head">
@@ -747,6 +848,50 @@ a{color:inherit;}
               <input type="number" id="setShipping" min="0" step="10">
             </div>
           </div>
+          <div class="field">
+            <label for="setDeliveryEstimate">Tahmini Teslimat Süresi</label>
+            <input type="text" id="setDeliveryEstimate" placeholder="Örn: 2-4 iş günü" maxlength="60">
+            <div class="hint">Ürün sayfasında gösterilir. Boş bırakılırsa hiç gösterilmez — gerçek bir süre olmadan bir şey yazmayalım.</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Karşılama Kuponu (Yeni Ziyaretçi İndirimi)</h3>
+          <p class="sec-sub">Siteye ilk kez gelen ziyaretçiye, e-posta bırakması karşılığında bir indirim kodu gösteren açılır pencere. Önce Kuponlar sekmesinden gerçek bir kupon oluştur (örn. HOSGELDIN10), sonra kodunu aşağıya yaz — pencerede kuponun güncel yüzde/tutar değeri otomatik gösterilir. Boş bırakılırsa bu pencere hiç görünmez.</p>
+          <div class="field">
+            <label for="setWelcomeCoupon">Kupon Kodu</label>
+            <input type="text" id="setWelcomeCoupon" placeholder="HOSGELDIN10" style="text-transform:uppercase;max-width:220px;">
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Set/Kombin İndirimi</h3>
+          <p class="sec-sub">Sepette belirlediğiniz üründen fazlası olunca otomatik ek indirim uygulanır (örn. "3 ürün ve üzeri → %10"). İkisinden biri boş/0 bırakılırsa özellik tamamen kapalı kalır.</p>
+          <div class="row2">
+            <div class="field">
+              <label for="setBundleMinItems">Min. Ürün Adedi</label>
+              <input type="number" id="setBundleMinItems" min="0" step="1" placeholder="Örn: 3">
+            </div>
+            <div class="field">
+              <label for="setBundlePercent">İndirim Yüzdesi (%)</label>
+              <input type="number" id="setBundlePercent" min="0" max="90" step="1" placeholder="Örn: 10">
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Analitik &amp; Reklam</h3>
+          <p class="sec-sub">İkisi de tamamen isteğe bağlı ve varsayılan olarak kapalı. Kendi Google Analytics (analytics.google.com, ücretsiz "GA4 mülkü" oluşturup Ölçüm Kimliği'ni "G-" ile başlayan kod olarak kopyalayın) ve/veya Meta Business (business.facebook.com → Etkinlik Yöneticisi → Piksel) hesabınızdan ID'leri buraya yapıştırırsanız devreye girer; boş bırakılırsa siteye hiçbir izleme kodu yüklenmez.</p>
+          <div class="row2">
+            <div class="field">
+              <label for="setGaId">Google Analytics Ölçüm Kimliği</label>
+              <input type="text" id="setGaId" placeholder="G-XXXXXXXXXX">
+            </div>
+            <div class="field">
+              <label for="setMetaPixelId">Meta Pixel ID</label>
+              <input type="text" id="setMetaPixelId" placeholder="123456789012345">
+            </div>
+          </div>
         </div>
 
         <div class="settings-section">
@@ -755,6 +900,53 @@ a{color:inherit;}
           <label class="variant-toggle-label" for="setIyzicoEnabled">
             <input type="checkbox" id="setIyzicoEnabled"> Kartla ödeme sitede aktif (API anahtarları eklendi ve test edildi)
           </label>
+        </div>
+
+        <div class="settings-section">
+          <h3>Kapıda Ödeme &amp; Havale/EFT</h3>
+          <p class="sec-sub">İkisi de gerçek bir ödeme altyapısı gerektirmez — sipariş normal akışla (WhatsApp/Instagram siparişleri gibi) kaydedilir, ödeme teslimatta ya da havale sonrası elle onaylanır. Kapıda ödeme kutusunu işaretlediğinde checkout'ta seçenek görünür; havale/EFT için üç alanı da doldurman yeterli.</p>
+          <label class="variant-toggle-label" for="setCodEnabled">
+            <input type="checkbox" id="setCodEnabled"> Kapıda ödeme sitede aktif
+          </label>
+          <div class="row2" style="margin-top:12px;">
+            <div class="field">
+              <label for="setBankName">Banka Adı</label>
+              <input type="text" id="setBankName" placeholder="Örn: Ziraat Bankası">
+            </div>
+            <div class="field">
+              <label for="setIbanOwner">Hesap Sahibi</label>
+              <input type="text" id="setIbanOwner" placeholder="Ad Soyad">
+            </div>
+          </div>
+          <div class="field">
+            <label for="setIban">IBAN</label>
+            <input type="text" id="setIban" placeholder="TR00 0000 0000 0000 0000 0000 00">
+            <div class="hint">Üçü de doldurulmadan checkout'ta havale/EFT seçeneği görünmez.</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Sadakat Seviyeleri</h3>
+          <p class="sec-sub">Gerçek ömür boyu harcamaya göre otomatik hesaplanan bir tanınma/ayrıcalık katmanı. Altın üyeler ayrıca her zaman ücretsiz kargo alır.</p>
+          <div class="row2">
+            <div class="field">
+              <label for="setLoyaltyTierSilver">Gümüş Eşiği (₺)</label>
+              <input type="number" id="setLoyaltyTierSilver" min="0" step="100">
+            </div>
+            <div class="field">
+              <label for="setLoyaltyTierGold">Altın Eşiği (₺)</label>
+              <input type="number" id="setLoyaltyTierGold" min="0" step="100">
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Web Push Bildirimleri</h3>
+          <p class="sec-sub">Firebase Console → Proje Ayarları → Cloud Messaging → "Web push sertifikaları" bölümünden bir anahtar oluşturup buraya yapıştırırsanız, ziyaretçilere izin verdikten sonra tarayıcı bildirimi gönderebilirsiniz. Bildirim GÖNDERMEK için kod yazmanıza gerek yok — Firebase Console → Cloud Messaging → "Bildirim Oluştur" ekranından doğrudan yayın yapabilirsiniz. Boş bırakılırsa özellik sitede hiç görünmez.</p>
+          <div class="field">
+            <label for="setFcmVapidKey">Web Push Sertifika Anahtarı (VAPID key)</label>
+            <input type="text" id="setFcmVapidKey" placeholder="BF...">
+          </div>
         </div>
 
         <div class="settings-section">
@@ -852,6 +1044,16 @@ a{color:inherit;}
       </div>
 
       <div class="field">
+        <label>Ürün Videosu (opsiyonel)</label>
+        <div id="productVideoPreview"></div>
+        <label class="photo-drop" for="productVideoInput" id="productVideoDropLabel">
+          <div class="hint" id="productVideoHint">Kumaşın hareketini/dokusunu gösteren kısa bir video eklemek için tıklayın (en fazla 25MB)</div>
+        </label>
+        <input type="file" id="productVideoInput" accept="video/*" class="visually-hidden">
+        <div class="upload-bar" id="videoUploadBar"><div id="videoUploadBarFill"></div></div>
+      </div>
+
+      <div class="field">
         <label for="prodName">Ürün Adı *</label>
         <input type="text" id="prodName" required>
       </div>
@@ -898,6 +1100,8 @@ a{color:inherit;}
           <input type="text" id="colorLabel" placeholder="Renk adı (opsiyonel, örn. Kahverengi)">
           <button type="button" class="btn btn-ghost btn-sm" id="addColorBtn">Ekle</button>
         </div>
+        <div class="hint">Her rengin yanındaki "+ Foto" ile o renge özel bir fotoğraf ekleyebilirsin — eklersen müşteri sitede o rengi seçtiğinde ürün fotoğrafı otomatik değişir. Eklemezsen ürünün genel fotoğrafı gösterilmeye devam eder, sorun olmaz.</div>
+        <input type="file" id="colorPhotoInput" accept="image/*" class="visually-hidden">
       </div>
 
       <div class="field">
@@ -913,6 +1117,12 @@ a{color:inherit;}
       <div class="field">
         <label for="prodDesc">Açıklama</label>
         <textarea id="prodDesc" style="min-height:90px;"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="prodFabric">Kumaş (opsiyonel)</label>
+        <input type="text" id="prodFabric" placeholder="Örn: Keten, Viskon, Kadife" maxlength="40">
+        <div class="hint">Doldurursan sitede otomatik bir "Kumaş" filtresi belirir. Boş bırakırsan hiçbir şey değişmez.</div>
       </div>
 
       <div class="field">
@@ -984,6 +1194,7 @@ a{color:inherit;}
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-app-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-auth-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
 (function(){
   "use strict";
@@ -1007,7 +1218,7 @@ a{color:inherit;}
   // Firestore ürün dokümanında sadece dönen kısa URL saklanıyor — bkz. uploadImageToCloudinary().
   var CLOUDINARY_CLOUD_NAME = 'gcuvsq2h';
   var CLOUDINARY_UPLOAD_PRESET = 'ml_default';
-  function uploadImageToCloudinary(blob, onProgress){
+  function uploadImageToCloudinary(blob, onProgress, folder){
     return new Promise(function(resolve, reject){
       var xhr = new XMLHttpRequest();
       xhr.open('POST', 'https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD_NAME + '/image/upload');
@@ -1031,7 +1242,40 @@ a{color:inherit;}
       var form = new FormData();
       form.append('file', blob);
       form.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-      form.append('folder', 'sonya-products');
+      form.append('folder', folder || 'sonya-products');
+      xhr.send(form);
+    });
+  }
+  var MAX_PRODUCT_VIDEO_BYTES = 25 * 1024 * 1024; // 25MB — kısa ürün videoları için makul bir sınır
+  function uploadVideoToCloudinary(file, onProgress, folder){
+    return new Promise(function(resolve, reject){
+      if(file.size > MAX_PRODUCT_VIDEO_BYTES){
+        reject(new Error('Video çok büyük (en fazla 25MB). Daha kısa/sıkıştırılmış bir video dener misin?'));
+        return;
+      }
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD_NAME + '/video/upload');
+      xhr.upload.onprogress = function(e){
+        if(onProgress && e.lengthComputable) onProgress(e.loaded / e.total);
+      };
+      xhr.onload = function(){
+        if(xhr.status >= 200 && xhr.status < 300){
+          try{
+            var res = JSON.parse(xhr.responseText);
+            if(res && res.secure_url) resolve(res.secure_url);
+            else reject(new Error('Cloudinary yanıtı beklenmedik formatta.'));
+          }catch(e){ reject(new Error('Cloudinary yanıtı okunamadı.')); }
+        } else {
+          var msg = 'Cloudinary video yükleme hatası (HTTP ' + xhr.status + ').';
+          try{ var errRes = JSON.parse(xhr.responseText); if(errRes && errRes.error && errRes.error.message) msg = 'Cloudinary: ' + errRes.error.message; }catch(e){}
+          reject(new Error(msg));
+        }
+      };
+      xhr.onerror = function(){ reject(new Error('Cloudinary\'ye bağlanılamadı — internet bağlantınızı kontrol edin.')); };
+      var form = new FormData();
+      form.append('file', file);
+      form.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      form.append('folder', folder || 'sonya-products-video');
       xhr.send(form);
     });
   }
@@ -1058,6 +1302,21 @@ a{color:inherit;}
     phone: "",
     shippingThreshold: 1500,
     iyzicoEnabled: false,
+    welcomeCouponCode: "",
+    deliveryEstimate: "",
+    bundleMinItems: 0,
+    bundlePercent: 0,
+    gaMeasurementId: "",
+    metaPixelId: "",
+    codEnabled: false,
+    bankName: "",
+    ibanOwner: "",
+    iban: "",
+    loyaltyTierSilver: 2000,
+    loyaltyTierGold: 5000,
+    campaignEndsAt: "",
+    campaignLabel: "",
+    fcmVapidKey: "",
     legal: {
       gizlilik: "Sonya Collection olarak ([Şirket/Şahıs Adı]) müşterilerimizin gizliliğine önem veriyoruz. Bu sayfa, siteyi kullanırken hangi bilgilerin toplandığını ve nasıl kullanıldığını açıklar.\n\nHangi bilgileri topluyoruz?\nHesap oluşturduğunda: ad soyad ve e-posta adresin (Firebase Authentication üzerinden). Sipariş verdiğinde: sepetindeki ürünler, beden ve tutar bilgisi — bu bilgiler WhatsApp/Instagram üzerinden bize ilettiğin mesajın içinde yer alır. Sepet ve favori listen, tarayıcının hafızasında (localStorage) senin cihazında saklanır; bize otomatik olarak gönderilmez.\n\nBilgilerini kimlerle paylaşıyoruz?\nHesap bilgilerin Google/Firebase altyapısında saklanır. Sipariş mesajların WhatsApp ve Instagram (Meta) üzerinden bize ulaşır ve bu platformların kendi gizlilik politikaları geçerlidir. Bilgilerini bu iki amaç dışında üçüncü taraflarla paylaşmıyor, satmıyoruz.\n\nHaklarınız\nKişisel verilerinle ilgili sorular veya silme talepleri için siparis@sonyacollection.com adresinden bize ulaşabilirsin.",
       kvkk: "Veri Sorumlusu: [Şirket/Şahıs Adı], [Adres] (\"Sonya Collection\")\n\n6698 sayılı Kişisel Verilerin Korunması Kanunu (\"KVKK\") uyarınca, kişisel verilerin işlenmesine ilişkin olarak seni bilgilendirmek isteriz.\n\nİşlenen kişisel veriler\nKimlik ve iletişim bilgileri: ad soyad, e-posta adresi. Sipariş bilgileri: ürün, beden, adet, tutar, teslimat bilgileri.\n\nİşleme amaçları\nHesabının oluşturulması ve yönetilmesi. Siparişlerinin alınması ve iletişimin sürdürülmesi. Yasal yükümlülüklerin yerine getirilmesi.\n\nAktarım\nVerilerin, hesap altyapısı için Google/Firebase'e ve sipariş iletişimi için WhatsApp/Instagram (Meta) platformlarına, yalnızca bu hizmetlerin çalışması için gerekli ölçüde aktarılabilir.\n\nKVKK md. 11 kapsamındaki haklarınız\nKişisel verilerinin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, düzeltilmesini veya silinmesini isteme hakkına sahipsin. Taleplerin için siparis@sonyacollection.com adresine yazabilirsin.",
@@ -1076,10 +1335,18 @@ a{color:inherit;}
     orders: [],     // {docId, items, subtotal, discount, total, couponCode, channel, createdAt}
     coupons: [],    // {docId (=code), code, type, value, active}
     restockRequests: [], // {docId, productId, email, createdAt}
+    returnRequests: [], // {docId, email, type, productName, orderId, reason, status, createdAt}
+    productQuestions: [], // {docId, productId, question, name, answer, createdAt}
+    leads: [], // {docId, email, source, page, createdAt} — karşılama kuponu açılır penceresinden bırakılan e-postalar
+    giftCardRequests: [], // {docId, amount, email, status, createdAt} — hediye çeki talepleri
+    instagramPosts: [], // {docId, photo, link, caption, order}
+    pendingInstaPhotoBlob: null,
     settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
     editingProductDocId: null,
     pendingPhotos: [], // data-URL dizisi — ilk eleman kapak fotoğrafı
     pendingColors: [],
+    pendingColorPhotos: {}, // {renkHex: fotoUrl} — her renge özel (opsiyonel) fotoğraf
+    colorPhotoTargetHex: null, // colorPhotoInput ile şu an hangi renk için fotoğraf yükleniyor
     pendingVariantStock: {}, // {renkHex: {beden: adet}} — renk+beden bazlı stok takibi açıksa kullanılır
     orderFilter: 'all', // 'all' | 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled'
     topProductsSort: 'qty' // 'qty' | 'revenue'
@@ -1092,6 +1359,34 @@ a{color:inherit;}
     delivered: 'Teslim Edildi',
     cancelled: 'İptal Edildi'
   };
+  var SHIPPING_CARRIERS = ['', 'Yurtiçi Kargo', 'Aras Kargo', 'MNG Kargo', 'PTT Kargo', 'Sürat Kargo', 'Diğer'];
+
+  // ---------- Sipariş durumu değişince otomatik müşteri e-postası ----------
+  // Mevcut sipariş-bildirim şablonu (template_spvadv9) sana (satıcıya) e-posta göndermek üzere
+  // ayarlı — müşteriye e-posta göndermek için EmailJS'te AYRI bir şablon oluşturup, o şablonda
+  // "Alıcı e-posta" alanını {{customer_email}} olarak ayarlaman gerekiyor. Yeni şablonu
+  // oluşturduktan sonra ID'sini aşağıya (BURAYA_... yerine) yapıştır — o zamana kadar bu özellik
+  // sessizce devre dışı kalır, sipariş akışını hiçbir şekilde etkilemez.
+  var EMAILJS_PUBLIC_KEY = 'iIbGdrFA-cGeESqQj';
+  var EMAILJS_STATUS_SERVICE_ID = 'service_do1pmfg';
+  var EMAILJS_STATUS_TEMPLATE_ID = 'BURAYA_DURUM_SABLON_ID';
+  function statusEmailConfigured(){
+    return EMAILJS_STATUS_TEMPLATE_ID.indexOf('BURAYA_') !== 0;
+  }
+  try{
+    if(statusEmailConfigured() && typeof emailjs !== 'undefined') emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  }catch(e){ /* bildirim olmadan da panel çalışmaya devam etmeli */ }
+  function sendStatusUpdateEmail(order, newStatus){
+    try{
+      if(!statusEmailConfigured() || typeof emailjs === 'undefined' || !order.userEmail) return;
+      emailjs.send(EMAILJS_STATUS_SERVICE_ID, EMAILJS_STATUS_TEMPLATE_ID, {
+        customer_email: order.userEmail,
+        customer_name: order.userName || 'Merhaba',
+        status_label: ORDER_STATUSES[newStatus] || newStatus,
+        tracking_info: order.trackingCode ? ((order.trackingCarrier || 'Kargo') + ' — ' + order.trackingCode) : ''
+      }).catch(function(err){ console.warn('Durum e-postası gönderilemedi:', err && (err.text || err.message)); });
+    }catch(e){ /* panelin geri kalanını asla bozma */ }
+  }
 
   // ---------- Helpers ----------
   function $(id){ return document.getElementById(id); }
@@ -1205,7 +1500,7 @@ a{color:inherit;}
 
   // ============ Load data ============
   function loadAll(){
-    Promise.all([loadCategories(), loadProducts(), loadSettings(), loadReviews(), loadOrders(), loadCoupons(), loadRestockRequests()]).then(function(){
+    Promise.all([loadCategories(), loadProducts(), loadSettings(), loadReviews(), loadOrders(), loadCoupons(), loadRestockRequests(), loadReturnRequests(), loadProductQuestions(), loadLeads(), loadInstagramPosts(), loadGiftCardRequests()]).then(function(){
       renderCategorySelect();
       renderProducts();
       renderCategories();
@@ -1216,6 +1511,11 @@ a{color:inherit;}
       renderOrders();
       renderCoupons();
       renderRestockRequests();
+      renderReturnRequests();
+      renderProductQuestions();
+      renderLeads();
+      renderInstagramAdmin();
+      renderGiftCardRequests();
       refreshSeedStatus();
     }).catch(function(err){
       showToast('Veriler yüklenirken hata oluştu: ' + (err && err.message ? err.message : err), true);
@@ -1242,7 +1542,9 @@ a{color:inherit;}
           userPhone: d.userPhone || null,
           giftNote: d.giftNote || null,
           status: d.status || 'pending',
-          adminNote: d.adminNote || ''
+          adminNote: d.adminNote || '',
+          trackingCarrier: d.trackingCarrier || '',
+          trackingCode: d.trackingCode || ''
         });
       });
       list.sort(function(a,b){
@@ -1288,6 +1590,99 @@ a{color:inherit;}
     }).catch(function(){ state.restockRequests = []; });
   }
 
+  function loadReturnRequests(){
+    return db.collection('returnRequests').get().then(function(snap){
+      var list = [];
+      snap.forEach(function(doc){
+        var d = doc.data();
+        list.push({
+          docId: doc.id,
+          email: d.email || '',
+          type: d.type === 'degisim' ? 'degisim' : 'iade',
+          productName: d.productName || '',
+          orderId: d.orderId || '',
+          reason: d.reason || '',
+          status: d.status || 'Alındı',
+          createdAt: d.createdAt
+        });
+      });
+      list.sort(function(a,b){
+        var ta = (a.createdAt && a.createdAt.toDate) ? a.createdAt.toDate().getTime() : 0;
+        var tb = (b.createdAt && b.createdAt.toDate) ? b.createdAt.toDate().getTime() : 0;
+        return tb - ta;
+      });
+      state.returnRequests = list;
+    }).catch(function(){ state.returnRequests = []; });
+  }
+
+  function loadProductQuestions(){
+    return db.collection('productQuestions').get().then(function(snap){
+      var list = [];
+      snap.forEach(function(doc){
+        var d = doc.data();
+        list.push({
+          docId: doc.id,
+          productId: typeof d.productId === 'number' ? d.productId : null,
+          question: d.question || '',
+          name: d.name || '',
+          answer: d.answer || '',
+          createdAt: d.createdAt
+        });
+      });
+      list.sort(function(a,b){
+        var ta = (a.createdAt && a.createdAt.toDate) ? a.createdAt.toDate().getTime() : 0;
+        var tb = (b.createdAt && b.createdAt.toDate) ? b.createdAt.toDate().getTime() : 0;
+        return tb - ta;
+      });
+      state.productQuestions = list;
+    }).catch(function(){ state.productQuestions = []; });
+  }
+
+  function loadGiftCardRequests(){
+    return db.collection('giftCardRequests').orderBy('createdAt', 'desc').limit(200).get().then(function(snap){
+      var list = [];
+      snap.forEach(function(doc){
+        var d = doc.data();
+        list.push({ docId: doc.id, amount: d.amount || 0, email: d.email || '', status: d.status || 'pending', createdAt: d.createdAt });
+      });
+      state.giftCardRequests = list;
+    }).catch(function(){ state.giftCardRequests = []; });
+  }
+
+  function loadLeads(){
+    return db.collection('leads').orderBy('createdAt', 'desc').limit(500).get().then(function(snap){
+      var list = [];
+      snap.forEach(function(doc){
+        var d = doc.data();
+        list.push({
+          docId: doc.id,
+          email: d.email || '',
+          source: d.source || '',
+          page: d.page || '',
+          createdAt: d.createdAt
+        });
+      });
+      state.leads = list;
+    }).catch(function(){ state.leads = []; });
+  }
+
+  function loadInstagramPosts(){
+    return db.collection('instagramPosts').orderBy('order').get().then(function(snap){
+      var list = [];
+      snap.forEach(function(doc){
+        var d = doc.data();
+        list.push({
+          docId: doc.id,
+          photo: d.photo || '',
+          link: d.link || '',
+          caption: d.caption || '',
+          order: typeof d.order === 'number' ? d.order : 0
+        });
+      });
+      state.instagramPosts = list;
+    }).catch(function(){ state.instagramPosts = []; });
+  }
+
   function loadReviews(){
     return db.collection('reviews').get().then(function(snap){
       var list = [];
@@ -1299,6 +1694,7 @@ a{color:inherit;}
           name: d.name || 'Müşteri',
           rating: typeof d.rating === 'number' ? d.rating : 0,
           comment: d.comment || '',
+          photo: d.photo || null,
           createdAt: d.createdAt
         });
       });
@@ -1321,6 +1717,7 @@ a{color:inherit;}
       var stars = '★★★★★☆☆☆☆☆'.slice(5 - r.rating, 10 - r.rating);
       return (
         '<div class="prod-row" data-reviewid="' + r.docId + '">' +
+          (r.photo ? '<div class="color-photo-thumb" style="background-image:url(' + escapeHtml(r.photo) + ');width:44px;height:44px;"></div>' : '') +
           '<div class="prod-info">' +
             '<div class="name">' + escapeHtml(prodName) + ' <span style="color:var(--caramel-dk);">' + stars + '</span></div>' +
             '<div class="meta">' + escapeHtml(r.name) + (r.comment ? ' &middot; ' + escapeHtml(r.comment) : '') + '</div>' +
@@ -1378,6 +1775,8 @@ a{color:inherit;}
       return '<div class="stat-card"><div class="stat-label">' + s.label + '</div><div class="stat-value">' + s.value + '</div></div>';
     }).join('');
 
+    renderSalesChart(orders);
+
     var sortToggle = $('topProdSortToggle');
     if(sortToggle){
       sortToggle.querySelectorAll('.sort-toggle-btn').forEach(function(btn){
@@ -1400,6 +1799,43 @@ a{color:inherit;}
         return '<div class="top-prod-row"><span class="rank">' + (i+1) + '.</span><span class="name">' + escapeHtml(p.name) + '</span>' + metricHtml + '</div>';
       }).join('');
     }
+  }
+
+  // Son 8 haftanın gerçek ciro/sipariş verisinden basit bir çubuk grafik — dış kütüphane
+  // gerekmez, her çubuk o haftanın toplam cirosuyla orantılı yükseklikte bir <div>.
+  function renderSalesChart(orders){
+    var el = $('salesChart');
+    if(!el) return;
+    var WEEKS = 8;
+    var now = new Date();
+    var weekMs = 7 * 24 * 3600 * 1000;
+    var thisWeekStart = new Date(now); thisWeekStart.setHours(0,0,0,0);
+    thisWeekStart.setDate(thisWeekStart.getDate() - thisWeekStart.getDay());
+    var buckets = [];
+    for(var i = WEEKS - 1; i >= 0; i--){
+      buckets.push({ start: thisWeekStart.getTime() - i * weekMs, revenue: 0, count: 0 });
+    }
+    orders.forEach(function(o){
+      var t = (o.createdAt && o.createdAt.toDate) ? o.createdAt.toDate().getTime() : null;
+      if(t === null) return;
+      for(var i = buckets.length - 1; i >= 0; i--){
+        if(t >= buckets[i].start){ buckets[i].revenue += (o.total || 0); buckets[i].count++; break; }
+      }
+    });
+    var maxRevenue = Math.max.apply(null, buckets.map(function(b){ return b.revenue; }).concat([1]));
+    if(!buckets.some(function(b){ return b.count > 0; })){
+      el.innerHTML = '<div class="empty-state">Henüz sipariş yok. İlk sipariş geldiğinde haftalık trend burada görünecek.</div>';
+      return;
+    }
+    el.innerHTML = buckets.map(function(b){
+      var pct = maxRevenue > 0 ? Math.max(3, Math.round((b.revenue / maxRevenue) * 100)) : 3;
+      var d = new Date(b.start);
+      var label = d.toLocaleDateString('tr-TR', {day:'numeric', month:'short'});
+      return '<div class="sc-col" title="' + escapeHtml(label) + ': ' + money(b.revenue) + ' (' + b.count + ' sipariş)">' +
+        '<div class="sc-bar-wrap"><div class="sc-bar" style="height:' + pct + '%"></div></div>' +
+        '<span class="sc-label">' + escapeHtml(label) + '</span>' +
+      '</div>';
+    }).join('');
   }
 
   var LOW_STOCK_THRESHOLD = 3;
@@ -1507,12 +1943,17 @@ a{color:inherit;}
         var bits = [it.name || 'Ürün', it.size ? ('Beden ' + it.size) : null, it.color ? it.color : null, 'x' + (it.qty || 1)];
         return bits.filter(Boolean).join(' · ');
       }).join('<br>');
-      var channelLabel = o.channel === 'instagram' ? 'Instagram' : (o.channel === 'whatsapp' ? 'WhatsApp' : (o.channel || '—'));
-      var couponBit = o.couponCode ? (' · Kupon: ' + escapeHtml(o.couponCode)) : '';
+      var CHANNEL_LABELS_MAP = { whatsapp: 'WhatsApp', instagram: 'Instagram', kapida: 'Kapıda Ödeme', havale: 'Havale/EFT', card: 'Kredi Kartı' };
+      var channelLabel = CHANNEL_LABELS_MAP[o.channel] || o.channel || '—';
+      var isReferralOrder = o.couponCode && /^REF-/.test(o.couponCode);
+      var couponBit = o.couponCode ? (isReferralOrder ? (' · <span class="oc-referral-badge">🎗 Referans: ' + escapeHtml(o.couponCode) + '</span>') : (' · Kupon: ' + escapeHtml(o.couponCode))) : '';
       var discountBit = o.discount ? (' · İndirim: -' + money(o.discount)) : '';
       var giftNoteHtml = o.giftNote ? '<div class="oc-giftnote">🎁 ' + escapeHtml(o.giftNote) + '</div>' : '';
       var statusOptionsHtml = Object.keys(ORDER_STATUSES).map(function(key){
         return '<option value="' + key + '"' + (o.status === key ? ' selected' : '') + '>' + ORDER_STATUSES[key] + '</option>';
+      }).join('');
+      var carrierOptionsHtml = SHIPPING_CARRIERS.map(function(c){
+        return '<option value="' + c + '"' + (o.trackingCarrier === c ? ' selected' : '') + '>' + c + '</option>';
       }).join('');
       return (
         '<div class="order-card" data-docid="' + o.docId + '">' +
@@ -1534,6 +1975,11 @@ a{color:inherit;}
             '<input type="text" data-ordernote="' + o.docId + '" placeholder="Yönetici notu (müşteriye görünmez)" value="' + escapeHtml(o.adminNote) + '" maxlength="500">' +
             '<button type="button" class="btn btn-ghost btn-sm" data-savenote="' + o.docId + '">Notu Kaydet</button>' +
           '</div>' +
+          '<div class="oc-controls oc-tracking">' +
+            '<select data-trackingcarrier="' + o.docId + '">' + carrierOptionsHtml + '</select>' +
+            '<input type="text" data-trackingcode="' + o.docId + '" placeholder="Kargo takip numarası" value="' + escapeHtml(o.trackingCode || '') + '" maxlength="60">' +
+            '<button type="button" class="btn btn-ghost btn-sm" data-savetracking="' + o.docId + '">Takip Bilgisini Kaydet</button>' +
+          '</div>' +
         '</div>'
       );
     }).join('');
@@ -1551,6 +1997,7 @@ a{color:inherit;}
           statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(function(){
           showToast('Sipariş durumu güncellendi: ' + orderStatusLabel(newStatus));
+          sendStatusUpdateEmail(o, newStatus);
           renderOrders();
           renderAnalytics();
         }).catch(function(err){
@@ -1574,6 +2021,25 @@ a{color:inherit;}
           showToast('Not kaydedildi.');
         }).catch(function(err){
           showToast('Not kaydedilemedi: ' + (err && err.message ? err.message : err), true);
+        }).finally(function(){ btn.disabled = false; });
+      });
+    });
+
+    listEl.querySelectorAll('[data-savetracking]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.dataset.savetracking;
+        var carrierSel = listEl.querySelector('[data-trackingcarrier="' + id + '"]');
+        var codeInput = listEl.querySelector('[data-trackingcode="' + id + '"]');
+        if(!carrierSel || !codeInput) return;
+        var carrier = carrierSel.value;
+        var code = codeInput.value.trim();
+        btn.disabled = true;
+        db.collection('orders').doc(id).update({ trackingCarrier: carrier || null, trackingCode: code || null }).then(function(){
+          var o = state.orders.find(function(x){ return x.docId === id; });
+          if(o){ o.trackingCarrier = carrier; o.trackingCode = code; }
+          showToast('Kargo takip bilgisi kaydedildi.');
+        }).catch(function(err){
+          showToast('Takip bilgisi kaydedilemedi: ' + (err && err.message ? err.message : err), true);
         }).finally(function(){ btn.disabled = false; });
       });
     });
@@ -1694,6 +2160,296 @@ a{color:inherit;}
     });
   }
 
+  // ============ İadeler ============
+  var RETURN_STATUS_OPTIONS = ['Alındı', 'İnceleniyor', 'Onaylandı', 'Reddedildi', 'Tamamlandı'];
+  function renderReturnRequests(){
+    var listEl = $('returnList');
+    var countLabel = $('returnCountLabel');
+    var badge = $('returnTabBadge');
+    if(!listEl) return;
+    var requests = state.returnRequests || [];
+    var openCount = requests.filter(function(r){ return r.status === 'Alındı'; }).length;
+    if(badge){
+      if(openCount > 0){ badge.textContent = openCount; badge.hidden = false; }
+      else { badge.hidden = true; }
+    }
+    if(countLabel) countLabel.textContent = requests.length + ' talep' + (openCount ? ' (' + openCount + ' yeni)' : '');
+    if(!requests.length){
+      listEl.innerHTML = '<div class="empty-state">Şu an bekleyen iade/değişim talebi yok.</div>';
+      return;
+    }
+    var statusOptionsHtml = function(current){
+      return RETURN_STATUS_OPTIONS.map(function(s){
+        return '<option value="' + s + '"' + (s === current ? ' selected' : '') + '>' + s + '</option>';
+      }).join('');
+    };
+    listEl.innerHTML = requests.map(function(r){
+      var date = r.createdAt && r.createdAt.toDate ? r.createdAt.toDate().toLocaleDateString('tr-TR') : '';
+      return (
+        '<div class="restock-group">' +
+          '<div class="rg-head">' +
+            '<span class="name">' + escapeHtml(r.type === 'degisim' ? 'Değişim' : 'İade') + (r.productName ? ' — ' + escapeHtml(r.productName) : '') + '</span>' +
+            '<span class="count">' + escapeHtml(date) + '</span>' +
+          '</div>' +
+          '<div class="sub" style="margin-bottom:8px;">' + escapeHtml(r.email) + (r.orderId ? ' · Sipariş: ' + escapeHtml(r.orderId) : '') + '</div>' +
+          (r.reason ? '<div class="sub" style="margin-bottom:8px;">"' + escapeHtml(r.reason) + '"</div>' : '') +
+          '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
+            '<select data-returnstatus="' + r.docId + '">' + statusOptionsHtml(r.status) + '</select>' +
+            '<button type="button" class="btn-ghost" data-delreturn="' + r.docId + '">Sil</button>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+    listEl.querySelectorAll('[data-returnstatus]').forEach(function(sel){
+      sel.addEventListener('change', function(){
+        var id = sel.dataset.returnstatus;
+        db.collection('returnRequests').doc(id).update({ status: sel.value }).then(function(){
+          var r = state.returnRequests.find(function(x){ return x.docId === id; });
+          if(r) r.status = sel.value;
+          renderReturnRequests();
+          showToast('Durum güncellendi.');
+        }).catch(function(err){ showToast('Güncellenemedi: ' + err.message, true); });
+      });
+    });
+    listEl.querySelectorAll('[data-delreturn]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.dataset.delreturn;
+        db.collection('returnRequests').doc(id).delete().then(function(){
+          state.returnRequests = state.returnRequests.filter(function(r){ return r.docId !== id; });
+          renderReturnRequests();
+          showToast('Talep silindi.');
+        }).catch(function(err){ showToast('Silinemedi: ' + err.message, true); });
+      });
+    });
+  }
+
+  function productNameById(id){
+    var p = (state.products || []).find(function(x){ return x.id === id; });
+    return p ? p.name : ('Ürün #' + id);
+  }
+  function renderProductQuestions(){
+    var listEl = $('qList');
+    var countLabel = $('qCountLabel');
+    var badge = $('qTabBadge');
+    if(!listEl) return;
+    var qs = state.productQuestions || [];
+    var openCount = qs.filter(function(q){ return !q.answer; }).length;
+    if(badge){
+      if(openCount > 0){ badge.textContent = openCount; badge.hidden = false; }
+      else { badge.hidden = true; }
+    }
+    if(countLabel) countLabel.textContent = qs.length + ' soru' + (openCount ? ' (' + openCount + ' yanıt bekliyor)' : '');
+    if(!qs.length){
+      listEl.innerHTML = '<div class="empty-state">Henüz soru gelmedi.</div>';
+      return;
+    }
+    listEl.innerHTML = qs.map(function(q){
+      var date = q.createdAt && q.createdAt.toDate ? q.createdAt.toDate().toLocaleDateString('tr-TR') : '';
+      return (
+        '<div class="restock-group">' +
+          '<div class="rg-head">' +
+            '<span class="name">' + escapeHtml(productNameById(q.productId)) + (q.name ? ' — ' + escapeHtml(q.name) : '') + '</span>' +
+            '<span class="count">' + escapeHtml(date) + '</span>' +
+          '</div>' +
+          '<div class="sub" style="margin-bottom:8px;">"' + escapeHtml(q.question) + '"</div>' +
+          (q.answer ? '<div class="sub" style="margin-bottom:8px;color:var(--espresso);"><b>Yanıtın:</b> ' + escapeHtml(q.answer) + '</div>' : '') +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;">' +
+            '<textarea data-qanswer="' + q.docId + '" placeholder="Yanıtını yaz..." style="flex:1;min-width:220px;min-height:60px;">' + escapeHtml(q.answer || '') + '</textarea>' +
+            '<button type="button" class="btn btn-ghost btn-sm" data-saveanswer="' + q.docId + '">Yanıtla</button>' +
+            '<button type="button" class="btn-ghost" data-delq="' + q.docId + '">Sil</button>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+    listEl.querySelectorAll('[data-saveanswer]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.dataset.saveanswer;
+        var ta = listEl.querySelector('[data-qanswer="' + id + '"]');
+        if(!ta) return;
+        var answer = ta.value.trim();
+        if(!answer){ showToast('Önce bir yanıt yaz.', true); return; }
+        btn.disabled = true;
+        db.collection('productQuestions').doc(id).update({ answer: answer, answeredAt: firebase.firestore.FieldValue.serverTimestamp() }).then(function(){
+          var q = state.productQuestions.find(function(x){ return x.docId === id; });
+          if(q) q.answer = answer;
+          renderProductQuestions();
+          showToast('Yanıt yayınlandı.');
+        }).catch(function(err){ showToast('Yanıtlanamadı: ' + err.message, true); }).finally(function(){ btn.disabled = false; });
+      });
+    });
+    listEl.querySelectorAll('[data-delq]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.dataset.delq;
+        db.collection('productQuestions').doc(id).delete().then(function(){
+          state.productQuestions = state.productQuestions.filter(function(q){ return q.docId !== id; });
+          renderProductQuestions();
+          showToast('Soru silindi.');
+        }).catch(function(err){ showToast('Silinemedi: ' + err.message, true); });
+      });
+    });
+  }
+
+  // ============ Pazarlama: Toplanan E-postalar ============
+  function renderGiftCardRequests(){
+    var listEl = $('giftCardReqList');
+    var countLabel = $('giftCardCountLabel');
+    if(!listEl) return;
+    var reqs = state.giftCardRequests || [];
+    var pending = reqs.filter(function(r){ return r.status !== 'done'; });
+    if(countLabel) countLabel.textContent = reqs.length + ' talep (' + pending.length + ' bekliyor)';
+    if(!reqs.length){
+      listEl.innerHTML = '<div class="empty-state">Henüz hediye çeki talebi yok.</div>';
+      return;
+    }
+    listEl.innerHTML = reqs.map(function(r){
+      var done = r.status === 'done';
+      return (
+        '<div class="prod-row" data-gcid="' + r.docId + '">' +
+          '<div class="prod-info">' +
+            '<div class="name">' + money(r.amount) + ' — ' + escapeHtml(r.email) + (done ? ' <span class="oc-referral-badge">✓ Tamamlandı</span>' : '') + '</div>' +
+            '<div class="meta">' + fmtOrderDate(r.createdAt) + '</div>' +
+          '</div>' +
+          '<div class="prod-right">' +
+            (!done ? '<button type="button" class="btn btn-ghost btn-sm" data-gcdone="' + r.docId + '">Tamamlandı İşaretle</button>' : '') +
+            '<button type="button" class="btn btn-ghost btn-sm" data-gcdel="' + r.docId + '">Sil</button>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+    listEl.querySelectorAll('[data-gcdone]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.dataset.gcdone;
+        db.collection('giftCardRequests').doc(id).update({ status: 'done' }).then(function(){
+          var r = state.giftCardRequests.find(function(x){ return x.docId === id; });
+          if(r) r.status = 'done';
+          renderGiftCardRequests();
+        }).catch(function(err){ showToast('Güncellenemedi: ' + err.message, true); });
+      });
+    });
+    listEl.querySelectorAll('[data-gcdel]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.dataset.gcdel;
+        db.collection('giftCardRequests').doc(id).delete().then(function(){
+          state.giftCardRequests = state.giftCardRequests.filter(function(r){ return r.docId !== id; });
+          renderGiftCardRequests();
+          showToast('Kayıt silindi.');
+        }).catch(function(err){ showToast('Silinemedi: ' + err.message, true); });
+      });
+    });
+  }
+
+  function renderLeads(){
+    var listEl = $('leadList');
+    var countLabel = $('leadCountLabel');
+    if(!listEl) return;
+    var leads = state.leads || [];
+    if(countLabel) countLabel.textContent = leads.length + ' e-posta (karşılama kuponu açılır penceresinden)';
+    if(!leads.length){
+      listEl.innerHTML = '<div class="empty-state">Henüz kimse karşılama kuponu için e-posta bırakmadı. Ayarlar sekmesinden bir "Karşılama Kuponu" kodu tanımlarsan pencere sitede görünmeye başlar.</div>';
+      return;
+    }
+    listEl.innerHTML = leads.map(function(l){
+      return (
+        '<div class="prod-row" data-leadid="' + l.docId + '">' +
+          '<div class="prod-info">' +
+            '<div class="name">' + escapeHtml(l.email) + '</div>' +
+            '<div class="meta">' + fmtOrderDate(l.createdAt) + '</div>' +
+          '</div>' +
+          '<div class="prod-right">' +
+            '<button type="button" class="btn btn-ghost btn-sm" data-delead="' + l.docId + '">Sil</button>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+    listEl.querySelectorAll('[data-delead]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.dataset.delead;
+        db.collection('leads').doc(id).delete().then(function(){
+          state.leads = state.leads.filter(function(l){ return l.docId !== id; });
+          renderLeads();
+          showToast('Kayıt silindi.');
+        }).catch(function(err){ showToast('Silinemedi: ' + err.message, true); });
+      });
+    });
+  }
+
+  // ============ Pazarlama: Instagram Vitrini ============
+  function renderInstagramAdmin(){
+    var listEl = $('instaPostList');
+    if(!listEl) return;
+    var posts = state.instagramPosts || [];
+    if(!posts.length){
+      listEl.innerHTML = '<div class="empty-state" style="margin-bottom:14px;">Henüz gönderi eklenmedi — aşağıdan bir fotoğraf seçerek başlayabilirsin.</div>';
+      return;
+    }
+    listEl.innerHTML = posts.map(function(post){
+      return (
+        '<div class="prod-row" data-instaid="' + post.docId + '">' +
+          '<div class="color-photo-thumb" style="background-image:url(' + escapeHtml(post.photo) + ');width:44px;height:44px;"></div>' +
+          '<div class="prod-info">' +
+            '<div class="name">' + (post.caption ? escapeHtml(post.caption) : '<span style="color:var(--espresso-70);">(başlık yok)</span>') + '</div>' +
+            '<div class="meta">' + (post.link ? escapeHtml(post.link) : 'Link eklenmedi — kartın tıklanması profile götürür') + '</div>' +
+          '</div>' +
+          '<div class="prod-right">' +
+            '<button type="button" class="btn btn-ghost btn-sm" data-delinsta="' + post.docId + '">Sil</button>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+    listEl.querySelectorAll('[data-delinsta]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.dataset.delinsta;
+        btn.disabled = true; btn.textContent = 'Siliniyor…';
+        db.collection('instagramPosts').doc(id).delete().then(function(){
+          state.instagramPosts = state.instagramPosts.filter(function(p){ return p.docId !== id; });
+          renderInstagramAdmin();
+          showToast('Gönderi kaldırıldı.');
+        }).catch(function(err){
+          showToast('Kaldırılamadı: ' + err.message, true);
+          btn.disabled = false; btn.textContent = 'Sil';
+        });
+      });
+    });
+  }
+  (function(){
+    var addBtn = $('instaAddPhotoBtn');
+    var input = $('instaPhotoInput');
+    if(!addBtn || !input) return;
+    addBtn.addEventListener('click', function(){ input.click(); });
+    input.addEventListener('change', function(){
+      var file = this.files && this.files[0];
+      if(!file) return;
+      var thisInput = this;
+      var bar = $('instaUploadBar'); var fill = $('instaUploadBarFill');
+      bar.classList.add('show'); fill.style.width = '4%';
+      addBtn.disabled = true;
+      prepareImageBlob(file).then(function(blob){
+        return uploadImageToCloudinary(blob, function(pct){ fill.style.width = Math.round(pct * 100) + '%'; }, 'sonya-instagram');
+      }).then(function(url){
+        var linkEl = $('instaNewLink'), capEl = $('instaNewCaption');
+        var nextOrder = (state.instagramPosts || []).reduce(function(m, p){ return Math.max(m, p.order); }, -1) + 1;
+        var data = {
+          photo: url,
+          link: (linkEl.value || '').trim(),
+          caption: (capEl.value || '').trim(),
+          order: nextOrder
+        };
+        return db.collection('instagramPosts').add(data).then(function(ref){
+          state.instagramPosts.push(Object.assign({docId: ref.id}, data));
+          renderInstagramAdmin();
+          linkEl.value = ''; capEl.value = '';
+          showToast('Gönderi eklendi.');
+        });
+      }).catch(function(err){
+        showToast('Fotoğraf eklenemedi: ' + (err && err.message ? err.message : err), true);
+      }).finally(function(){
+        addBtn.disabled = false;
+        thisInput.value = '';
+        bar.classList.remove('show'); fill.style.width = '0%';
+      });
+    });
+  })();
+
   function loadCategories(){
     return db.collection('categories').orderBy('order').get().then(function(snap){
       var list = [];
@@ -1725,7 +2481,11 @@ a{color:inherit;}
           isNew: !!d.isNew,
           isBestseller: !!d.isBestseller,
           photoURL: d.photoURL || null,
-          photos: Array.isArray(d.photos) ? d.photos : []
+          photos: Array.isArray(d.photos) ? d.photos : [],
+          colorPhotos: (d.colorPhotos && typeof d.colorPhotos === 'object') ? d.colorPhotos : {},
+          videoURL: d.videoURL || null,
+          priceHistory: Array.isArray(d.priceHistory) ? d.priceHistory : [],
+          fabric: d.fabric || null
         });
       });
       list.sort(function(a,b){ return (a.id||0) - (b.id||0); });
@@ -1746,6 +2506,21 @@ a{color:inherit;}
         if(typeof site.phone === 'string') s.phone = site.phone;
         if(typeof site.shippingThreshold === 'number') s.shippingThreshold = site.shippingThreshold;
         if(typeof site.iyzicoEnabled === 'boolean') s.iyzicoEnabled = site.iyzicoEnabled;
+        if(typeof site.deliveryEstimate === 'string') s.deliveryEstimate = site.deliveryEstimate;
+        if(typeof site.welcomeCouponCode === 'string') s.welcomeCouponCode = site.welcomeCouponCode;
+        if(typeof site.bundleMinItems === 'number') s.bundleMinItems = site.bundleMinItems;
+        if(typeof site.bundlePercent === 'number') s.bundlePercent = site.bundlePercent;
+        if(typeof site.gaMeasurementId === 'string') s.gaMeasurementId = site.gaMeasurementId;
+        if(typeof site.metaPixelId === 'string') s.metaPixelId = site.metaPixelId;
+        if(typeof site.codEnabled === 'boolean') s.codEnabled = site.codEnabled;
+        if(typeof site.bankName === 'string') s.bankName = site.bankName;
+        if(typeof site.ibanOwner === 'string') s.ibanOwner = site.ibanOwner;
+        if(typeof site.iban === 'string') s.iban = site.iban;
+        if(typeof site.loyaltyTierSilver === 'number') s.loyaltyTierSilver = site.loyaltyTierSilver;
+        if(typeof site.loyaltyTierGold === 'number') s.loyaltyTierGold = site.loyaltyTierGold;
+        if(typeof site.campaignEndsAt === 'string') s.campaignEndsAt = site.campaignEndsAt;
+        if(typeof site.campaignLabel === 'string') s.campaignLabel = site.campaignLabel;
+        if(typeof site.fcmVapidKey === 'string') s.fcmVapidKey = site.fcmVapidKey;
       }
       if(results[1].exists){
         var legal = results[1].data() || {};
@@ -1930,6 +2705,7 @@ a{color:inherit;}
     $('prodPrice').value = p ? p.price : '';
     $('prodOldPrice').value = p && p.oldPrice ? p.oldPrice : '';
     $('prodDesc').value = p ? p.desc : '';
+    $('prodFabric').value = p ? (p.fabric || '') : '';
 
     renderCategorySelect();
     if(p) $('prodCat').value = p.cat;
@@ -1944,7 +2720,13 @@ a{color:inherit;}
     });
 
     state.pendingColors = p && p.colors ? p.colors.slice() : [];
+    state.pendingColorPhotos = (p && p.colorPhotos && typeof p.colorPhotos === 'object') ? Object.assign({}, p.colorPhotos) : {};
     renderColorList();
+
+    state.pendingVideoURL = p && p.videoURL ? p.videoURL : null;
+    renderProductVideoPreview();
+    $('videoUploadBar').classList.remove('show');
+    $('videoUploadBarFill').style.width = '0%';
 
     var hasVariant = !!(p && p.variantStock && Object.keys(p.variantStock).length);
     state.pendingVariantStock = hasVariant ? JSON.parse(JSON.stringify(p.variantStock)) : {};
@@ -1984,13 +2766,34 @@ a{color:inherit;}
   function renderColorList(){
     var wrap = $('colorList');
     wrap.innerHTML = state.pendingColors.map(function(hex, i){
-      return '<div class="color-chip"><span class="color-swatch" style="background:' + escapeHtml(hex) + ';"></span>' + escapeHtml(hex) + '<button type="button" data-rmcolor="' + i + '">&times;</button></div>';
+      var photoUrl = state.pendingColorPhotos[hex];
+      var photoHtml = photoUrl
+        ? '<span class="color-photo-thumb" style="background-image:url(' + escapeHtml(photoUrl) + ')" data-colorphoto="' + escapeHtml(hex) + '" title="Fotoğrafı değiştir"></span><button type="button" class="color-photo-rm" data-colorphotorm="' + escapeHtml(hex) + '" aria-label="Renk fotoğrafını kaldır">&times;</button>'
+        : '<button type="button" class="color-photo-add" data-colorphotoadd="' + escapeHtml(hex) + '">+ Foto</button>';
+      return '<div class="color-chip"><span class="color-swatch" style="background:' + escapeHtml(hex) + ';"></span>' + escapeHtml(hex) +
+        photoHtml +
+        '<button type="button" data-rmcolor="' + i + '" aria-label="Rengi kaldır">&times;</button></div>';
     }).join('');
     wrap.querySelectorAll('[data-rmcolor]').forEach(function(b){
       b.addEventListener('click', function(){
+        var hex = state.pendingColors[parseInt(b.dataset.rmcolor, 10)];
         state.pendingColors.splice(parseInt(b.dataset.rmcolor, 10), 1);
+        delete state.pendingColorPhotos[hex];
         renderColorList();
         if($('useVariantStock').checked) renderVariantStockGrid();
+      });
+    });
+    wrap.querySelectorAll('[data-colorphoto], [data-colorphotoadd]').forEach(function(el){
+      el.addEventListener('click', function(){
+        state.colorPhotoTargetHex = el.dataset.colorphoto || el.dataset.colorphotoadd;
+        $('colorPhotoInput').click();
+      });
+    });
+    wrap.querySelectorAll('[data-colorphotorm]').forEach(function(b){
+      b.addEventListener('click', function(e){
+        e.stopPropagation();
+        delete state.pendingColorPhotos[b.dataset.colorphotorm];
+        renderColorList();
       });
     });
   }
@@ -1999,6 +2802,28 @@ a{color:inherit;}
     if(state.pendingColors.indexOf(hex) === -1) state.pendingColors.push(hex);
     renderColorList();
     if($('useVariantStock').checked) renderVariantStockGrid();
+  });
+  $('colorPhotoInput').addEventListener('change', function(){
+    var file = this.files && this.files[0];
+    var input = this;
+    var hex = state.colorPhotoTargetHex;
+    if(!file || !hex){ input.value = ''; return; }
+    var bar = $('uploadBar'); var fill = $('uploadBarFill');
+    bar.classList.add('show'); fill.style.width = '4%';
+    prepareImageBlob(file).then(function(blob){
+      return uploadImageToCloudinary(blob, function(frac){ fill.style.width = Math.round(frac * 100) + '%'; });
+    }).then(function(url){
+      state.pendingColorPhotos[hex] = url;
+      renderColorList();
+      fill.style.width = '100%';
+      setTimeout(function(){ bar.classList.remove('show'); fill.style.width = '0%'; }, 300);
+    }).catch(function(err){
+      showToast('Renk fotoğrafı yüklenemedi: ' + (err && err.message ? err.message : err), true);
+      bar.classList.remove('show'); fill.style.width = '0%';
+    }).finally(function(){
+      input.value = '';
+      state.colorPhotoTargetHex = null;
+    });
   });
 
   // ---------- Renk + beden bazlı stok takibi ----------
@@ -2158,6 +2983,46 @@ a{color:inherit;}
     });
   });
 
+  function renderProductVideoPreview(){
+    var wrap = $('productVideoPreview');
+    var hint = $('productVideoHint');
+    if(!wrap) return;
+    if(state.pendingVideoURL){
+      wrap.innerHTML = '<video src="' + state.pendingVideoURL + '" controls muted style="width:100%;max-height:220px;border-radius:8px;display:block;margin-bottom:8px;background:#000;"></video>' +
+        '<button type="button" class="btn-ghost" id="removeProductVideoBtn">Videoyu Kaldır</button>';
+      var rm = $('removeProductVideoBtn');
+      if(rm) rm.addEventListener('click', function(){
+        state.pendingVideoURL = null;
+        renderProductVideoPreview();
+      });
+      if(hint) hint.textContent = 'Değiştirmek için tıklayın';
+    } else {
+      wrap.innerHTML = '';
+      if(hint) hint.textContent = 'Kumaşın hareketini/dokusunu gösteren kısa bir video eklemek için tıklayın (en fazla 25MB)';
+    }
+  }
+
+  $('productVideoInput').addEventListener('change', function(){
+    var file = this.files && this.files[0];
+    if(!file) return;
+    var input = this;
+    var bar = $('videoUploadBar'); var fill = $('videoUploadBarFill');
+    bar.classList.add('show'); fill.style.width = '4%';
+    uploadVideoToCloudinary(file, function(frac){
+      fill.style.width = Math.round(frac * 100) + '%';
+    }).then(function(url){
+      state.pendingVideoURL = url;
+      renderProductVideoPreview();
+      fill.style.width = '100%';
+      setTimeout(function(){ bar.classList.remove('show'); fill.style.width = '0%'; }, 300);
+      input.value = '';
+    }).catch(function(err){
+      showToast('Video yüklenemedi: ' + (err && err.message ? err.message : err), true);
+      bar.classList.remove('show'); fill.style.width = '0%';
+      input.value = '';
+    });
+  });
+
   function collectSizes(){
     var out = [];
     document.querySelectorAll('#sizeChips .chip-toggle.on').forEach(function(chip){ out.push(chip.dataset.size); });
@@ -2218,13 +3083,29 @@ a{color:inherit;}
 
     var badges = collectBadges();
     var photos = state.pendingPhotos.slice();
+    var colorPhotosOut = {};
+    state.pendingColors.forEach(function(c){
+      if(state.pendingColorPhotos[c]) colorPhotosOut[c] = state.pendingColorPhotos[c];
+    });
+    // "Son 30 günün en düşük fiyatı" şeffaflığı için: fiyat gerçekten değiştiyse eski fiyatı
+    // gerçek bir zaman damgasıyla geçmişe ekle. Sadece son 50 kayıt tutulur (sınırsız büyümesin).
+    var priceHistory = (existing && Array.isArray(existing.priceHistory)) ? existing.priceHistory.slice() : [];
+    if(existing && typeof existing.price === 'number' && existing.price !== price){
+      priceHistory.push({ price: existing.price, ts: Date.now() });
+      if(priceHistory.length > 50) priceHistory = priceHistory.slice(priceHistory.length - 50);
+    }
+    var fabric = $('prodFabric') ? $('prodFabric').value.trim() : '';
     var data = {
       id: existing ? existing.id : nextNumericId(),
       cat: cat, name: name, price: price, oldPrice: oldPrice,
       sizes: sizes, stock: stock, colors: state.pendingColors.slice(), desc: desc,
       variantStock: variantStock,
       isNew: !!badges.isNew, isBestseller: !!badges.isBestseller,
-      photos: photos, photoURL: photos[0] || null
+      photos: photos, photoURL: photos[0] || null,
+      colorPhotos: Object.keys(colorPhotosOut).length ? colorPhotosOut : null,
+      videoURL: state.pendingVideoURL || null,
+      priceHistory: priceHistory.length ? priceHistory : null,
+      fabric: fabric || null
     };
     var promise = existing
       ? db.collection('products').doc(existing.docId).set(data)
@@ -2548,7 +3429,22 @@ a{color:inherit;}
     $('setInstagram').value = s.instagram || '';
     $('setPhone').value = s.phone || '';
     $('setShipping').value = s.shippingThreshold || 0;
+    $('setDeliveryEstimate').value = s.deliveryEstimate || '';
+    $('setBundleMinItems').value = s.bundleMinItems || '';
+    $('setBundlePercent').value = s.bundlePercent || '';
+    $('setGaId').value = s.gaMeasurementId || '';
+    $('setMetaPixelId').value = s.metaPixelId || '';
     $('setIyzicoEnabled').checked = !!s.iyzicoEnabled;
+    $('setWelcomeCoupon').value = s.welcomeCouponCode || '';
+    $('setCodEnabled').checked = !!s.codEnabled;
+    $('setBankName').value = s.bankName || '';
+    $('setIbanOwner').value = s.ibanOwner || '';
+    $('setIban').value = s.iban || '';
+    $('setLoyaltyTierSilver').value = s.loyaltyTierSilver || '';
+    $('setLoyaltyTierGold').value = s.loyaltyTierGold || '';
+    $('setCampaignEndsAt').value = s.campaignEndsAt || '';
+    $('setCampaignLabel').value = s.campaignLabel || '';
+    $('setFcmVapidKey').value = s.fcmVapidKey || '';
     $('setGizlilik').value = s.legal.gizlilik || '';
     $('setKvkk').value = s.legal.kvkk || '';
     $('setIade').value = s.legal.iade || '';
@@ -2630,7 +3526,22 @@ a{color:inherit;}
       instagram: $('setInstagram').value.trim(),
       phone: $('setPhone').value.trim(),
       shippingThreshold: parseFloat($('setShipping').value) || 0,
-      iyzicoEnabled: !!$('setIyzicoEnabled').checked
+      deliveryEstimate: $('setDeliveryEstimate').value.trim(),
+      bundleMinItems: parseInt($('setBundleMinItems').value, 10) || 0,
+      bundlePercent: parseFloat($('setBundlePercent').value) || 0,
+      gaMeasurementId: $('setGaId').value.trim(),
+      metaPixelId: $('setMetaPixelId').value.trim(),
+      iyzicoEnabled: !!$('setIyzicoEnabled').checked,
+      welcomeCouponCode: $('setWelcomeCoupon').value.trim().toUpperCase(),
+      codEnabled: !!$('setCodEnabled').checked,
+      bankName: $('setBankName').value.trim(),
+      ibanOwner: $('setIbanOwner').value.trim(),
+      iban: $('setIban').value.trim().replace(/\s+/g, ''),
+      loyaltyTierSilver: parseFloat($('setLoyaltyTierSilver').value) || 0,
+      loyaltyTierGold: parseFloat($('setLoyaltyTierGold').value) || 0,
+      campaignEndsAt: $('setCampaignEndsAt').value.trim(),
+      campaignLabel: $('setCampaignLabel').value.trim(),
+      fcmVapidKey: $('setFcmVapidKey').value.trim()
     };
     var legalData = {
       gizlilik: $('setGizlilik').value,
@@ -2649,7 +3560,22 @@ a{color:inherit;}
       state.settings.instagram = siteData.instagram;
       state.settings.phone = siteData.phone;
       state.settings.shippingThreshold = siteData.shippingThreshold;
+      state.settings.deliveryEstimate = siteData.deliveryEstimate;
+      state.settings.bundleMinItems = siteData.bundleMinItems;
+      state.settings.bundlePercent = siteData.bundlePercent;
+      state.settings.gaMeasurementId = siteData.gaMeasurementId;
+      state.settings.metaPixelId = siteData.metaPixelId;
       state.settings.iyzicoEnabled = siteData.iyzicoEnabled;
+      state.settings.welcomeCouponCode = siteData.welcomeCouponCode;
+      state.settings.codEnabled = siteData.codEnabled;
+      state.settings.bankName = siteData.bankName;
+      state.settings.ibanOwner = siteData.ibanOwner;
+      state.settings.iban = siteData.iban;
+      state.settings.loyaltyTierSilver = siteData.loyaltyTierSilver;
+      state.settings.loyaltyTierGold = siteData.loyaltyTierGold;
+      state.settings.campaignEndsAt = siteData.campaignEndsAt;
+      state.settings.campaignLabel = siteData.campaignLabel;
+      state.settings.fcmVapidKey = siteData.fcmVapidKey;
       state.settings.legal = legalData;
       showToast('Ayarlar kaydedildi.');
     }).catch(function(err){

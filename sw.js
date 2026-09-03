@@ -6,7 +6,7 @@
 // ÖNEMLİ: Sayfalarda büyük bir güncelleme yaptığında CACHE_NAME'in sonundaki
 // sürüm numarasını artır (v1 -> v2 ...) — aksi halde kullanıcılar eski
 // önbellekteki sürümü görmeye devam edebilir.
-var CACHE_NAME = 'sonya-shell-v2';
+var CACHE_NAME = 'sonya-shell-v5';
 
 var SHELL_FILES = [
   '/',
@@ -18,6 +18,9 @@ var SHELL_FILES = [
   '/takimlar.html',
   '/elbiseler.html',
   '/hesabim.html',
+  '/sss.html',
+  '/stil-rehberi.html',
+  '/hakkimizda.html',
   '/manifest.webmanifest',
   '/icon-192.png',
   '/icon-512.png'

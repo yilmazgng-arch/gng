@@ -337,6 +337,7 @@
       userName: (snapshot && snapshot.buyerName) || (currentUser ? currentUser.displayName : null),
       userPhone: (snapshot && snapshot.buyerPhone) || null,
       giftNote: (snapshot && snapshot.giftNote) || null,
+      giftWrap: !!(snapshot && snapshot.giftWrap),
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     return db.collection('orders').add(orderData).then(function(){
@@ -352,8 +353,50 @@
     });
   }
 
+  // Sipariş sonrası kutlama animasyonu — sonya-collection.html'deki diğer ödeme
+  // kanallarıyla (kapıda/havale/WhatsApp/Instagram) aynı küçük "wow" dokunuşu.
+  function celebrateOrderSuccess(){
+    try{
+      if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var canvas = document.createElement('canvas');
+      canvas.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none;';
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+      document.body.appendChild(canvas);
+      var ctx = canvas.getContext('2d');
+      var colors = ['#B98657', '#D9A468', '#59442F', '#DCB78E', '#F3EADA'];
+      var pieces = [];
+      var count = window.innerWidth < 640 ? 60 : 110;
+      for(var i = 0; i < count; i++){
+        pieces.push({
+          x: canvas.width / 2 + (Math.random() - 0.5) * 60, y: canvas.height * 0.35,
+          vx: (Math.random() - 0.5) * 9, vy: -Math.random() * 9 - 4,
+          size: Math.random() * 6 + 4, color: colors[i % colors.length],
+          rot: Math.random() * Math.PI, vrot: (Math.random() - 0.5) * 0.3,
+          shape: Math.random() > 0.5 ? 'rect' : 'circle'
+        });
+      }
+      var gravity = 0.28, start = Date.now(), duration = 2200;
+      function frame(){
+        var elapsed = Date.now() - start;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(function(p){
+          p.vy += gravity; p.x += p.vx; p.y += p.vy; p.rot += p.vrot;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, 1 - elapsed / duration);
+          if(p.shape === 'rect') ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+          else { ctx.beginPath(); ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2); ctx.fill(); }
+          ctx.restore();
+        });
+        if(elapsed < duration) requestAnimationFrame(frame);
+        else canvas.remove();
+      }
+      requestAnimationFrame(frame);
+    }catch(e){}
+  }
+
   function showSuccess(summary){
     clearCart();
+    celebrateOrderSuccess();
     var bodyHtml = buildOrderSummaryHtml(summary.items, summary.total, summary.discount, summary.subtotal);
     render('ok', ICON_OK, 'Siparişin alındı!', 'Ödemen başarıyla tamamlandı, teşekkür ederiz. Sipariş detaylarını aşağıda görebilirsin.',
       bodyHtml + (summary.writeFailed ? '<p class="fine">Ödemen başarıyla alındı — sipariş kaydında küçük bir gecikme olabilir, merak etme.</p>' : ''),
