@@ -1,0 +1,8 @@
+# Bu klasördeki config.php / iyzico-client.php / firestore-helper.php dosyaları
+# sadece diğer PHP dosyaları tarafından include edilmek için var — tarayıcıdan
+# doğrudan açılabilir olmamalı (içinde API anahtarları var).
+<FilesMatch "^(config|iyzico-client|firestore-helper)\.php$">
+  Require all denied
+</FilesMatch>
+
+Options -Indexes

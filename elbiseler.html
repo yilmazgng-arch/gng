@@ -6,6 +6,15 @@
 <title>Elbiseler — Sonya Collection</title>
 <meta name="description" content="Sonya Collection'da elbise koleksiyonu.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Ccircle%20cx%3D%2732%27%20cy%3D%2732%27%20r%3D%2732%27%20fill%3D%27rgb%2889%2C68%2C47%29%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Georgia%2C%20serif%27%20font-size%3D%2734%27%20font-weight%3D%27600%27%20fill%3D%27rgb%28251%2C244%2C232%29%27%20text-anchor%3D%27middle%27%3ES%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://res.cloudinary.com">
+<link rel="preconnect" href="https://firestore.googleapis.com">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#59442F">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Sonya">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Sonya Collection">
 <meta property="og:title" content="Elbiseler — Sonya Collection">
@@ -318,6 +327,7 @@
   .card-media{
     position:relative;aspect-ratio:3/4;overflow:hidden;
     cursor:pointer;
+    background:var(--surface-2);
   }
   .card-scene{
     position:absolute;inset:-8%;
@@ -874,6 +884,43 @@
   .search-row .price-group{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
   .search-row .price-old{font-size:0.68rem;}
   .search-empty{padding:32px 16px;text-align:center;color:var(--espresso-70);font-size:0.86rem;}
+
+  /* ---------- Varyant (renk+beden) stok secimi ---------- */
+  .swatch{padding:0;cursor:default;}
+  .swatch-btn{cursor:pointer;}
+  .swatch-btn:hover{border-color:var(--caramel);}
+  .swatch-btn.selected{box-shadow:0 0 0 2px var(--cream),0 0 0 4px var(--espresso);}
+  .swatch-btn:disabled{opacity:0.3;cursor:not-allowed;}
+  .size-opt.oos{opacity:0.42;text-decoration:line-through;}
+
+  /* ---------- Son Goruntulenenler ---------- */
+  .recent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;}
+
+  /* ---------- Sepette teslimat adresi secimi ---------- */
+  .checkout-address-picker{display:flex;flex-direction:column;gap:8px;margin-bottom:2px;}
+  .cap-label{font-size:0.78rem;font-weight:700;color:var(--espresso);}
+  .cap-option{display:flex;gap:8px;align-items:flex-start;padding:9px 12px;border-radius:var(--radius-m);border:1px solid var(--line);cursor:pointer;font-size:0.78rem;line-height:1.45;}
+  .cap-option.selected{border-color:var(--espresso);background:var(--surface-2);}
+  .cap-option input{margin-top:3px;flex-shrink:0;}
+  .cap-default{font-size:0.68rem;font-weight:700;color:var(--caramel-dk);}
+
+  /* ---------- Siparis durumu rozeti ---------- */
+  .o-status{display:inline-block;padding:3px 9px;border-radius:999px;font-size:0.68rem;font-weight:700;letter-spacing:0.02em;margin-top:6px;}
+  .o-status.status-pending{background:var(--surface-2);color:var(--espresso-70);}
+  .o-status.status-confirmed{background:#E7EEF7;color:#3B5A80;}
+  .o-status.status-shipped{background:#FBEBD2;color:#8A5A1E;}
+  .o-status.status-delivered{background:#E3F1E4;color:#2E6B37;}
+  .o-status.status-cancelled{background:#F6E3E1;color:#9A3B32;}
+
+  /* ---------- Hediye notu (checkout) ---------- */
+  .gift-note-field{display:flex;flex-direction:column;gap:6px;margin-bottom:2px;}
+  .gift-note-field label{display:flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:700;color:var(--espresso);cursor:pointer;}
+  .gift-note-field textarea{border:1px solid var(--line);border-radius:var(--radius-m);padding:9px 12px;font-family:inherit;font-size:0.82rem;resize:vertical;min-height:56px;}
+
+  /* ---------- Urun paylas butonu ---------- */
+  .share-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:0.76rem;font-weight:700;color:var(--espresso-70);cursor:pointer;margin-top:10px;}
+  .share-btn:hover{border-color:var(--caramel);color:var(--espresso);}
+  .share-btn svg{width:14px;height:14px;}
 </style>
 </head>
 <body>
@@ -895,6 +942,7 @@
     <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 12.5C4 7.8 8 4 12.5 4S21 7.8 21 12.5 17 21 12.5 21c-1.2 0-2.4-.3-3.4-.8L4 21l1.4-4C4.5 15.7 4 14.2 4 12.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="9" cy="12.5" r="1" fill="currentColor"/><circle cx="12.5" cy="12.5" r="1" fill="currentColor"/><circle cx="16" cy="12.5" r="1" fill="currentColor"/></symbol>
     <symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-3-7-7-1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.6"/><path d="M6 15h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
     <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.7l2.9 6.2 6.6.6-5 4.5 1.5 6.6L12 17l-5.9 3.4L7.6 14l-5-4.5 6.6-.6L12 2.7z" fill="currentColor" stroke="currentColor" stroke-width="0.6" stroke-linejoin="round"/></symbol>
 
     <!-- garment line-art -->
@@ -1032,6 +1080,17 @@
     <div class="grid" id="productGrid"></div>
   </section>
 
+  <!-- ============ Son Görüntülenenler ============ -->
+  <section class="wrap" id="recentlyViewedSection" hidden>
+    <div class="shop-head" style="margin-bottom:14px;">
+      <div>
+        <span class="eyebrow">Senin İçin</span>
+        <h2 style="font-size:clamp(1.3rem,2.4vw,1.7rem);margin-top:6px;">Son Görüntülenenler</h2>
+      </div>
+    </div>
+    <div class="recent-grid" id="recentlyViewedGrid"></div>
+  </section>
+
   <!-- ============ Öne çıkan yorumlar ============ -->
   <section class="wrap testi-section" id="testimonialsSection" hidden>
     <div class="testi-head">
@@ -1163,6 +1222,7 @@
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-app-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-auth-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <script>
 // currentUserPhone: birden fazla IIFE (sepet/sipariş bölümü ve hesap/giriş bölümü) tarafından
@@ -1225,6 +1285,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
   var FAV_VIEW = "__favorilerim__";
   var state = { cart:{}, favs:{}, filter:"Elbiseler", sort:"onerilen" };
   try{
+    var savedCart = localStorage.getItem("sonya_cart");
     var savedFavs = localStorage.getItem("sonya_favs");
     if(savedCart) state.cart = JSON.parse(savedCart) || {};
     if(savedFavs) state.favs = JSON.parse(savedFavs) || {};
@@ -1236,18 +1297,49 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     instagram: "sonyacollectiion", // Instagram kullanıcı adı (başında @ olmadan)
     phone: "",
     shippingThreshold: 1500,
+    iyzicoEnabled: false,
     legal: {
-      gizlilik: "Sonya Collection olarak ([Şirket/Şahıs Adı]) müşterilerimizin gizliliğine önem veriyoruz. Bu sayfa, siteyi kullanırken hangi bilgilerin toplandığını ve nasıl kullanıldığını açıklar.\n\nHangi bilgileri topluyoruz?\nHesap oluşturduğunda: ad soyad ve e-posta adresin (Firebase Authentication üzerinden). Sipariş verdiğinde: sepetindeki ürünler, beden ve tutar bilgisi — bu bilgiler WhatsApp/Instagram üzerinden bize ilettiğin mesajın içinde yer alır. Sepet ve favori listen, tarayıcının hafızasında (localStorage) senin cihazında saklanır; bize otomatik olarak gönderilmez.\n\nBilgilerini kimlerle paylaşıyoruz?\nHesap bilgilerin Google/Firebase altyapısında saklanır. Sipariş mesajların WhatsApp ve Instagram (Meta) üzerinden bize ulaşır ve bu platformların kendi gizlilik politikaları geçerlidir. Bilgilerini bu iki amaç dışında üçüncü taraflarla paylaşmıyor, satmıyoruz.\n\nHaklarınız\nKişisel verilerinle ilgili sorular veya silme talepleri için [iletişim e-postası] adresinden bize ulaşabilirsin.",
-      kvkk: "Veri Sorumlusu: [Şirket/Şahıs Adı], [Adres] (\"Sonya Collection\")\n\n6698 sayılı Kişisel Verilerin Korunması Kanunu (\"KVKK\") uyarınca, kişisel verilerin işlenmesine ilişkin olarak seni bilgilendirmek isteriz.\n\nİşlenen kişisel veriler\nKimlik ve iletişim bilgileri: ad soyad, e-posta adresi. Sipariş bilgileri: ürün, beden, adet, tutar, teslimat bilgileri.\n\nİşleme amaçları\nHesabının oluşturulması ve yönetilmesi. Siparişlerinin alınması ve iletişimin sürdürülmesi. Yasal yükümlülüklerin yerine getirilmesi.\n\nAktarım\nVerilerin, hesap altyapısı için Google/Firebase'e ve sipariş iletişimi için WhatsApp/Instagram (Meta) platformlarına, yalnızca bu hizmetlerin çalışması için gerekli ölçüde aktarılabilir.\n\nKVKK md. 11 kapsamındaki hakların\nKişisel verilerinin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, düzeltilmesini veya silinmesini isteme hakkına sahipsin. Taleplerin için [iletişim e-postası] adresine yazabilirsin.",
+      gizlilik: "Sonya Collection olarak ([Şirket/Şahıs Adı]) müşterilerimizin gizliliğine önem veriyoruz. Bu sayfa, siteyi kullanırken hangi bilgilerin toplandığını ve nasıl kullanıldığını açıklar.\n\nHangi bilgileri topluyoruz?\nHesap oluşturduğunda: ad soyad ve e-posta adresin (Firebase Authentication üzerinden). Sipariş verdiğinde: sepetindeki ürünler, beden ve tutar bilgisi — bu bilgiler WhatsApp/Instagram üzerinden bize ilettiğin mesajın içinde yer alır. Sepet ve favori listen, tarayıcının hafızasında (localStorage) senin cihazında saklanır; bize otomatik olarak gönderilmez.\n\nBilgilerini kimlerle paylaşıyoruz?\nHesap bilgilerin Google/Firebase altyapısında saklanır. Sipariş mesajların WhatsApp ve Instagram (Meta) üzerinden bize ulaşır ve bu platformların kendi gizlilik politikaları geçerlidir. Bilgilerini bu iki amaç dışında üçüncü taraflarla paylaşmıyor, satmıyoruz.\n\nHaklarınız\nKişisel verilerinle ilgili sorular veya silme talepleri için siparis@sonyacollection.com adresinden bize ulaşabilirsin.",
+      kvkk: "Veri Sorumlusu: [Şirket/Şahıs Adı], [Adres] (\"Sonya Collection\")\n\n6698 sayılı Kişisel Verilerin Korunması Kanunu (\"KVKK\") uyarınca, kişisel verilerin işlenmesine ilişkin olarak seni bilgilendirmek isteriz.\n\nİşlenen kişisel veriler\nKimlik ve iletişim bilgileri: ad soyad, e-posta adresi. Sipariş bilgileri: ürün, beden, adet, tutar, teslimat bilgileri.\n\nİşleme amaçları\nHesabının oluşturulması ve yönetilmesi. Siparişlerinin alınması ve iletişimin sürdürülmesi. Yasal yükümlülüklerin yerine getirilmesi.\n\nAktarım\nVerilerin, hesap altyapısı için Google/Firebase'e ve sipariş iletişimi için WhatsApp/Instagram (Meta) platformlarına, yalnızca bu hizmetlerin çalışması için gerekli ölçüde aktarılabilir.\n\nKVKK md. 11 kapsamındaki hakların\nKişisel verilerinin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, düzeltilmesini veya silinmesini isteme hakkına sahipsin. Taleplerin için siparis@sonyacollection.com adresine yazabilirsin.",
       iade: "Cayma hakkı\nMesafeli Sözleşmeler Yönetmeliği kapsamında, ürünü teslim aldığın tarihten itibaren 14 gün içinde herhangi bir gerekçe göstermeden cayma hakkına sahipsin.\n\nİade şartları\nÜrün kullanılmamış, yıkanmamış ve etiketleri çıkarılmamış olmalı. Mümkünse orijinal ambalajıyla birlikte gönderilmeli. İç giyim, mayo/bikini gibi hijyen bandı sökülmüş ürünlerde iade kabul edilmeyebilir.\n\nNasıl iade/değişim talep edilir?\nSipariş numaranla birlikte Instagram ya da WhatsApp üzerinden bize ulaş; iade adresini ve süreci seninle birlikte netleştirelim.\n\nKargo ücreti\n[Kargo ücretini kim karşılıyor buraya eklenecek — örn. \"İade kargo ücreti alıcıya aittir\" ya da \"İlk iadede kargo ücretsizdir.\"]",
-      uyelik: "İşbu Üyelik Sözleşmesi, Sonya Collection (\"[Şirket/Şahıs Adı]\", \"biz\") ile siteye üye olan kullanıcı (\"Üye\", \"sen\") arasında, sitenin kullanım şartlarını belirlemek amacıyla düzenlenmiştir.\n\nÜyelik\nÜye olmak için ad soyad ve e-posta adresi ile bir hesap oluşturulur. Üye, kayıt sırasında verdiği bilgilerin doğru ve güncel olduğunu kabul eder. Hesap bilgileri (e-posta, şifre) üçüncü kişilerle paylaşılmamalıdır; hesap üzerinden yapılan işlemlerden Üye sorumludur.\n\nSiparişler\nSitede oluşturulan sepet, WhatsApp veya Instagram üzerinden bize iletilen bir sipariş talebidir; ödeme ve teslimat detayları bu iletişim kanalları üzerinden ayrıca netleştirilir.\n\nFesih\nÜye, dilediği zaman hesabının silinmesini talep edebilir. Bu talepler için [iletişim e-postası] adresinden bize ulaşabilirsin.\n\nDeğişiklikler\nBu sözleşme, güncellenen koşulları yansıtmak amacıyla zaman zaman güncellenebilir; güncel hali her zaman bu sayfada yer alır.",
-      ileti: "Bu onay, Sonya Collection tarafından kampanya, indirim ve yeni ürün duyurularının e-posta ve/veya kayıt sırasında paylaştığın telefon numarası üzerinden (SMS/WhatsApp) tarafına iletilmesi içindir.\n\n6563 sayılı Elektronik Ticaretin Düzenlenmesi Hakkında Kanun ve ilgili Ticari İletişim ve Ticari Elektronik İletiler Hakkında Yönetmelik uyarınca, ticari elektronik ileti gönderimi ancak açık onayınla mümkündür.\n\nBu onayı vermek tamamen isteğe bağlıdır; onay vermemen üyeliğini veya sipariş verebilmeni hiçbir şekilde etkilemez. Dilediğin zaman gönderdiğimiz iletilerdeki \"Ret\" bağlantısını kullanarak ya da [iletişim e-postası] adresine yazarak bu onayı geri alabilirsin.",
+      uyelik: "İşbu Üyelik Sözleşmesi, Sonya Collection (\"[Şirket/Şahıs Adı]\", \"biz\") ile siteye üye olan kullanıcı (\"Üye\", \"sen\") arasında, sitenin kullanım şartlarını belirlemek amacıyla düzenlenmiştir.\n\nÜyelik\nÜye olmak için ad soyad ve e-posta adresi ile bir hesap oluşturulur. Üye, kayıt sırasında verdiği bilgilerin doğru ve güncel olduğunu kabul eder. Hesap bilgileri (e-posta, şifre) üçüncü kişilerle paylaşılmamalıdır; hesap üzerinden yapılan işlemlerden Üye sorumludur.\n\nSiparişler\nSitede oluşturulan sepet, WhatsApp veya Instagram üzerinden bize iletilen bir sipariş talebidir; ödeme ve teslimat detayları bu iletişim kanalları üzerinden ayrıca netleştirilir.\n\nFesih\nÜye, dilediği zaman hesabının silinmesini talep edebilir. Bu talepler için siparis@sonyacollection.com adresinden bize ulaşabilirsin.\n\nDeğişiklikler\nBu sözleşme, güncellenen koşulları yansıtmak amacıyla zaman zaman güncellenebilir; güncel hali her zaman bu sayfada yer alır.",
+      ileti: "Bu onay, Sonya Collection tarafından kampanya, indirim ve yeni ürün duyurularının e-posta ve/veya kayıt sırasında paylaştığın telefon numarası üzerinden (SMS/WhatsApp) tarafına iletilmesi içindir.\n\n6563 sayılı Elektronik Ticaretin Düzenlenmesi Hakkında Kanun ve ilgili Ticari İletişim ve Ticari Elektronik İletiler Hakkında Yönetmelik uyarınca, ticari elektronik ileti gönderimi ancak açık onayınla mümkündür.\n\nBu onayı vermek tamamen isteğe bağlıdır; onay vermemen üyeliğini veya sipariş verebilmeni hiçbir şekilde etkilemez. Dilediğin zaman gönderdiğimiz iletilerdeki \"Ret\" bağlantısını kullanarak ya da siparis@sonyacollection.com adresine yazarak bu onayı geri alabilirsin.",
       beden: "S (36)\nGöğüs: 84-88 cm · Bel: 64-68 cm · Kalça: 90-94 cm\n\nM (38)\nGöğüs: 88-92 cm · Bel: 68-72 cm · Kalça: 94-98 cm\n\nL (40)\nGöğüs: 92-96 cm · Bel: 72-76 cm · Kalça: 98-102 cm\n\nXL (42)\nGöğüs: 96-100 cm · Bel: 76-80 cm · Kalça: 102-106 cm\n\nÖlçü nasıl alınır?\nGöğüs: Göğsün en geniş noktasından, mezura yere paralel olacak şekilde ölçün. Bel: Belin en ince noktasından ölçün. Kalça: Kalçanın en geniş noktasından ölçün.\n\nNot\nParçalarımız genelde rahat ve salaş bir kesime sahiptir; iki beden arasında kalırsan küçük olanı tercih edebilirsin. Ürüne özel kumaş/kesim farkı olabileceğinden, ürün açıklamasındaki notları da kontrol etmeni öneririz."
     }
   };
   var SETTINGS = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
 
   function isPlaceholderValue(str){ return !str || str.indexOf('X') !== -1; }
+
+  // Sepette birden fazla kayıtlı adres varsa müşteri hangisini kullanacağını seçebilir;
+  // tek adres varsa (ya da hiç seçim yapmadıysa) otomatik olarak varsayılan/ilk adres kullanılır.
+  var selectedCheckoutAddressId = null;
+  // Hediye notu: checkout onay adımında opsiyonel bir metin kutusu — sipariş metnine eklenir.
+  var giftNoteText = '';
+  var giftNoteOpen = false;
+  function giftNoteFieldHtml(){
+    return '<div class="gift-note-field">' +
+      '<label><input type="checkbox" id="giftNoteToggle"'+(giftNoteOpen?' checked':'')+'> 🎁 Hediye notu eklemek istiyorum</label>' +
+      '<textarea id="giftNoteInput" placeholder="Hediye notu (opsiyonel, en fazla 300 karakter)" maxlength="300" style="'+(giftNoteOpen?'':'display:none;')+'">'+escapeHtmlLocal(giftNoteText)+'</textarea>' +
+    '</div>';
+  }
+  function addressSelectorHtml(){
+    if(!currentUserAddresses.length || currentUserAddresses.length === 1) return '';
+    if(!selectedCheckoutAddressId || !currentUserAddresses.some(function(a){ return a.id === selectedCheckoutAddressId; })){
+      var def = currentUserAddresses.filter(function(a){ return a.isDefault; })[0] || currentUserAddresses[0];
+      selectedCheckoutAddressId = def.id;
+    }
+    return '<div class="checkout-address-picker">' +
+      '<span class="cap-label">Teslimat Adresi</span>' +
+      currentUserAddresses.map(function(a){
+        var checked = a.id === selectedCheckoutAddressId;
+        return '<label class="cap-option'+(checked?' selected':'')+'">' +
+          '<input type="radio" name="checkoutAddr" value="'+a.id+'"'+(checked?' checked':'')+'>' +
+          '<span class="cap-text"><b>'+escapeHtmlLocal(a.label || 'Adres')+'</b>'+(a.isDefault?' <span class="cap-default">Varsayılan</span>':'')+'<br>'+escapeHtmlLocal(a.fullName)+' — '+escapeHtmlLocal(a.line1)+', '+escapeHtmlLocal([a.district,a.city].filter(Boolean).join('/'))+'</span>' +
+        '</label>';
+      }).join('') +
+    '</div>';
+  }
 
   function buildOrderSummary(){
     var lines = ['Merhaba, Sonya Collection\'dan sipariş vermek istiyorum:', ''];
@@ -1259,7 +1351,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       var qty = state.cart[key];
       var line = p.price * qty;
       subtotal += line;
-      lines.push('• ' + p.name + ' (Beden: ' + parsed.size + ') x' + qty + ' — ' + money(line));
+      lines.push('• ' + p.name + ' (Beden: ' + parsed.size + (parsed.color ? ', Renk: ' + parsed.color : '') + ') x' + qty + ' — ' + money(line));
     });
     var discount = couponDiscount(subtotal);
     lines.push('');
@@ -1271,13 +1363,23 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       lines.push('Toplam: ' + money(subtotal));
     }
     lines.push('');
-    var defAddr = currentUserAddresses.filter(function(a){ return a.isDefault; })[0] || currentUserAddresses[0];
+    var defAddr = null;
+    if(currentUserAddresses.length > 1 && selectedCheckoutAddressId){
+      defAddr = currentUserAddresses.filter(function(a){ return a.id === selectedCheckoutAddressId; })[0] || null;
+    }
+    if(!defAddr){
+      defAddr = currentUserAddresses.filter(function(a){ return a.isDefault; })[0] || currentUserAddresses[0];
+    }
     if(defAddr){
       lines.push('Teslimat Adresi:');
       lines.push(defAddr.fullName + ' — ' + defAddr.phone);
       lines.push(defAddr.line1 + ', ' + [defAddr.district, defAddr.city].filter(Boolean).join('/') + (defAddr.postalCode ? ' ' + defAddr.postalCode : ''));
     } else {
       lines.push('Teslimat bilgilerimi paylaşmak istiyorum.');
+    }
+    if(giftNoteText && giftNoteText.trim()){
+      lines.push('');
+      lines.push('Hediye Notu: ' + giftNoteText.trim());
     }
     return lines.join('\n');
   }
@@ -1291,6 +1393,80 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     var text = encodeURIComponent(buildOrderSummary());
     window.open('https://wa.me/' + SETTINGS.whatsapp + '?text=' + text, '_blank');
     appliedCoupon = null;
+    giftNoteText = ''; giftNoteOpen = false;
+  }
+
+  function orderViaCard(){
+    if(!currentUser || !currentUserAddresses.length){ return; }
+    var defAddr = null;
+    if(currentUserAddresses.length > 1 && selectedCheckoutAddressId){
+      defAddr = currentUserAddresses.filter(function(a){ return a.id === selectedCheckoutAddressId; })[0] || null;
+    }
+    if(!defAddr){
+      defAddr = currentUserAddresses.filter(function(a){ return a.isDefault; })[0] || currentUserAddresses[0];
+    }
+    if(!defAddr){ showToast('Kartla ödeme için bir teslimat adresi eklemelisin.'); return; }
+
+    var items = Object.keys(state.cart).map(function(key){
+      var parsed = parseCartKey(key);
+      return { productId: parsed.id, size: parsed.size, color: parsed.color || '', qty: state.cart[key] };
+    });
+    if(!items.length) return;
+
+    var btn = document.getElementById('orderCard');
+    if(btn){ btn.disabled = true; btn.textContent = 'Yönlendiriliyor…'; }
+
+    fetch('/odeme/baslat.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: items,
+        couponCode: appliedCoupon ? appliedCoupon.code : '',
+        buyerName: defAddr.fullName || (currentUser.displayName || ''),
+        buyerEmail: currentUser.email || '',
+        buyerPhone: defAddr.phone || currentUserPhone || '',
+        address: { line1: defAddr.line1 || '', district: defAddr.district || '', city: defAddr.city || '' }
+      })
+    }).then(function(res){
+      return res.json().catch(function(){ return null; }).then(function(data){ return { status: res.status, data: data }; });
+    }).then(function(r){
+      if(r.data && r.data.ok && r.data.paymentPageUrl){
+        // Ödeme sayfasına yönlendirmeden önce sipariş içeriğinin bir kopyasını
+        // localStorage'a kaydediyoruz — /odeme-tamamlandi.html bu kopyayı, iyzico'nun
+        // geri döndürdüğü token ile eşleştirip Firestore'a yazacağı sipariş kaydını
+        // (ürün adı/beden/fiyat gibi okunabilir bilgilerle) buradan oluşturur, çünkü
+        // iyzico'nun kendi API'si bize bu detayları geri döndürmüyor.
+        try{
+          var snapshotItems = Object.keys(state.cart).map(function(key){
+            var parsed = parseCartKey(key);
+            var p = byId(parsed.id);
+            return {
+              productId: parsed.id, name: p ? p.name : null, size: parsed.size,
+              color: parsed.color || null, qty: state.cart[key], price: p ? p.price : null
+            };
+          });
+          localStorage.setItem('sonya_pending_card_order', JSON.stringify({
+            token: r.data.token || null,
+            items: snapshotItems,
+            couponCode: appliedCoupon ? appliedCoupon.code : null,
+            giftNote: giftNoteText || null,
+            buyerName: defAddr.fullName || (currentUser.displayName || ''),
+            buyerEmail: currentUser.email || '',
+            buyerPhone: defAddr.phone || currentUserPhone || '',
+            address: { line1: defAddr.line1 || '', district: defAddr.district || '', city: defAddr.city || '' },
+            ts: Date.now()
+          }));
+        }catch(e){ /* anlık görüntü kaydedilemese de ödemeyi engelleme */ }
+        window.location.href = r.data.paymentPageUrl;
+        return;
+      }
+      var msg = (r.data && r.data.error) || 'Ödeme başlatılamadı, birazdan tekrar dene.';
+      showToast(msg);
+      if(btn){ btn.disabled = false; btn.textContent = 'Kartla Öde'; }
+    }).catch(function(){
+      showToast('Ödeme sayfasına yönlendirilemedi, internet bağlantını kontrol et.');
+      if(btn){ btn.disabled = false; btn.textContent = 'Kartla Öde'; }
+    });
   }
 
   function orderViaInstagram(){
@@ -1310,6 +1486,46 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       openIg();
     }
     appliedCoupon = null;
+    giftNoteText = ''; giftNoteOpen = false;
+  }
+
+  // ---------- Yeni sipariş e-posta bildirimi (EmailJS) ----------
+  // Ücretsiz EmailJS hesabından alınan 3 değer buraya girilene kadar bu özellik
+  // sessizce devre dışı kalır — sipariş akışını asla engellemez veya geciktirmez.
+  var EMAILJS_PUBLIC_KEY = 'iIbGdrFA-cGeESqQj';
+  var EMAILJS_SERVICE_ID = 'service_do1pmfg';
+  var EMAILJS_TEMPLATE_ID = 'template_spvadv9';
+  function emailjsConfigured(){
+    return EMAILJS_PUBLIC_KEY.indexOf('BURAYA_') !== 0 &&
+      EMAILJS_SERVICE_ID.indexOf('BURAYA_') !== 0 &&
+      EMAILJS_TEMPLATE_ID.indexOf('BURAYA_') !== 0;
+  }
+  try{
+    if(emailjsConfigured() && typeof emailjs !== 'undefined'){
+      emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+    }
+  }catch(e){ /* e-posta bildirimini asla siteyi bozacak şekilde çalıştırma */ }
+  function sendOrderNotificationEmail(order){
+    try{
+      if(!emailjsConfigured() || typeof emailjs === 'undefined') return;
+      var itemsText = order.items.map(function(it){
+        return '- ' + (it.name || 'Ürün') + ' (Beden: ' + it.size + (it.color ? ', Renk: ' + it.color : '') + ') x' + it.qty + ' — ' + (it.price || 0) + ' \u20ba';
+      }).join('\n');
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        channel: order.channel === 'whatsapp' ? 'WhatsApp' : 'Instagram',
+        items_text: itemsText,
+        subtotal: order.subtotal + ' \u20ba',
+        discount: order.discount ? order.discount + ' \u20ba' : 'Yok',
+        total: order.total + ' \u20ba',
+        coupon_code: order.couponCode || 'Yok',
+        customer_name: order.userName || 'Misafir',
+        customer_email: order.userEmail || 'Belirtilmedi',
+        customer_phone: order.userPhone || 'Belirtilmedi',
+        gift_note: order.giftNote || 'Yok'
+      }).catch(function(err){
+        console.warn('Sipariş bildirim e-postası gönderilemedi:', err && (err.text || err.message));
+      });
+    }catch(e){ /* sipariş akışını asla bozma */ }
   }
 
   // ---------- Sipariş geçmişi (Firestore) ----------
@@ -1326,6 +1542,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
           productId: parsed.id,
           name: p ? p.name : null,
           size: parsed.size,
+          color: parsed.color || null,
           qty: state.cart[key],
           price: p ? p.price : null
         };
@@ -1345,7 +1562,16 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         userEmail: user ? user.email : null,
         userName: user ? user.displayName : null,
         userPhone: currentUserPhone || null,
+        giftNote: (giftNoteText || null),
+        status: 'pending',
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(function(){
+        sendOrderNotificationEmail({
+          items: items, subtotal: subtotal, discount: discount, total: subtotal - discount,
+          couponCode: appliedCoupon ? appliedCoupon.code : null, channel: channel,
+          userName: user ? user.displayName : null, userEmail: user ? user.email : null,
+          userPhone: currentUserPhone || null, giftNote: giftNoteText || null
+        });
       }).catch(function(err){
         // Firestore henüz Firebase Console'da etkinleştirilmemiş olabilir — sessizce yut.
         console.warn('Sipariş geçmişi kaydedilemedi:', err && err.message);
@@ -1357,13 +1583,43 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     try{
       localStorage.setItem("sonya_cart", JSON.stringify(state.cart));
       localStorage.setItem("sonya_favs", JSON.stringify(state.favs));
+      if(Object.keys(state.cart).length){
+        localStorage.setItem("sonya_cart_ts", String(Date.now()));
+      } else {
+        localStorage.removeItem("sonya_cart_ts");
+      }
     }catch(e){ /* ignore */ }
+    syncCartToAccount();
   }
 
+  // Sepetinde ürün bırakıp siteden ayrılan ziyaretçiye, geri döndüğünde nazik bir
+  // hatırlatma gösterir — spam olmasın diye günde en fazla bir kez, sepet en az 30
+  // dakikadır değişmediyse gösterilir.
+  function maybeShowAbandonedCartReminder(){
+    try{
+      var cartTotal = Object.keys(state.cart).reduce(function(s,k){ return s + state.cart[k]; }, 0);
+      if(!cartTotal) return;
+      var ts = parseInt(localStorage.getItem('sonya_cart_ts') || '0', 10);
+      if(!ts) return;
+      var THIRTY_MIN = 30 * 60 * 1000;
+      if(Date.now() - ts < THIRTY_MIN) return;
+      var lastShown = parseInt(localStorage.getItem('sonya_abandoned_shown_at') || '0', 10);
+      var ONE_DAY = 24 * 60 * 60 * 1000;
+      if(Date.now() - lastShown < ONE_DAY) return;
+      localStorage.setItem('sonya_abandoned_shown_at', String(Date.now()));
+      setTimeout(function(){ showToast('Sepetinde ürünler seni bekliyor — tamamlamak ister misin?'); }, 1200);
+    }catch(e){ /* bu hatırlatma olmadan da site sorunsuz çalışmaya devam etmeli */ }
+  }
   function money(n){
     return n.toLocaleString('tr-TR') + ' ₺';
   }
   function byId(id){ return PRODUCTS.filter(function(p){return p.id===id;})[0]; }
+  function hasVariantStock(p){ return !!(p && p.variantStock && Object.keys(p.variantStock).length); }
+  function variantQty(p, color, size){
+    if(!p || !p.variantStock) return 0;
+    var row = p.variantStock[color];
+    return row && typeof row[size] === 'number' ? row[size] : 0;
+  }
   function photoFor(p){
     if(p && p.photos && p.photos.length) return p.photos[0];
     return (p && p.photoURL) ? p.photoURL : PHOTOS[(p.id - 1) % PHOTOS.length];
@@ -1371,6 +1627,44 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
   function galleryFor(p){
     if(p && p.photos && p.photos.length) return p.photos;
     return [photoFor(p)];
+  }
+
+  // ---------- Son Görüntülenenler ----------
+  var RECENT_VIEWED_KEY = 'sonya_recent_viewed';
+  var MAX_RECENT_VIEWED = 12;
+  function loadRecentlyViewedIds(){
+    try{
+      var raw = localStorage.getItem(RECENT_VIEWED_KEY);
+      var list = raw ? JSON.parse(raw) : [];
+      return Array.isArray(list) ? list : [];
+    }catch(e){ return []; }
+  }
+  function trackRecentlyViewed(id){
+    try{
+      var list = loadRecentlyViewedIds().filter(function(x){ return x !== id; });
+      list.unshift(id);
+      if(list.length > MAX_RECENT_VIEWED) list = list.slice(0, MAX_RECENT_VIEWED);
+      localStorage.setItem(RECENT_VIEWED_KEY, JSON.stringify(list));
+    }catch(e){ /* bu özellik olmadan da site sorunsuz çalışmaya devam etmeli */ }
+  }
+  function renderRecentlyViewed(){
+    var section = document.getElementById('recentlyViewedSection');
+    var grid = document.getElementById('recentlyViewedGrid');
+    if(!section || !grid) return;
+    if(typeof CURRENT_PAGE_ACCOUNT !== 'undefined' && CURRENT_PAGE_ACCOUNT){ section.hidden = true; return; }
+    var items = loadRecentlyViewedIds().map(byId).filter(Boolean).slice(0, 8);
+    if(!items.length){ section.hidden = true; return; }
+    section.hidden = false;
+    grid.innerHTML = items.map(function(o){
+      return '<button type="button" class="related-card" data-open="'+o.id+'">' +
+        '<span class="r-thumb" style="background-image:url('+photoFor(o)+')"></span>' +
+        '<span class="r-name">'+o.name+'</span>' +
+        '<span class="r-price">'+money(o.price)+'</span>' +
+      '</button>';
+    }).join('');
+    grid.querySelectorAll('[data-open]').forEach(function(btn){
+      btn.addEventListener('click', function(){ openModal(parseInt(btn.dataset.open, 10)); });
+    });
   }
   function discountPct(p){ return p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0; }
   function priceHtml(p){
@@ -1628,7 +1922,29 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     if(filter === 'Tümü') return {eyebrow:'Yeni Gelenler', title:'Bu Haftanın Seçkisi'};
     return {eyebrow:filter, title:filter + ' Koleksiyonu'};
   }
+  // Ürün kartlarının arka plan görselini yalnızca ekrana yaklaştığında yükler
+  // (IntersectionObserver) — kategori sayfalarında çok sayıda ürün olduğunda
+  // ilk yüklemede aynı anda onlarca görsel isteği atılmasını önler.
+  function lazyLoadCardScenes(){
+    var scenes = gridEl.querySelectorAll('.card-scene[data-bg]');
+    if(!scenes.length) return;
+    if(!('IntersectionObserver' in window)){
+      scenes.forEach(function(el){ el.style.backgroundImage = 'url(' + el.dataset.bg + ')'; el.removeAttribute('data-bg'); });
+      return;
+    }
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(!entry.isIntersecting) return;
+        var el = entry.target;
+        el.style.backgroundImage = 'url(' + el.dataset.bg + ')';
+        el.removeAttribute('data-bg');
+        observer.unobserve(el);
+      });
+    }, { rootMargin: '200px 0px' });
+    scenes.forEach(function(el){ observer.observe(el); });
+  }
   function renderGrid(){
+    renderRecentlyViewed();
     gridEl.innerHTML = '';
     var shopHead = document.querySelector('.shop-head .eyebrow');
     var shopTitle = document.querySelector('.shop-head h2');
@@ -1656,7 +1972,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       var ratingHtml = stats.count ? '<div class="card-rating">'+starsHtml(stats.avg)+'<span>('+stats.count+')</span></div>' : '';
       card.innerHTML =
         '<div class="card-media" data-open="'+p.id+'">' +
-          '<div class="card-scene" style="background-image:url('+photoFor(p)+');--zoom:'+zoom+'s;--delay:'+delay+'s"></div>' +
+          '<div class="card-scene" data-bg="'+photoFor(p)+'" style="--zoom:'+zoom+'s;--delay:'+delay+'s"></div>' +
           '<div class="card-badges"><span class="card-tag">'+p.cat+'</span>'+badgesHtml(p)+'</div>' +
           stockBadge +
           discountBadge +
@@ -1674,6 +1990,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         '</div>';
       gridEl.appendChild(card);
     });
+    lazyLoadCardScenes();
   }
   renderGrid();
   var sortSelectEl = document.getElementById('sortSelect');
@@ -1693,21 +2010,37 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
 
   // ---------- Cart logic ----------
   // Sepet anahtarı "ürünId|beden" biçiminde tutulur, böylece aynı ürünün farklı bedenleri ayrı satırlarda görünür.
-  function cartKey(id, size){ return id + '|' + size; }
+  function cartKey(id, size, color){ return id + '|' + size + (color ? '|' + color : ''); }
   function parseCartKey(key){
     var parts = key.split('|');
-    return { id: parseInt(parts[0], 10), size: parts[1] };
+    return { id: parseInt(parts[0], 10), size: parts[1], color: parts[2] || null };
   }
-  function addToCart(id, size){
-    var key = cartKey(id, size);
-    state.cart[key] = (state.cart[key]||0) + 1;
+  function addToCart(id, size, color){
+    var p = byId(id);
+    var key = cartKey(id, size, color);
+    var already = state.cart[key] || 0;
+    var cap = (p && hasVariantStock(p)) ? variantQty(p, color, size) : null;
+    if(cap !== null && already + 1 > cap){
+      showToast('Bu renk/bedenden stokta bu kadar yok.');
+      return;
+    }
+    state.cart[key] = already + 1;
     persist();
     updateCounts();
     renderCart();
-    showToast('Sepete eklendi: ' + byId(id).name + ' (Beden: ' + size + ')');
+    showToast('Sepete eklendi: ' + p.name + ' (Beden: ' + size + ')');
   }
   function changeQty(key, delta){
     if(!state.cart[key]) return;
+    if(delta > 0){
+      var parsedKey = parseCartKey(key);
+      var pForCap = byId(parsedKey.id);
+      var cap = (pForCap && hasVariantStock(pForCap)) ? variantQty(pForCap, parsedKey.color, parsedKey.size) : null;
+      if(cap !== null && state.cart[key] + delta > cap){
+        showToast('Bu renk/bedenden stokta bu kadar yok.');
+        return;
+      }
+    }
     state.cart[key] += delta;
     if(state.cart[key] <= 0) delete state.cart[key];
     persist();
@@ -1741,6 +2074,23 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       firebase.firestore().collection('users').doc(user.uid).set({ favs: state.favs }, { merge: true })
         .catch(function(err){ console.warn('Favoriler senkronize edilemedi:', err && err.message); });
     }catch(e){ /* favori akışını asla bozma */ }
+  }
+  // Sepet de favoriler gibi hesaba bağlı senkronize edilir, ama sepet miktarları
+  // (arttır/azalt tıklamaları) favorilere göre çok daha sık değişebildiği için
+  // burada 800ms'lik bir debounce uygulanır — her tıklamada değil, kullanıcı
+  // durduğunda tek bir Firestore yazması yapılır.
+  var cartSyncTimer = null;
+  function syncCartToAccount(){
+    try{
+      if(!window.firebase || !firebase.apps || !firebase.apps.length || !firebase.firestore) return;
+      var user = (firebase.auth && firebase.auth().currentUser) || null;
+      if(!user) return;
+      if(cartSyncTimer) clearTimeout(cartSyncTimer);
+      cartSyncTimer = setTimeout(function(){
+        firebase.firestore().collection('users').doc(user.uid).set({ cart: state.cart }, { merge: true })
+          .catch(function(err){ console.warn('Sepet senkronize edilemedi:', err && err.message); });
+      }, 800);
+    }catch(e){ /* sepet akışını asla bozma */ }
   }
   function updateCounts(){
     var cartTotal = Object.keys(state.cart).reduce(function(s,id){return s + state.cart[id];},0);
@@ -1819,7 +2169,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         '<div class="thumb" style="background-image:url('+photoFor(p)+')"></div>' +
         '<div>' +
           '<h4>'+p.name+'</h4>' +
-          '<div class="meta">'+p.cat+' · Beden: '+parsed.size+'</div>' +
+          '<div class="meta">'+p.cat+' · Beden: '+parsed.size+(parsed.color ? ' · <span class="swatch" style="background:'+parsed.color+';display:inline-block;vertical-align:middle;"></span>' : '')+'</div>' +
           '<div class="qty-row">' +
             '<button class="qty-btn" data-dec="'+key+'" aria-label="Azalt">−</button>' +
             '<span>'+qty+'</span>' +
@@ -1845,12 +2195,28 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
 
     if(checkoutStep === 'confirm'){
       var whatsappReady = !isPlaceholderValue(SETTINGS.whatsapp);
+      var iyzicoAvailable = !!SETTINGS.iyzicoEnabled;
+      var hasAddressForCard = !!(currentUser && currentUserAddresses.length);
+      var cardSectionHtml = '';
+      if(iyzicoAvailable && hasAddressForCard){
+        cardSectionHtml = '<button class="btn" id="orderCard"><svg><use href="#i-card"/></svg>Kartla Öde</button>';
+      } else if(iyzicoAvailable){
+        cardSectionHtml =
+          '<div class="checkout-note">Kartla ödeme için önce '+(currentUser ? 'bir teslimat adresi eklemen' : 'giriş yapman')+' gerekiyor.</div>' +
+          '<button class="btn ghost" id="cardPrereqBtn">'+(currentUser ? 'Adres Ekle' : 'Giriş Yap')+'</button>';
+      }
+      var noteText = iyzicoAvailable
+        ? 'İstersen siparişini '+(whatsappReady ? 'WhatsApp ya da Instagram' : 'Instagram')+' üzerinden de tamamlayabilirsin — sipariş özetin otomatik hazırlanır, sen sadece gönderirsin.'
+        : 'Sitede kartla ödeme şu an aktif değil. Siparişini tamamlamak için '+(whatsappReady ? 'WhatsApp ya da Instagram' : 'Instagram')+' üzerinden bize ulaş — sipariş özetin otomatik hazırlanır, sen sadece gönderirsin.';
       foot.innerHTML =
         couponRowHtml +
         totalsHtml +
-        '<div class="checkout-note">Sitede kartla ödeme şu an aktif değil. Siparişini tamamlamak için '+(whatsappReady ? 'WhatsApp ya da Instagram' : 'Instagram')+' üzerinden bize ulaş — sipariş özetin otomatik hazırlanır, sen sadece gönderirsin.</div>' +
-        (whatsappReady ? '<button class="btn" id="orderWhatsapp"><svg><use href="#i-whats"/></svg>WhatsApp\'tan Sipariş Ver</button>' : '') +
-        '<button class="btn'+(whatsappReady ? ' ghost' : '')+'" id="orderInstagram"><svg><use href="#i-insta"/></svg>Instagram\'dan Sipariş Ver</button>' +
+        addressSelectorHtml() +
+        giftNoteFieldHtml() +
+        cardSectionHtml +
+        '<div class="checkout-note">'+noteText+'</div>' +
+        (whatsappReady ? '<button class="btn'+(iyzicoAvailable ? ' ghost' : '')+'" id="orderWhatsapp"><svg><use href="#i-whats"/></svg>WhatsApp\'tan Sipariş Ver</button>' : '') +
+        '<button class="btn'+((whatsappReady || iyzicoAvailable) ? ' ghost' : '')+'" id="orderInstagram"><svg><use href="#i-insta"/></svg>Instagram\'dan Sipariş Ver</button>' +
         '<button class="back-link" id="backToCart">‹ Sepete dön</button>';
     } else {
       var hintChannel = isPlaceholderValue(SETTINGS.whatsapp) ? 'Instagram' : 'WhatsApp/Instagram';
@@ -1882,6 +2248,10 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     } else if(e.target.closest('#backToCart')){
       checkoutStep = 'cart';
       renderCart();
+    } else if(e.target.closest('#orderCard')){
+      orderViaCard();
+    } else if(e.target.closest('#cardPrereqBtn')){
+      if(!currentUser){ openAuth(); } else { window.location.href = ACCOUNT_PAGE_URL; }
     } else if(e.target.closest('#orderWhatsapp')){
       orderViaWhatsApp();
     } else if(e.target.closest('#orderInstagram')){
@@ -1892,6 +2262,24 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     } else if(e.target.closest('#removeCouponBtn')){
       removeCoupon();
     }
+  });
+  document.getElementById('cartFoot').addEventListener('change', function(e){
+    var radio = e.target.closest('input[name="checkoutAddr"]');
+    if(radio){
+      selectedCheckoutAddressId = radio.value;
+      renderCart();
+      return;
+    }
+    var giftToggle = e.target.closest('#giftNoteToggle');
+    if(giftToggle){
+      giftNoteOpen = giftToggle.checked;
+      var ta = document.getElementById('giftNoteInput');
+      if(ta) ta.style.display = giftNoteOpen ? 'block' : 'none';
+    }
+  });
+  document.getElementById('cartFoot').addEventListener('input', function(e){
+    var ta = e.target.closest('#giftNoteInput');
+    if(ta) giftNoteText = ta.value;
   });
 
   // ---------- Drawer open/close ----------
@@ -2044,8 +2432,26 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
 
   function openModal(id){
     var p = byId(id);
+    trackRecentlyViewed(id);
+    renderRecentlyViewed();
     var isFav = !!state.favs[id];
-    var selectedSize = p.sizes[0];
+    var isVariant = hasVariantStock(p);
+    var selectedSize, selectedColor;
+    if(isVariant){
+      var found = null;
+      p.colors.forEach(function(c){
+        if(found) return;
+        p.sizes.forEach(function(s){
+          if(found) return;
+          if(variantQty(p, c, s) > 0) found = {color:c, size:s};
+        });
+      });
+      selectedColor = found ? found.color : p.colors[0];
+      selectedSize = found ? found.size : p.sizes[0];
+    } else {
+      selectedColor = p.colors[0] || null;
+      selectedSize = p.sizes[0];
+    }
     var soldOut = p.stock === 0;
     var gallery = galleryFor(p);
     var photoIndex = 0;
@@ -2060,9 +2466,15 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     }
 
     function renderModalBody(){
-      var stockHtml = soldOut
-        ? '<span class="stock-note out">Tükendi</span>'
-        : (p.stock <= 3 ? '<span class="stock-note low">Son '+p.stock+' adet</span>' : '');
+      var comboQty = isVariant ? variantQty(p, selectedColor, selectedSize) : p.stock;
+      var comboSoldOut = comboQty <= 0;
+      var stockHtml = isVariant
+        ? (comboSoldOut
+            ? '<span class="stock-note out">Bu renk/beden şu an tükendi</span>'
+            : (comboQty <= 3 ? '<span class="stock-note low">Son '+comboQty+' adet</span>' : ''))
+        : (soldOut
+            ? '<span class="stock-note out">Tükendi</span>'
+            : (p.stock <= 3 ? '<span class="stock-note low">Son '+p.stock+' adet</span>' : ''));
       var stats = ratingStats(p.id);
       var ratingRow = stats.count
         ? '<div class="rating-row">'+starsHtml(stats.avg)+'<b>'+stats.avg.toFixed(1)+'</b><button type="button" id="modalRatingLink">('+stats.count+' değerlendirme)</button></div>'
@@ -2072,6 +2484,10 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
             return '<button type="button" data-photo-idx="'+i+'" class="'+(i===photoIndex?'active':'')+'" style="background-image:url('+url+')" aria-label="Fotoğraf '+(i+1)+'"></button>';
           }).join('') + '</div>'
         : '';
+      var swatchesHtml = '<div class="swatches">'+p.colors.map(function(c){
+        var sel = isVariant && c === selectedColor;
+        return '<button type="button" class="swatch'+(isVariant?' swatch-btn':'')+(sel?' selected':'')+'" data-color="'+c+'" style="background:'+c+'" aria-label="Renk seç"'+(isVariant?'':' tabindex="-1"')+'></button>';
+      }).join('')+'</div>';
       modalContent.innerHTML =
         '<div class="modal-media" id="modalMedia" style="background-image:url('+gallery[photoIndex]+')">' + thumbsHtml + '</div>' +
         '<div class="modal-info">' +
@@ -2082,18 +2498,22 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
           '<span class="price-group">'+priceHtml(p)+discountChipHtml(p)+'</span>' +
           stockHtml +
           '<p class="desc">'+p.desc+'</p>' +
-          '<div class="swatches">'+p.colors.map(function(c){return '<span class="swatch" style="background:'+c+'"></span>';}).join('')+'</div>' +
+          swatchesHtml +
           '<div class="size-picker">' +
             '<span class="size-label">Beden</span>' +
             '<div class="size-options">' +
-              p.sizes.map(function(s){ return '<button type="button" class="size-opt'+(s===selectedSize?' selected':'')+'" data-size="'+s+'">'+s+'</button>'; }).join('') +
+              p.sizes.map(function(s){
+                var oos = isVariant && variantQty(p, selectedColor, s) <= 0;
+                return '<button type="button" class="size-opt'+(s===selectedSize?' selected':'')+(oos?' oos':'')+'" data-size="'+s+'">'+s+'</button>';
+              }).join('') +
             '</div>' +
             '<button type="button" class="size-guide-link" data-info="beden">Beden Rehberine Bak</button>' +
           '</div>' +
           '<div class="modal-actions">' +
-            '<button class="btn" id="modalAdd"'+(soldOut?' disabled':'')+'>'+(soldOut?'Tükendi':'Sepete Ekle')+'</button>' +
+            '<button class="btn" id="modalAdd"'+(comboSoldOut?' disabled':'')+'>'+(comboSoldOut?'Tükendi':'Sepete Ekle')+'</button>' +
             '<button class="btn ghost" id="modalFav">'+(isFav?'Favorilerden Çıkar':'Favorilere Ekle')+'</button>' +
           '</div>' +
+          '<button type="button" class="share-btn" id="modalShare">Paylaş</button>' +
           (soldOut ? '<div class="restock-notify" id="restockNotify">' +
             '<div class="restock-label">Bu ürün şu an stokta yok</div>' +
             '<div class="restock-row">' +
@@ -2110,15 +2530,29 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       modalContent.querySelectorAll('.modal-photo-thumbs button').forEach(function(btn){
         btn.addEventListener('click', function(){ selectPhoto(parseInt(btn.dataset.photoIdx, 10)); });
       });
+      if(isVariant){
+        modalContent.querySelectorAll('.swatch-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            selectedColor = btn.dataset.color;
+            if(variantQty(p, selectedColor, selectedSize) <= 0){
+              var altSize = null;
+              p.sizes.forEach(function(s){ if(altSize) return; if(variantQty(p, selectedColor, s) > 0) altSize = s; });
+              if(altSize) selectedSize = altSize;
+            }
+            renderModalBody();
+          });
+        });
+      }
       modalContent.querySelectorAll('.size-opt').forEach(function(btn){
         btn.addEventListener('click', function(){
           selectedSize = btn.dataset.size;
+          if(isVariant){ renderModalBody(); return; }
           modalContent.querySelectorAll('.size-opt').forEach(function(b){ b.classList.toggle('selected', b === btn); });
         });
       });
       var addBtn = document.getElementById('modalAdd');
-      if(addBtn && !soldOut){
-        addBtn.addEventListener('click', function(){ addToCart(id, selectedSize); closeModal(); });
+      if(addBtn && !comboSoldOut){
+        addBtn.addEventListener('click', function(){ addToCart(id, selectedSize, isVariant ? selectedColor : null); closeModal(); });
       }
       var restockBtn = document.getElementById('restockSubmit');
       if(restockBtn){
@@ -2144,6 +2578,19 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         isFav = !!state.favs[id];
         renderModalBody();
       });
+      var shareBtn = document.getElementById('modalShare');
+      if(shareBtn){
+        shareBtn.addEventListener('click', function(){
+          var shareUrl = window.location.origin + window.location.pathname + '#urun-' + p.id;
+          if(navigator.share){
+            navigator.share({ title: p.name, text: p.name + ' — Sonya Collection', url: shareUrl }).catch(function(){});
+          } else if(navigator.clipboard && navigator.clipboard.writeText){
+            navigator.clipboard.writeText(shareUrl).then(function(){ showToast('Ürün linki kopyalandı'); }).catch(function(){});
+          } else {
+            showToast('Paylaşım bu tarayıcıda desteklenmiyor.');
+          }
+        });
+      }
       var ratingLink = document.getElementById('modalRatingLink');
       if(ratingLink){
         ratingLink.addEventListener('click', function(){
@@ -2695,6 +3142,14 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     }
 
     var LOYALTY_TL_PER_POINT = 50;
+    var ORDER_STATUSES = {
+      pending: 'Alındı',
+      confirmed: 'Hazırlanıyor',
+      shipped: 'Kargoda',
+      delivered: 'Teslim Edildi',
+      cancelled: 'İptal Edildi'
+    };
+    function orderStatusLabel(s){ return ORDER_STATUSES[s] || ORDER_STATUSES.pending; }
     function loadMyOrders(){
       var listEl = document.getElementById('ordersList');
       if(!listEl || !firebaseReady || !currentUser) return;
@@ -2725,6 +3180,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
           return '<div class="order-item">' +
             '<div class="o-head"><span class="o-date">' + (date ? date + ' · ' : '') + channelLabel + couponNote + '</span><span class="o-total">' + money(orderTotal) + '</span></div>' +
             '<div class="o-items">' + escapeHtmlLocal(itemsText) + '</div>' +
+            '<span class="o-status status-' + (o.status || 'pending') + '">' + orderStatusLabel(o.status) + '</span>' +
           '</div>';
         }).join('');
       }).catch(function(err){
@@ -2894,7 +3350,11 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     // oluşturuluyor, bu yüzden [data-info] linklerindeki gibi document üzerinden dinliyoruz.
     document.addEventListener('click', function(e){
       var addBtn = e.target.closest && e.target.closest('#addAddressBtn');
-      if(addBtn){ showAddressForm(null); return; }
+      if(addBtn){
+        if(currentUserAddresses.length >= 10){ showToast('En fazla 10 adres kaydedebilirsin.'); return; }
+        showAddressForm(null);
+        return;
+      }
       var editBtn2 = e.target.closest && e.target.closest('[data-edit-addr]');
       if(editBtn2){
         var eid = editBtn2.getAttribute('data-edit-addr');
@@ -2993,9 +3453,20 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
             var changed = Object.keys(merged).length !== Object.keys(state.favs).length ||
               Object.keys(merged).some(function(k){ return !state.favs[k]; });
             state.favs = merged;
+            // Sepet için de aynı mantık: hesaptaki (başka bir cihazdan senkronize edilmiş)
+            // sepetle bu cihazdaki sepeti birleştir. Toplamak yerine her ürün/beden/renk
+            // anahtarı için iki tarafın en büyüğünü almak (Math.max), aynı cihazdan tekrar
+            // tekrar senkronize edildiğinde miktarların yapay şekilde şişmesini engeller.
+            var remoteCart = (doc.exists && doc.data().cart) || {};
+            var mergedCart = Object.assign({}, state.cart);
+            Object.keys(remoteCart).forEach(function(k){
+              mergedCart[k] = Math.max(mergedCart[k] || 0, remoteCart[k] || 0);
+            });
+            state.cart = mergedCart;
             persist();
             updateCounts();
             renderGrid();
+            renderCart();
             if(changed) syncFavsToAccount();
           }).catch(function(){ currentUserPhone = null; });
           loadUserAddresses().then(function(){ if(CURRENT_PAGE_ACCOUNT) renderAddressBook(); });
@@ -3003,6 +3474,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         } else {
           currentUserPhone = null;
           currentUserAddresses = [];
+          selectedCheckoutAddressId = null;
           if(CURRENT_PAGE_ACCOUNT) showHesabimLoggedOut();
         }
         // Ürün modalı açıkken giriş/çıkış yapılırsa değerlendirme formunu güncelle
@@ -3033,14 +3505,10 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       ileti: 'Ticari Elektronik İleti Onayı',
       beden: 'Beden Rehberi'
     };
-    var INFO_NOTES = {
-      gizlilik: 'Bu metin örnek bir şablondur. Gerçek işletme bilgilerinle güncellenmeli ve yayına almadan önce gözden geçirilmelidir.',
-      kvkk: 'Bu metin genel bir KVKK aydınlatma metni şablonudur, işletmenin gerçek yapısına göre bir hukuk danışmanı tarafından uyarlanmalıdır.',
-      iade: 'Bu metin örnek bir şablondur; kendi iade/değişim koşullarına göre güncellemen ve mevzuata uygunluğunu bir danışmana teyit ettirmen önerilir.',
-      uyelik: 'Bu metin örnek bir şablondur. Gerçek işletme bilgilerinle güncellenmeli ve yayına almadan önce bir hukuk danışmanına kontrol ettirmen önerilir.',
-      ileti: 'Bu metin örnek bir şablondur; iletişim e-postanı güncellemen ve mevzuata uygunluğunu bir danışmana teyit ettirmen önerilir.',
-      beden: 'Bu ölçüler genel bir tablodur; ürüne özel farklar olabileceğinden yönetici panelinden kendi ürünlerinize göre güncelleyebilirsiniz.'
-    };
+    // Not: bu metinler daha önce her modalın altında müşteriye görünen bir "bu bir şablondur"
+    // uyarı kutusu (INFO_NOTES) içeriyordu — o kutu geliştirici notuydu, müşterinin görmesi
+    // gereken bir şey değildi, kaldırıldı. Köşeli parantez içindeki ([Şirket/Şahıs Adı] vb.)
+    // yer tutucular hâlâ gerçek bilgilerle değiştirilmeli — yönetici panelinden düzenlenebilir.
     // Metin, yönetici panelinden düz metin olarak düzenlenebilir: boş satırla ayrılan
     // her blok bir paragraf olur; bir blok birden fazla satırdan oluşuyorsa ilk satır
     // kalın bir alt başlık gibi gösterilir.
@@ -3060,8 +3528,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       var title = INFO_TITLES[key];
       if(!title) return;
       infoBody.innerHTML = '<div class="info-body"><span class="eyebrow">Sonya Collection</span><h3>' + title + '</h3>' +
-        legalTextToHtml(text) +
-        '<div class="info-note">' + INFO_NOTES[key] + '</div></div>';
+        legalTextToHtml(text) + '</div>';
       infoWrap.classList.add('open');
     }
     function closeInfoModal(){ infoWrap.classList.remove('open'); }
@@ -3149,6 +3616,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
   })();
 
   updateCounts();
+  maybeShowAbandonedCartReminder();
 
   // ---------- Canlı veri (Firestore) — yönetici panelinden yapılan değişiklikler ----------
   // Site önce yukarıdaki varsayılan verilerle anında açılır; Firestore'a bağlanılabilirse
@@ -3185,6 +3653,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
             colors: d.colors || ["#C79768"], desc: d.desc || '',
             photoURL: d.photoURL || null,
             photos: Array.isArray(d.photos) ? d.photos : [],
+            variantStock: (d.variantStock && typeof d.variantStock === 'object') ? d.variantStock : null,
             isNew: !!d.isNew, isBestseller: !!d.isBestseller
           });
         });
@@ -3226,6 +3695,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         SETTINGS.instagram = s.instagram || SETTINGS.instagram;
         SETTINGS.phone = s.phone || '';
         SETTINGS.shippingThreshold = typeof s.shippingThreshold === 'number' ? s.shippingThreshold : SETTINGS.shippingThreshold;
+        SETTINGS.iyzicoEnabled = !!s.iyzicoEnabled;
       }
       if(legalSnap && legalSnap.exists){
         var l = legalSnap.data() || {};
@@ -3243,11 +3713,22 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       renderTestimonials();
       renderProductStructuredData();
       applySettings();
+      renderCart();
     }).catch(function(err){
       console.warn('Canlı veri yüklenemedi, varsayılan verilerle devam ediliyor:', err && err.message);
     });
   })();
 })();
+</script>
+<script>
+  // PWA: Service Worker kaydı — sayfayı "Ana Ekrana Ekle" ile yüklenebilir yapar
+  // ve temel çevrimdışı erişim sağlar. Desteklenmeyen tarayıcılarda sessizce atlanır,
+  // site normal şekilde çalışmaya devam eder.
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js').catch(function(){ /* PWA olmadan da site normal çalışır */ });
+    });
+  }
 </script>
 </body>
 </html>

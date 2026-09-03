@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sipariş Durumu — Sonya Collection</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Ccircle%20cx%3D%2732%27%20cy%3D%2732%27%20r%3D%2732%27%20fill%3D%27rgb%2889%2C68%2C47%29%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Georgia%2C%20serif%27%20font-size%3D%2734%27%20font-weight%3D%27600%27%20fill%3D%27rgb%28251%2C244%2C232%29%27%20text-anchor%3D%27middle%27%3ES%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://firestore.googleapis.com">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap');
+  :root{
+    --cream:      #FBF7F1;
+    --surface:    #FFFEFB;
+    --surface-2:  #F3EADA;
+    --espresso:   #59442F;
+    --espresso-70:#59442FB3;
+    --caramel:    #B98657;
+    --caramel-dk: #9C6B41;
+    --latte:      #DCB78E;
+    --line:       #EEE3D1;
+    --accent-ink: #FFFCF7;
+    --good:       #4C7A52;
+    --good-bg:    #EAF3EB;
+    --bad:        #B4503F;
+    --bad-bg:     #FBEBE7;
+    --shadow:     0 20px 45px -25px rgba(89,68,47,0.14);
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-font-smoothing:antialiased;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--espresso);
+    font-family:'Manrope',ui-sans-serif,system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  h1,h2,.display{
+    font-family:'Fraunces',ui-serif,Georgia,serif;
+    font-weight:500;
+    letter-spacing:-0.01em;
+    text-wrap:balance;
+    margin:0;
+    color:var(--espresso);
+  }
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  img,svg{display:block;max-width:100%;}
+
+  header{padding:22px clamp(20px,4vw,48px);}
+  header a.logo{
+    font-family:'Fraunces',ui-serif,Georgia,serif;
+    font-size:1.3rem;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    text-decoration:none;
+    color:var(--espresso);
+  }
+
+  main{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px clamp(20px,4vw,48px) 64px;
+  }
+  .card{
+    width:100%;
+    max-width:560px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:22px;
+    box-shadow:var(--shadow);
+    padding:clamp(28px,5vw,44px);
+  }
+  .icon-badge{
+    width:56px;height:56px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:20px;
+  }
+  .icon-badge svg{width:28px;height:28px;}
+  .icon-badge.ok{background:var(--good-bg);color:var(--good);}
+  .icon-badge.bad{background:var(--bad-bg);color:var(--bad);}
+  .icon-badge.pending{background:var(--surface-2);color:var(--caramel-dk);}
+
+  h1{font-size:clamp(1.5rem,3vw,1.9rem);margin-bottom:10px;}
+  .sub{color:var(--espresso-70);font-size:0.98rem;margin-bottom:26px;}
+
+  .spinner{
+    width:20px;height:20px;border-radius:50%;
+    border:2.5px solid var(--surface-2);
+    border-top-color:var(--caramel);
+    animation:spin .8s linear infinite;
+    display:inline-block;
+    vertical-align:-4px;
+    margin-right:8px;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @media (prefers-reduced-motion: reduce){ .spinner{animation-duration:2s;} }
+
+  .order-box{
+    background:var(--surface-2);
+    border-radius:14px;
+    padding:18px 20px;
+    margin-bottom:24px;
+  }
+  .order-box .row{
+    display:flex;justify-content:space-between;gap:12px;
+    font-size:0.92rem;padding:6px 0;
+    border-bottom:1px solid rgba(89,68,47,0.08);
+  }
+  .order-box .row:last-child{border-bottom:none;}
+  .order-box .row.total{font-weight:800;font-size:1rem;padding-top:12px;}
+  .order-box .item-name{color:var(--espresso);}
+  .order-box .item-meta{color:var(--espresso-70);font-size:0.82rem;}
+
+  .btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:13px 26px;border-radius:999px;
+    border:1px solid var(--caramel);background:var(--caramel);color:var(--accent-ink);
+    font-weight:700;font-size:0.88rem;letter-spacing:0.02em;text-decoration:none;
+    transition:transform .2s ease, background .2s ease;
+  }
+  .btn:hover{background:var(--caramel-dk);border-color:var(--caramel-dk);transform:translateY(-1px);}
+  .btn.ghost{background:transparent;color:var(--espresso);border-color:var(--line);}
+  .btn.ghost:hover{background:var(--surface-2);}
+
+  .fine{font-size:0.82rem;color:var(--espresso-70);margin-top:22px;line-height:1.6;}
+  .fine a{color:var(--caramel-dk);font-weight:600;text-decoration:underline;}
+
+  footer{text-align:center;padding:20px;color:var(--espresso-70);font-size:0.78rem;}
+</style>
+</head>
+<body>
+
+<header><a class="logo" href="/">Sonya Collection</a></header>
+
+<main>
+  <div class="card" id="stateCard">
+    <div class="icon-badge pending"><span class="spinner"></span></div>
+    <h1>Ödemen doğrulanıyor…</h1>
+    <p class="sub">Bu birkaç saniye sürebilir, sayfayı kapatmadan bekleyebilirsin.</p>
+  </div>
+</main>
+
+<footer>Sonya Collection</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-app-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  // ---------- EmailJS (opsiyonel — diğer sipariş kanallarıyla aynı yapı) ----------
+  var EMAILJS_PUBLIC_KEY = 'iIbGdrFA-cGeESqQj';
+  var EMAILJS_SERVICE_ID = 'service_do1pmfg';
+  var EMAILJS_TEMPLATE_ID = 'template_spvadv9';
+  function emailjsConfigured(){
+    return EMAILJS_PUBLIC_KEY.indexOf('BURAYA_') !== 0 &&
+      EMAILJS_SERVICE_ID.indexOf('BURAYA_') !== 0 &&
+      EMAILJS_TEMPLATE_ID.indexOf('BURAYA_') !== 0;
+  }
+  try{
+    if(emailjsConfigured() && typeof emailjs !== 'undefined'){ emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); }
+  }catch(e){}
+  function sendOrderEmail(order){
+    try{
+      if(!emailjsConfigured() || typeof emailjs === 'undefined') return;
+      var itemsText = order.items.map(function(it){
+        return '- ' + (it.name || 'Ürün') + (it.size ? ' (Beden: ' + it.size + ')' : '') + ' x' + it.qty + ' — ' + (it.price || 0) + ' ₺';
+      }).join('\n');
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        channel: 'Kart (iyzico)',
+        items_text: itemsText,
+        subtotal: (order.subtotal || 0) + ' ₺',
+        discount: order.discount ? order.discount + ' ₺' : 'Yok',
+        total: order.total + ' ₺',
+        coupon_code: order.couponCode || 'Yok',
+        customer_name: order.userName || 'Misafir',
+        customer_email: order.userEmail || 'Belirtilmedi',
+        customer_phone: order.userPhone || 'Belirtilmedi',
+        gift_note: order.giftNote || 'Yok'
+      }).catch(function(){});
+    }catch(e){}
+  }
+
+  function escapeHtml(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function money(n){
+    return (Math.round((n || 0) * 100) / 100).toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' ₺';
+  }
+
+  var card = document.getElementById('stateCard');
+
+  function render(iconClass, iconSvg, title, subText, bodyHtml, buttonsHtml){
+    card.innerHTML =
+      '<div class="icon-badge ' + iconClass + '">' + iconSvg + '</div>' +
+      '<h1>' + title + '</h1>' +
+      '<p class="sub">' + subText + '</p>' +
+      (bodyHtml || '') +
+      '<div class="btn-row">' + (buttonsHtml || '') + '</div>';
+  }
+
+  var ICON_OK = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var ICON_BAD = '<svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+  var ICON_WARN = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 8v5.5M12 17h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/></svg>';
+
+  // WhatsApp/Instagram — Firestore'daki canlı ayar gelmezse site genelindeki
+  // varsayılanlarla aynı değerlere düşer.
+  var contact = { whatsapp: "90XXXXXXXXXX", instagram: "sonyacollectiion" };
+  function isPlaceholder(str){ return !str || str.indexOf('X') !== -1; }
+  function contactButtonsHtml(prefixText){
+    var waReady = !isPlaceholder(contact.whatsapp);
+    var text = encodeURIComponent(prefixText || 'Merhaba, siparişimle ilgili yardım almak istiyorum.');
+    var html = '';
+    if(waReady){
+      html += '<a class="btn ghost" href="https://wa.me/' + contact.whatsapp + '?text=' + text + '" target="_blank" rel="noopener">WhatsApp\'tan Ulaş</a>';
+    }
+    html += '<a class="btn ghost" href="https://instagram.com/' + contact.instagram + '" target="_blank" rel="noopener">Instagram\'dan Ulaş</a>';
+    return html;
+  }
+
+  function buildOrderSummaryHtml(items, total, discount, subtotal){
+    var rows = (items || []).map(function(it){
+      return '<div class="row"><span class="item-name">' + escapeHtml(it.name || 'Ürün') +
+        ' <span class="item-meta">' + (it.size ? '· ' + escapeHtml(it.size) : '') + (it.qty ? ' · x' + it.qty : '') + '</span></span>' +
+        '<span>' + (it.price != null ? money(it.price) : '') + '</span></div>';
+    }).join('');
+    var discountRow = discount ? '<div class="row"><span>İndirim</span><span>-' + money(discount) + '</span></div>' : '';
+    return '<div class="order-box">' + rows + discountRow +
+      '<div class="row total"><span>Toplam</span><span>' + money(total) + '</span></div></div>';
+  }
+
+  // ---------- Firebase ----------
+  var firebaseConfig = {
+    apiKey: "AIzaSyBBJkyfBH0w9HnhEyxx59V0jZLMcW9Nan0",
+    authDomain: "sonyacollection-62544.firebaseapp.com",
+    projectId: "sonyacollection-62544",
+    storageBucket: "sonyacollection-62544.firebasestorage.app",
+    messagingSenderId: "667694882654",
+    appId: "1:667694882654:web:15bb2eb5455b2f4678b9cf"
+  };
+  var db = null, auth = null, currentUser = null;
+  try{
+    if(window.firebase){
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+      auth = firebase.auth();
+    }
+  }catch(e){}
+
+  // Ayarlardaki güncel WhatsApp/Instagram değerini almayı dene (başarısız olursa varsayılanla devam).
+  function loadContactSettings(){
+    if(!db) return Promise.resolve();
+    return db.collection('settings').doc('site').get().then(function(snap){
+      if(snap && snap.exists){
+        var s = snap.data() || {};
+        if(s.whatsapp) contact.whatsapp = s.whatsapp;
+        if(s.instagram) contact.instagram = s.instagram;
+      }
+    }).catch(function(){});
+  }
+
+  function waitForAuth(){
+    return new Promise(function(resolve){
+      if(!auth){ resolve(null); return; }
+      var unsub = auth.onAuthStateChanged(function(u){
+        currentUser = u;
+        if(unsub) unsub();
+        resolve(u);
+      });
+      // Auth durumu bir sebeple hiç tetiklenmezse sonsuza kadar beklemeyelim.
+      setTimeout(function(){ resolve(currentUser); }, 2500);
+    });
+  }
+
+  function getPendingSnapshot(token){
+    try{
+      var raw = localStorage.getItem('sonya_pending_card_order');
+      if(!raw) return null;
+      var snap = JSON.parse(raw);
+      if(!snap || !token || snap.token !== token) return null;
+      return snap;
+    }catch(e){ return null; }
+  }
+
+  function clearPendingSnapshot(){
+    try{ localStorage.removeItem('sonya_pending_card_order'); }catch(e){}
+  }
+
+  function clearCart(){
+    try{
+      localStorage.removeItem('sonya_cart');
+      localStorage.removeItem('sonya_cart_ts');
+    }catch(e){}
+  }
+
+  function alreadyWritten(token){
+    try{ return localStorage.getItem('sonya_order_written_' + token) === '1'; }catch(e){ return false; }
+  }
+  function markWritten(token){
+    try{ localStorage.setItem('sonya_order_written_' + token, '1'); }catch(e){}
+  }
+
+  function writeOrder(token, verified, snapshot){
+    if(!db) return Promise.resolve();
+    var items = (snapshot && snapshot.items && snapshot.items.length) ? snapshot.items :
+      (verified.items || []).map(function(it){ return { name: it.name, price: it.price, qty: 1, size: null, color: null, productId: null }; });
+    var subtotal = items.reduce(function(sum, it){ return sum + (it.price || 0) * (it.qty || 1); }, 0);
+    var total = verified.paidPrice != null ? verified.paidPrice : subtotal;
+    var discount = snapshot ? Math.max(0, Math.round((subtotal - total) * 100) / 100) : 0;
+    var orderData = {
+      items: items,
+      subtotal: Math.round(subtotal * 100) / 100,
+      discount: discount,
+      total: total,
+      couponCode: (snapshot && snapshot.couponCode) || null,
+      channel: 'kart',
+      status: 'paid',
+      paymentId: verified.paymentId || null,
+      conversationId: verified.conversationId || null,
+      cardAssociation: verified.cardAssociation || null,
+      lastFourDigits: verified.lastFourDigits || null,
+      uid: currentUser ? currentUser.uid : null,
+      userEmail: (snapshot && snapshot.buyerEmail) || (currentUser ? currentUser.email : null),
+      userName: (snapshot && snapshot.buyerName) || (currentUser ? currentUser.displayName : null),
+      userPhone: (snapshot && snapshot.buyerPhone) || null,
+      giftNote: (snapshot && snapshot.giftNote) || null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    return db.collection('orders').add(orderData).then(function(){
+      sendOrderEmail({
+        items: items, subtotal: orderData.subtotal, discount: orderData.discount, total: orderData.total,
+        couponCode: orderData.couponCode, userName: orderData.userName, userEmail: orderData.userEmail,
+        userPhone: orderData.userPhone, giftNote: orderData.giftNote
+      });
+      return { items: items, total: total, discount: discount, subtotal: subtotal };
+    }).catch(function(err){
+      console.warn('Sipariş kaydedilemedi:', err && err.message);
+      return { items: items, total: total, discount: discount, subtotal: subtotal, writeFailed: true };
+    });
+  }
+
+  function showSuccess(summary){
+    clearCart();
+    var bodyHtml = buildOrderSummaryHtml(summary.items, summary.total, summary.discount, summary.subtotal);
+    render('ok', ICON_OK, 'Siparişin alındı!', 'Ödemen başarıyla tamamlandı, teşekkür ederiz. Sipariş detaylarını aşağıda görebilirsin.',
+      bodyHtml + (summary.writeFailed ? '<p class="fine">Ödemen başarıyla alındı — sipariş kaydında küçük bir gecikme olabilir, merak etme.</p>' : ''),
+      '<a class="btn" href="/">Alışverişe Devam Et</a>' + (currentUser ? '<a class="btn ghost" href="/hesabim.html">Siparişlerim</a>' : '')
+    );
+  }
+
+  function showFailed(reason){
+    render('bad', ICON_BAD, 'Ödeme tamamlanamadı', escapeHtml(reason || 'Ödemen sırasında bir sorun oluştu, kartından herhangi bir tutar çekilmedi.'),
+      '',
+      '<a class="btn" href="/">Sepete Dön</a>' + contactButtonsHtml('Merhaba, kartla ödeme sırasında bir sorun yaşadım, yardımcı olabilir misiniz?')
+    );
+  }
+
+  function showError(message){
+    render('bad', ICON_WARN, 'Bir şeyler ters gitti', escapeHtml(message || 'Ödeme durumun şu an doğrulanamadı.'),
+      '<p class="fine">Kartından bir tutar çekildiyse endişelenme — siparişini birlikte netleştirelim.</p>',
+      '<a class="btn" href="/">Anasayfaya Dön</a>' + contactButtonsHtml('Merhaba, ödeme durumumu kontrol edemedim, yardımcı olabilir misiniz?')
+    );
+  }
+
+  function showNoToken(){
+    render('bad', ICON_WARN, 'Geçersiz bağlantı', 'Bu sayfaya doğrudan ulaşılamaz — bir ödeme işleminden sonra buraya yönlendirilmen gerekir.',
+      '', '<a class="btn" href="/">Anasayfaya Dön</a>'
+    );
+  }
+
+  function init(){
+    var params = new URLSearchParams(window.location.search);
+    var token = params.get('token');
+
+    if(!token || params.get('durum') === 'hata'){
+      if(!token){ showNoToken(); return; }
+    }
+
+    Promise.all([loadContactSettings(), waitForAuth()]).then(function(){
+      return fetch('/odeme/durum.php?token=' + encodeURIComponent(token));
+    }).then(function(res){
+      return res.json().catch(function(){ return null; });
+    }).then(function(data){
+      if(!data || !data.ok){
+        showError(data && data.error);
+        return;
+      }
+      if(!data.paid){
+        showFailed(data.reason);
+        return;
+      }
+      // Ödeme doğrulandı.
+      if(alreadyWritten(token)){
+        // Sayfa yenilenmiş olabilir — tekrar sipariş yazmadan aynı özeti göster.
+        var snap = getPendingSnapshot(token);
+        var items = snap ? snap.items : (data.items || []);
+        var subtotal = items.reduce(function(sum, it){ return sum + (it.price || 0) * (it.qty || 1); }, 0);
+        showSuccess({ items: items, total: data.paidPrice != null ? data.paidPrice : subtotal, discount: 0, subtotal: subtotal });
+        return;
+      }
+      var snapshot = getPendingSnapshot(token);
+      writeOrder(token, data, snapshot).then(function(summary){
+        markWritten(token);
+        clearPendingSnapshot();
+        showSuccess(summary);
+      });
+    }).catch(function(){
+      showError('Ödeme durumu kontrol edilirken bir bağlantı sorunu oluştu.');
+    });
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
