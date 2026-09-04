@@ -76,14 +76,27 @@ foreach($products as $p){
 
 $coupon = $couponCode !== '' ? fetchCouponFromFirestore($couponCode) : null;
 
+// Kargo ücreti/eşiği yönetici panelinden değiştirilebildiği için müşteriden değil,
+// her zaman Firestore'daki güncel ayardan okunuyor.
+$siteSettings = fetchSiteSettingsFromFirestore();
+
+// Altın üye ayrıcalığı (kargo ücretsiz): üyelik seviyesi, müşterinin kendi sipariş
+// geçmişinden tarayıcıda hesaplanıyor ve PHP tarafı bu geçmişi okuyamıyor (orders
+// koleksiyonu yalnızca kişinin kendisine ve yöneticiye açık). Bu yüzden burada
+// tarayıcıdan gelen bilgiye güveniliyor — kötüye kullanımın azami etkisi yalnızca
+// kargo ücretinin atlanması, ürün fiyatı/indirim her zaman sunucuda doğrulanıyor.
+// (Aynı güven modeli sadakat/doğum günü kuponlarında da kabul edilmiş durumda.)
+$isGoldMember = !empty($input['goldMember']);
+
 try {
-  $totals = computeOrderTotals($items, $productsById, $coupon);
+  $totals = computeOrderTotals($items, $productsById, $coupon, $siteSettings, $isGoldMember);
 } catch (Exception $e){
   respondError($e->getMessage());
 }
 $basketItems = $totals['basketItems'];
 $subtotal = $totals['subtotal'];
 $discount = $totals['discount'];
+$shipping = $totals['shipping'];
 $total = $totals['total'];
 
 $nameParts = preg_split('/\s+/', trim($buyerName), 2);

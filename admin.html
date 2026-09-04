@@ -22,8 +22,8 @@
   --page-bg:    #F6F1E8;
   --espresso:   #4A392A;
   --espresso-70:#4A392AB3;
-  --caramel:    #B98657;
-  --caramel-dk: #9C6B41;
+  --caramel:    #928273;
+  --caramel-dk: #706358;
   --latte:      #DCB78E;
   --line:       #E7DBC7;
   --line-soft:  #F0E8D9;
@@ -711,7 +711,13 @@ a{color:inherit;}
             <option value="amount">Sabit Tutar (₺)</option>
           </select>
           <input type="number" id="newCouponValue" placeholder="Değer" min="1" step="1">
+          <input type="number" id="newCouponMinAmount" placeholder="Min. sepet ₺ (ops.)" min="0" step="10" title="Bu tutarın altındaki sepetlerde kupon geçersiz olur. Boş bırakırsanız sınır yoktur.">
+          <input type="date" id="newCouponExpiresAt" title="Son kullanma tarihi (o günün sonuna kadar geçerli). Boş bırakırsanız süresiz geçerlidir.">
           <button type="button" class="btn btn-ghost" id="addCouponBtn">Ekle</button>
+        </div>
+        <div class="legal-hint" style="margin-top:12px;">
+          <strong>Min. sepet</strong> ve <strong>son kullanma tarihi</strong> isteğe bağlıdır; boş bırakılırsa kupon sınırsız ve süresiz çalışır. Bu iki kural hem sitede hem de kartla ödemede sunucu tarafında ayrıca doğrulanır.
+          Bir kod istemediğiniz yerlere yayılırsa <strong>Pasif Yap</strong> ile anında kapatabilirsiniz.
         </div>
       </div>
     </section>
@@ -846,6 +852,14 @@ a{color:inherit;}
             <div class="field">
               <label for="setShipping">Ücretsiz Kargo Eşiği (₺)</label>
               <input type="number" id="setShipping" min="0" step="10">
+              <div class="hint">Bu tutar ve üzerindeki siparişlerde kargo ücreti alınmaz.</div>
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="setShippingFee">Kargo Ücreti (₺)</label>
+              <input type="number" id="setShippingFee" min="0" step="1">
+              <div class="hint"><strong>0 girerseniz hiçbir siparişten kargo ücreti alınmaz</strong> ve site "tüm siparişlerde ücretsiz kargo" der. Bir tutar girerseniz, yukarıdaki eşiğin ALTINDAKİ siparişlere bu ücret eklenir — hem sepette hem kartla ödemede. Altın üyelerde her zaman ücretsizdir.</div>
             </div>
           </div>
           <div class="field">
@@ -950,6 +964,43 @@ a{color:inherit;}
         </div>
 
         <div class="settings-section">
+          <h3>Az Önce Satıldı Bildirimi</h3>
+          <p class="sec-sub">Açarsan, sitede gerçek siparişlerden türetilen ("Az önce X satın alındı" gibi) küçük bir bildirim şeridi görünür — hiçbir müşteri bilgisi paylaşılmaz, yalnızca ürün adı.</p>
+          <label class="variant-toggle-label" for="setRecentSalesEnabled">
+            <input type="checkbox" id="setRecentSalesEnabled"> Az önce satıldı bildirimi sitede aktif
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <h3>Doğum Günü Kuponu</h3>
+          <p class="sec-sub">Açarsan, hesabında doğum günü (gün/ay) bilgisi olan üyelere, doğum günlerinde otomatik olarak indirim kuponu tanımlanır. Yıl bilgisi hiç istenmez/saklanmaz.</p>
+          <label class="variant-toggle-label" for="setBirthdayCouponEnabled">
+            <input type="checkbox" id="setBirthdayCouponEnabled"> Doğum günü kuponu aktif
+          </label>
+          <div class="field" style="margin-top:12px;">
+            <label for="setBirthdayCouponPercent">İndirim Yüzdesi (%)</label>
+            <input type="number" id="setBirthdayCouponPercent" min="0" max="100" step="1">
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Hediye Paketi</h3>
+          <p class="sec-sub">Açarsan, checkout'ta "Hediye paketiyle gönder" seçeneği görünür — gerçek bir otomasyon yok, siparişte bu işaretliyse elle hediye paketi yapman gerekir.</p>
+          <label class="variant-toggle-label" for="setGiftWrapEnabled">
+            <input type="checkbox" id="setGiftWrapEnabled"> Hediye paketi seçeneği sitede aktif
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <h3>Altın Üye Erken Erişimi</h3>
+          <p class="sec-sub">Bir ürüne "Erken erişim bitiş" tarihi/saati girersen, o zamana kadar ürünü yalnızca Altın sadakat seviyesindeki üyeler görüp satın alabilir. Aşağıdaki süre, ürün düzenleme ekranında önerilen varsayılan süredir.</p>
+          <div class="field">
+            <label for="setGoldEarlyAccessHours">Varsayılan Erken Erişim Süresi (saat)</label>
+            <input type="number" id="setGoldEarlyAccessHours" min="0" step="1">
+          </div>
+        </div>
+
+        <div class="settings-section">
           <h3>Yasal Metinler</h3>
           <div class="legal-hint">
             Paragrafları ayırmak için aralarında <strong>boş bir satır</strong> bırakın. Bir paragrafın ilk satırını yeni satıra geçip devamını yazarsanız, ilk satır sitede <strong>kalın başlık</strong> olarak görünür.
@@ -973,6 +1024,20 @@ a{color:inherit;}
           <div class="field">
             <label for="setIleti">Ticari Elektronik İleti Onayı</label>
             <textarea id="setIleti"></textarea>
+          </div>
+          <div class="field">
+            <label for="setOnbilgi">Ön Bilgilendirme Formu</label>
+            <textarea id="setOnbilgi"></textarea>
+            <div class="hint">Mesafeli satışta zorunlu. İçindeki <strong>[köşeli parantezli]</strong> alanları (şirket/şahıs adı, adres, telefon, iade kargo masrafını kimin karşıladığı) kendi bilgilerinizle doldurun.</div>
+          </div>
+          <div class="field">
+            <label for="setMesafeli">Mesafeli Satış Sözleşmesi</label>
+            <textarea id="setMesafeli"></textarea>
+            <div class="hint">Mesafeli satışta zorunlu. Buradaki <strong>[köşeli parantezli]</strong> alanları da doldurmayı unutmayın.</div>
+          </div>
+          <div class="field">
+            <label for="setCerez">Çerez Politikası</label>
+            <textarea id="setCerez"></textarea>
           </div>
           <div class="field">
             <label for="setBeden">Beden Rehberi</label>
@@ -1132,6 +1197,18 @@ a{color:inherit;}
           <button type="button" class="chip-toggle" data-badge="isBestseller">Çok Satan</button>
         </div>
         <div class="hint">Sitede ürün kartında ve ürün sayfasında rozet olarak görünür. Sadece gerçekten yeni/çok satan ürünlerde kullanın.</div>
+      </div>
+
+      <div class="field">
+        <label for="prodFlashSaleEndsAt">Flaş İndirim Bitiş (opsiyonel)</label>
+        <input type="datetime-local" id="prodFlashSaleEndsAt">
+        <div class="hint">Ürünün bir "Eski Fiyat"ı varsa ve burada geçerli bir bitiş zamanı girersen, ürün sitede geri sayımlı "⚡ Flaş İndirim" bölümünde görünür. Boş bırakırsan normal indirim gibi davranır, flaş bölümünde görünmez.</div>
+      </div>
+
+      <div class="field">
+        <label for="prodEarlyAccessUntil">Altın Üye Erken Erişim Bitişi (opsiyonel)</label>
+        <input type="datetime-local" id="prodEarlyAccessUntil">
+        <div class="hint">Bu tarihe kadar ürünü yalnızca Altın sadakat seviyesindeki üyeler görüp satın alabilir. Diğer müşterilere ürün o zamana kadar hiç gösterilmez. Boş bırakırsan herkes hemen görür.</div>
       </div>
 
       <div class="field" id="deleteProductWrap" style="display:none;">
@@ -1301,6 +1378,7 @@ a{color:inherit;}
     instagram: "sonyacollectiion",
     phone: "",
     shippingThreshold: 1500,
+    shippingFee: 0,
     iyzicoEnabled: false,
     welcomeCouponCode: "",
     deliveryEstimate: "",
@@ -1317,12 +1395,21 @@ a{color:inherit;}
     campaignEndsAt: "",
     campaignLabel: "",
     fcmVapidKey: "",
+    recentSalesEnabled: false,
+    birthdayCouponEnabled: false,
+    birthdayCouponPercent: 15,
+    giftWrapEnabled: false,
+    goldEarlyAccessHours: 24,
+    topSellerIds: [],
     legal: {
       gizlilik: "Sonya Collection olarak ([Şirket/Şahıs Adı]) müşterilerimizin gizliliğine önem veriyoruz. Bu sayfa, siteyi kullanırken hangi bilgilerin toplandığını ve nasıl kullanıldığını açıklar.\n\nHangi bilgileri topluyoruz?\nHesap oluşturduğunda: ad soyad ve e-posta adresin (Firebase Authentication üzerinden). Sipariş verdiğinde: sepetindeki ürünler, beden ve tutar bilgisi — bu bilgiler WhatsApp/Instagram üzerinden bize ilettiğin mesajın içinde yer alır. Sepet ve favori listen, tarayıcının hafızasında (localStorage) senin cihazında saklanır; bize otomatik olarak gönderilmez.\n\nBilgilerini kimlerle paylaşıyoruz?\nHesap bilgilerin Google/Firebase altyapısında saklanır. Sipariş mesajların WhatsApp ve Instagram (Meta) üzerinden bize ulaşır ve bu platformların kendi gizlilik politikaları geçerlidir. Bilgilerini bu iki amaç dışında üçüncü taraflarla paylaşmıyor, satmıyoruz.\n\nHaklarınız\nKişisel verilerinle ilgili sorular veya silme talepleri için siparis@sonyacollection.com adresinden bize ulaşabilirsin.",
-      kvkk: "Veri Sorumlusu: [Şirket/Şahıs Adı], [Adres] (\"Sonya Collection\")\n\n6698 sayılı Kişisel Verilerin Korunması Kanunu (\"KVKK\") uyarınca, kişisel verilerin işlenmesine ilişkin olarak seni bilgilendirmek isteriz.\n\nİşlenen kişisel veriler\nKimlik ve iletişim bilgileri: ad soyad, e-posta adresi. Sipariş bilgileri: ürün, beden, adet, tutar, teslimat bilgileri.\n\nİşleme amaçları\nHesabının oluşturulması ve yönetilmesi. Siparişlerinin alınması ve iletişimin sürdürülmesi. Yasal yükümlülüklerin yerine getirilmesi.\n\nAktarım\nVerilerin, hesap altyapısı için Google/Firebase'e ve sipariş iletişimi için WhatsApp/Instagram (Meta) platformlarına, yalnızca bu hizmetlerin çalışması için gerekli ölçüde aktarılabilir.\n\nKVKK md. 11 kapsamındaki haklarınız\nKişisel verilerinin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, düzeltilmesini veya silinmesini isteme hakkına sahipsin. Taleplerin için siparis@sonyacollection.com adresine yazabilirsin.",
+      kvkk: "Veri Sorumlusu: [Şirket/Şahıs Adı], [Adres] (\"Sonya Collection\")\n\n6698 sayılı Kişisel Verilerin Korunması Kanunu (\"KVKK\") uyarınca, kişisel verilerin işlenmesine ilişkin olarak seni bilgilendirmek isteriz.\n\nİşlenen kişisel veriler\nKimlik ve iletişim bilgileri: ad soyad, e-posta adresi. Sipariş bilgileri: ürün, beden, adet, tutar, teslimat bilgileri.\n\nİşleme amaçları\nHesabının oluşturulması ve yönetilmesi. Siparişlerinin alınması ve iletişimin sürdürülmesi. Yasal yükümlülüklerin yerine getirilmesi.\n\nAktarım\nVerilerin, hesap altyapısı için Google/Firebase'e ve sipariş iletişimi için WhatsApp/Instagram (Meta) platformlarına, yalnızca bu hizmetlerin çalışması için gerekli ölçüde aktarılabilir.\n\nKVKK md. 11 kapsamındaki hakların\nKişisel verilerinin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, düzeltilmesini veya silinmesini isteme hakkına sahipsin. Taleplerin için siparis@sonyacollection.com adresine yazabilirsin.",
       iade: "Cayma hakkı\nMesafeli Sözleşmeler Yönetmeliği kapsamında, ürünü teslim aldığın tarihten itibaren 14 gün içinde herhangi bir gerekçe göstermeden cayma hakkına sahipsin.\n\nİade şartları\nÜrün kullanılmamış, yıkanmamış ve etiketleri çıkarılmamış olmalı. Mümkünse orijinal ambalajıyla birlikte gönderilmeli. İç giyim, mayo/bikini gibi hijyen bandı sökülmüş ürünlerde iade kabul edilmeyebilir.\n\nNasıl iade/değişim talep edilir?\nSipariş numaranla birlikte Instagram ya da WhatsApp üzerinden bize ulaş; iade adresini ve süreci seninle birlikte netleştirelim.\n\nKargo ücreti\n[Kargo ücretini kim karşılıyor buraya eklenecek — örn. \"İade kargo ücreti alıcıya aittir\" ya da \"İlk iadede kargo ücretsizdir.\"]",
       uyelik: "İşbu Üyelik Sözleşmesi, Sonya Collection (\"[Şirket/Şahıs Adı]\", \"biz\") ile siteye üye olan kullanıcı (\"Üye\", \"sen\") arasında, sitenin kullanım şartlarını belirlemek amacıyla düzenlenmiştir.\n\nÜyelik\nÜye olmak için ad soyad ve e-posta adresi ile bir hesap oluşturulur. Üye, kayıt sırasında verdiği bilgilerin doğru ve güncel olduğunu kabul eder. Hesap bilgileri (e-posta, şifre) üçüncü kişilerle paylaşılmamalıdır; hesap üzerinden yapılan işlemlerden Üye sorumludur.\n\nSiparişler\nSitede oluşturulan sepet, WhatsApp veya Instagram üzerinden bize iletilen bir sipariş talebidir; ödeme ve teslimat detayları bu iletişim kanalları üzerinden ayrıca netleştirilir.\n\nFesih\nÜye, dilediği zaman hesabının silinmesini talep edebilir. Bu talepler için siparis@sonyacollection.com adresinden bize ulaşabilirsin.\n\nDeğişiklikler\nBu sözleşme, güncellenen koşulları yansıtmak amacıyla zaman zaman güncellenebilir; güncel hali her zaman bu sayfada yer alır.",
       ileti: "Bu onay, Sonya Collection tarafından kampanya, indirim ve yeni ürün duyurularının e-posta ve/veya kayıt sırasında paylaştığın telefon numarası üzerinden (SMS/WhatsApp) tarafına iletilmesi içindir.\n\n6563 sayılı Elektronik Ticaretin Düzenlenmesi Hakkında Kanun ve ilgili Ticari İletişim ve Ticari Elektronik İletiler Hakkında Yönetmelik uyarınca, ticari elektronik ileti gönderimi ancak açık onayınla mümkündür.\n\nBu onayı vermek tamamen isteğe bağlıdır; onay vermemen üyeliğini veya sipariş verebilmeni hiçbir şekilde etkilemez. Dilediğin zaman gönderdiğimiz iletilerdeki \"Ret\" bağlantısını kullanarak ya da siparis@sonyacollection.com adresine yazarak bu onayı geri alabilirsin.",
+      cerez: "Bu site hangi çerezleri kullanır?\nAlışveriş deneyimini iyileştirmek, tercihlerini hatırlamak, site trafiğini analiz etmek ve kampanyalarımızı ölçmek için çerezler ve benzeri teknolojiler (localStorage) kullanıyoruz.\n\nZorunlu çerezler\nSepetin, favori listen ve oturum bilgilerin tarayıcının hafızasında (localStorage) saklanır. Bunlar sitenin çalışması için gereklidir, kapatılamaz.\n\nAnaliz ve reklam çerezleri\nİzin verirsen Google Analytics (GA4) ve Meta Pixel ile site trafiğini analiz eder, reklam performansımızı ölçeriz. Bu çerezler yalnızca \"Tümünü Kabul Et\" seçeneğini onayladığında yüklenir; \"Sadece Zorunlu Çerezler\"i seçersen hiç çalışmazlar.\n\nTercihini değiştirme\nDilediğin zaman sayfanın altındaki \"Çerez Tercihleri\" bağlantısına tıklayarak seçimini değiştirebilirsin.",
+      onbilgi: "Satıcı bilgileri\nUnvan: Sonya Collection — [Şirket/Şahıs Adı]. Adres: [Adres]. Telefon: [Telefon]. E-posta: siparis@sonyacollection.com. İnternet sitesi: sonyacollection.com\n\nBu form nedir?\n6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği uyarınca, siparişini onaylamadan önce aşağıdaki bilgileri okuduğunu ve anladığını teyit etmen gerekir.\n\nSipariş konusu ürünler ve fiyat\nSipariş ettiğin ürünlerin adı, adedi, bedeni ve birim fiyatı sepet ekranında ve sipariş özetinde ayrı ayrı gösterilir. Sitedeki tüm fiyatlar Türk Lirası cinsinden ve KDV dahildir.\n\nKargo ücreti\nVarsa kargo ücreti, siparişi onaylamadan önce sepet özetinde \"Kargo\" satırında ayrıca gösterilir ve toplam tutara eklenir. Ücretsiz kargo eşiği ve üzerindeki siparişlerde kargo ücreti alınmaz.\n\nÖdeme\nÖdeme, sitede sunulan yöntemlerden seçtiğin yöntemle yapılır. Kartla ödemede kart bilgilerin bu siteye hiçbir şekilde iletilmez; ödeme, lisanslı ödeme kuruluşu iyzico'nun kendi güvenli sayfası üzerinden alınır.\n\nTeslimat\nSiparişler genellikle 1-3 iş günü içinde kargoya verilir; teslim süresi kargo firmasına ve teslimat adresine göre değişir. Yasal azami teslim süresi 30 gündür. Ürün, sipariş sırasında bildirdiğin teslimat adresine gönderilir.\n\nCayma hakkı\nÜrünü teslim aldığın tarihten itibaren 14 gün içinde hiçbir gerekçe göstermeden ve cezai şart ödemeden sözleşmeden cayma hakkına sahipsin. Cayma bildirimini siparis@sonyacollection.com adresine ya da yukarıdaki iletişim kanallarından bize ulaştırman yeterlidir.\n\nCayma hakkının kullanılamayacağı durumlar\nMesafeli Sözleşmeler Yönetmeliği'nin 15. maddesi uyarınca; kişiye özel hazırlanan ürünlerde ve iç giyim, mayo/bikini gibi hijyen bandı sökülmüş ürünlerde cayma hakkı kullanılamaz.\n\nİade masrafı ve geri ödeme\nCayma hakkını kullanman durumunda iade kargo masrafı [iade kargo masrafını kimin karşıladığını yazın: ör. tarafımızca karşılanır / alıcıya aittir]. Ödemen, cayma bildirimin bize ulaştıktan ve ürün tarafımıza döndükten sonra en geç 14 gün içinde, ödeme yaptığın yöntemle iade edilir.\n\nŞikâyet ve itiraz\nSipariş ve ürünle ilgili tüm talep ve şikâyetlerini yukarıdaki iletişim kanallarından bize iletebilirsin. Uyuşmazlık durumunda, Ticaret Bakanlığı'nca her yıl ilan edilen parasal sınırlar çerçevesinde ürünü satın aldığın veya ikametgâhının bulunduğu yerdeki Tüketici Hakem Heyetine ya da Tüketici Mahkemesine başvurabilirsin.",
+      mesafeli: "Taraflar\nSATICI: Sonya Collection — [Şirket/Şahıs Adı]. Adres: [Adres]. Telefon: [Telefon]. E-posta: siparis@sonyacollection.com\nALICI: Sipariş sırasında ad soyad, teslimat adresi ve iletişim bilgilerini bildiren kişi.\n\nKonu\nİşbu sözleşmenin konusu, ALICI'nın sonyacollection.com üzerinden elektronik ortamda siparişini verdiği ürünlerin satışı ve teslimi ile ilgili olarak tarafların hak ve yükümlülüklerinin belirlenmesidir.\n\nSözleşme konusu ürün, fiyat ve ödeme\nÜrünlerin adı, adedi, bedeni, birim fiyatı, varsa kargo ücreti ve ödenecek toplam tutar; sipariş onayından önce sepet özetinde gösterilir ve siparişten sonra iletilen sipariş bilgisiyle birlikte işbu sözleşmenin ayrılmaz parçasını oluşturur. Tüm fiyatlar KDV dahildir.\n\nGenel hükümler\nALICI, siparişi onaylamadan önce Ön Bilgilendirme Formu'nu okuduğunu; ürünün temel nitelikleri, satış fiyatı, ödeme şekli, teslimat koşulları ve cayma hakkı konusunda bilgilendirildiğini kabul eder. ALICI, siparişi onaylamakla ödeme yükümlülüğü altına girdiğini kabul eder.\n\nTeslimat\nÜrün, ALICI'nın bildirdiği teslimat adresine kargo ile gönderilir. Teslim süresi, siparişin onaylanmasından itibaren yasal azami 30 günü aşmaz. Ürünün kargo firmasına tesliminden sonra kargo firmasından kaynaklanan gecikmelerden SATICI sorumlu tutulamaz.\n\nCayma hakkı\nALICI, ürünü teslim aldığı tarihten itibaren 14 gün içinde hiçbir gerekçe göstermeden ve cezai şart ödemeden sözleşmeden cayabilir. Cayma bildirimi yukarıdaki iletişim kanallarından SATICI'ya yöneltilir. Cayma hakkının kullanılabilmesi için ürünün kullanılmamış, yıkanmamış ve etiketleri sökülmemiş olması gerekir. Kişiye özel üretilen ürünlerde ve hijyen bandı sökülmüş iç giyim/mayo ürünlerinde cayma hakkı kullanılamaz.\n\nUyuşmazlık\nİşbu sözleşmenin uygulanmasında, Ticaret Bakanlığı'nca her yıl ilan edilen parasal sınırlar dâhilinde ALICI'nın ürünü satın aldığı veya ikametgâhının bulunduğu yerdeki Tüketici Hakem Heyetleri ile Tüketici Mahkemeleri yetkilidir.\n\nYürürlük\nALICI'nın site üzerinden siparişini onaylaması ile işbu sözleşme kurulmuş sayılır ve taraflar arasında yürürlüğe girer.",
       beden: "S (36)\nGöğüs: 84-88 cm · Bel: 64-68 cm · Kalça: 90-94 cm\n\nM (38)\nGöğüs: 88-92 cm · Bel: 68-72 cm · Kalça: 94-98 cm\n\nL (40)\nGöğüs: 92-96 cm · Bel: 72-76 cm · Kalça: 98-102 cm\n\nXL (42)\nGöğüs: 96-100 cm · Bel: 76-80 cm · Kalça: 102-106 cm\n\nÖlçü nasıl alınır?\nGöğüs: Göğsün en geniş noktasından, mezura yere paralel olacak şekilde ölçün. Bel: Belin en ince noktasından ölçün. Kalça: Kalçanın en geniş noktasından ölçün.\n\nNot\nParçalarımız genelde rahat ve salaş bir kesime sahiptir; iki beden arasında kalırsan küçük olanı tercih edebilirsin. Ürüne özel kumaş/kesim farkı olabileceğinden, ürün açıklamasındaki notları da kontrol etmeni öneririz."
     }
   };
@@ -1362,14 +1449,18 @@ a{color:inherit;}
   var SHIPPING_CARRIERS = ['', 'Yurtiçi Kargo', 'Aras Kargo', 'MNG Kargo', 'PTT Kargo', 'Sürat Kargo', 'Diğer'];
 
   // ---------- Sipariş durumu değişince otomatik müşteri e-postası ----------
-  // Mevcut sipariş-bildirim şablonu (template_spvadv9) sana (satıcıya) e-posta göndermek üzere
-  // ayarlı — müşteriye e-posta göndermek için EmailJS'te AYRI bir şablon oluşturup, o şablonda
-  // "Alıcı e-posta" alanını {{customer_email}} olarak ayarlaman gerekiyor. Yeni şablonu
-  // oluşturduktan sonra ID'sini aşağıya (BURAYA_... yerine) yapıştır — o zamana kadar bu özellik
-  // sessizce devre dışı kalır, sipariş akışını hiçbir şekilde etkilemez.
+  // Bu, sonya-collection.html'deki (ve diğer 10 sayfadaki) "müşteriye giden e-posta" ile AYNI
+  // paylaşılan EmailJS şablonunu kullanıyor (EmailJS'in ücretsiz planı en fazla 2 şablona izin
+  // veriyor, biri zaten sana/admin'e giden sipariş bildirimi için kullanılıyor). O yüzden EmailJS'te
+  // TEK bir yeni şablon oluşturup, o şablonda "Alıcı e-posta" alanını {{customer_email}} olarak
+  // ayarlaman yeterli — içerik/konu {{customer_name}}/{{email_title}}/{{email_body}} değişkenleriyle
+  // JS'den geliyor. Şablonu oluşturduktan sonra ID'sini hem buraya hem de sonya-collection.html
+  // (ve diğer 10 sayfa) içindeki EMAILJS_CUSTOMER_TEMPLATE_ID alanına yapıştır — ikisi aynı ID'yi
+  // paylaşmalı. O zamana kadar bu özellik sessizce devre dışı kalır, sipariş akışını hiçbir
+  // şekilde etkilemez. Not: sadece hesabı olan (giriş yapmış) müşterilerde çalışır.
   var EMAILJS_PUBLIC_KEY = 'iIbGdrFA-cGeESqQj';
   var EMAILJS_STATUS_SERVICE_ID = 'service_do1pmfg';
-  var EMAILJS_STATUS_TEMPLATE_ID = 'BURAYA_DURUM_SABLON_ID';
+  var EMAILJS_STATUS_TEMPLATE_ID = 'template_asd2tad';
   function statusEmailConfigured(){
     return EMAILJS_STATUS_TEMPLATE_ID.indexOf('BURAYA_') !== 0;
   }
@@ -1379,11 +1470,15 @@ a{color:inherit;}
   function sendStatusUpdateEmail(order, newStatus){
     try{
       if(!statusEmailConfigured() || typeof emailjs === 'undefined' || !order.userEmail) return;
+      var statusLabel = ORDER_STATUSES[newStatus] || newStatus;
+      var trackingInfo = order.trackingCode ? ((order.trackingCarrier || 'Kargo') + ' — ' + order.trackingCode) : '';
+      var bodyText = 'Sipariş durumun güncellendi: ' + statusLabel + '.' +
+        (trackingInfo ? '\n\nKargo takip: ' + trackingInfo : '');
       emailjs.send(EMAILJS_STATUS_SERVICE_ID, EMAILJS_STATUS_TEMPLATE_ID, {
         customer_email: order.userEmail,
         customer_name: order.userName || 'Merhaba',
-        status_label: ORDER_STATUSES[newStatus] || newStatus,
-        tracking_info: order.trackingCode ? ((order.trackingCarrier || 'Kargo') + ' — ' + order.trackingCode) : ''
+        email_title: 'Sipariş Durumun Güncellendi',
+        email_body: bodyText
       }).catch(function(err){ console.warn('Durum e-postası gönderilemedi:', err && (err.text || err.message)); });
     }catch(e){ /* panelin geri kalanını asla bozma */ }
   }
@@ -1507,6 +1602,7 @@ a{color:inherit;}
       renderReviews();
       renderSettingsForm();
       renderAnalytics();
+      updateTopSellerIds();
       renderLowStock();
       renderOrders();
       renderCoupons();
@@ -1541,6 +1637,7 @@ a{color:inherit;}
           userName: d.userName || null,
           userPhone: d.userPhone || null,
           giftNote: d.giftNote || null,
+          giftWrap: !!d.giftWrap,
           status: d.status || 'pending',
           adminNote: d.adminNote || '',
           trackingCarrier: d.trackingCarrier || '',
@@ -1566,7 +1663,9 @@ a{color:inherit;}
           code: doc.id,
           type: d.type === 'amount' ? 'amount' : 'percent',
           value: typeof d.value === 'number' ? d.value : 0,
-          active: d.active !== false
+          active: d.active !== false,
+          minAmount: (typeof d.minAmount === 'number' && d.minAmount > 0) ? d.minAmount : null,
+          expiresAt: (typeof d.expiresAt === 'string' && d.expiresAt) ? d.expiresAt : null
         });
       });
       list.sort(function(a,b){ return a.code < b.code ? -1 : (a.code > b.code ? 1 : 0); });
@@ -1801,6 +1900,37 @@ a{color:inherit;}
     }
   }
 
+  // Sitedeki "🔥 Bu Ay Trend" rozeti için: son 30 günün gerçek sipariş verisinden en çok
+  // satılan ürünleri hesaplar ve settings/site.topSellerIds içine yazar. Sayfa her yüklendiğinde
+  // (admin panel açıldığında) bir kez çalışır — gerçek zamanlı bir cron değildir, ama veriler
+  // panele her girişte tazelenir. Değer değişmediyse gereksiz yazma yapmaz.
+  function updateTopSellerIds(){
+    try{
+      var orders = state.orders || [];
+      var since = Date.now() - 30 * 24 * 60 * 60 * 1000;
+      var qtyById = {};
+      orders.forEach(function(o){
+        var t = (o.createdAt && o.createdAt.toDate) ? o.createdAt.toDate().getTime() : null;
+        if(t === null || t < since) return;
+        (o.items || []).forEach(function(it){
+          if(typeof it.productId !== 'number') return;
+          qtyById[it.productId] = (qtyById[it.productId] || 0) + (it.qty || 0);
+        });
+      });
+      var topIds = Object.keys(qtyById)
+        .map(function(id){ return {id: parseInt(id, 10), qty: qtyById[id]}; })
+        .sort(function(a,b){ return b.qty - a.qty; })
+        .slice(0, 5)
+        .map(function(x){ return x.id; });
+      var prev = state.settings.topSellerIds || [];
+      var same = prev.length === topIds.length && prev.every(function(id, i){ return id === topIds[i]; });
+      if(same) return;
+      db.collection('settings').doc('site').set({ topSellerIds: topIds }, {merge:true}).then(function(){
+        state.settings.topSellerIds = topIds;
+      }).catch(function(){});
+    }catch(e){}
+  }
+
   // Son 8 haftanın gerçek ciro/sipariş verisinden basit bir çubuk grafik — dış kütüphane
   // gerekmez, her çubuk o haftanın toplam cirosuyla orantılı yükseklikte bir <div>.
   function renderSalesChart(orders){
@@ -1940,7 +2070,7 @@ a{color:inherit;}
       if(o.userPhone) customerSubBits.push(o.userPhone);
       var customerSub = customerSubBits.length ? escapeHtml(customerSubBits.join(' · ')) : '';
       var itemsText = o.items.map(function(it){
-        var bits = [it.name || 'Ürün', it.size ? ('Beden ' + it.size) : null, it.color ? it.color : null, 'x' + (it.qty || 1)];
+        var bits = [escapeHtml(it.name || 'Ürün'), it.size ? ('Beden ' + escapeHtml(it.size)) : null, it.color ? escapeHtml(it.color) : null, 'x' + (parseInt(it.qty, 10) || 1)];
         return bits.filter(Boolean).join(' · ');
       }).join('<br>');
       var CHANNEL_LABELS_MAP = { whatsapp: 'WhatsApp', instagram: 'Instagram', kapida: 'Kapıda Ödeme', havale: 'Havale/EFT', card: 'Kredi Kartı' };
@@ -1949,6 +2079,7 @@ a{color:inherit;}
       var couponBit = o.couponCode ? (isReferralOrder ? (' · <span class="oc-referral-badge">🎗 Referans: ' + escapeHtml(o.couponCode) + '</span>') : (' · Kupon: ' + escapeHtml(o.couponCode))) : '';
       var discountBit = o.discount ? (' · İndirim: -' + money(o.discount)) : '';
       var giftNoteHtml = o.giftNote ? '<div class="oc-giftnote">🎁 ' + escapeHtml(o.giftNote) + '</div>' : '';
+      var giftWrapHtml = o.giftWrap ? '<div class="oc-giftnote">🎁 Hediye paketi istendi</div>' : '';
       var statusOptionsHtml = Object.keys(ORDER_STATUSES).map(function(key){
         return '<option value="' + key + '"' + (o.status === key ? ' selected' : '') + '>' + ORDER_STATUSES[key] + '</option>';
       }).join('');
@@ -1970,6 +2101,7 @@ a{color:inherit;}
           '</div>' +
           '<div class="oc-items">' + itemsText + discountBit + '</div>' +
           giftNoteHtml +
+          giftWrapHtml +
           '<div class="oc-controls">' +
             '<select data-orderstatus="' + o.docId + '">' + statusOptionsHtml + '</select>' +
             '<input type="text" data-ordernote="' + o.docId + '" placeholder="Yönetici notu (müşteriye görünmez)" value="' + escapeHtml(o.adminNote) + '" maxlength="500">' +
@@ -2055,6 +2187,12 @@ a{color:inherit;}
     } else {
       listEl.innerHTML = coupons.map(function(c){
         var valueLabel = c.type === 'amount' ? (money(c.value) + ' indirim') : ('%' + c.value + ' indirim');
+      // Süresi dolan kupon listede görünür biçimde işaretlensin — "neden çalışmıyor?" sorusunu önler.
+      var expired = c.expiresAt && (new Date(c.expiresAt + 'T23:59:59').getTime() < Date.now());
+      var limits = [];
+      if(c.minAmount) limits.push('min. ' + money(c.minAmount));
+      if(c.expiresAt) limits.push((expired ? 'süresi doldu: ' : 'son gün: ') + c.expiresAt);
+      if(limits.length) valueLabel += ' <span style="opacity:.7;font-size:0.85em;">(' + limits.join(' · ') + ')</span>';
         return (
           '<div class="coupon-row' + (c.active ? '' : ' inactive') + '" data-docid="' + c.docId + '">' +
             '<div class="code">' + escapeHtml(c.code) + '</div>' +
@@ -2095,6 +2233,8 @@ a{color:inherit;}
       var code = codeInput.value.trim().toUpperCase();
       var type = $('newCouponType').value;
       var value = parseFloat($('newCouponValue').value);
+      var minAmount = parseFloat($('newCouponMinAmount').value);
+      var expiresAt = ($('newCouponExpiresAt').value || '').trim();
       if(!code || !/^[A-Z0-9_-]{3,20}$/.test(code)){
         showToast('Kod sadece harf/rakam olmalı (3-20 karakter).', true); return;
       }
@@ -2103,13 +2243,17 @@ a{color:inherit;}
       if(state.coupons.some(function(c){ return c.code === code; })){ showToast('Bu kod zaten var.', true); return; }
       var addBtn = $('addCouponBtn');
       addBtn.disabled = true;
-      db.collection('coupons').doc(code).set({
+      var couponDoc = {
         type: type, value: value, active: true, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(function(){
-        state.coupons.push({docId: code, code: code, type: type, value: value, active: true});
+      };
+      if(!isNaN(minAmount) && minAmount > 0) couponDoc.minAmount = minAmount;
+      if(expiresAt) couponDoc.expiresAt = expiresAt;
+      db.collection('coupons').doc(code).set(couponDoc).then(function(){
+        state.coupons.push({docId: code, code: code, type: type, value: value, active: true, minAmount: couponDoc.minAmount || null, expiresAt: couponDoc.expiresAt || null});
         state.coupons.sort(function(a,b){ return a.code < b.code ? -1 : (a.code > b.code ? 1 : 0); });
         renderCoupons();
         codeInput.value = ''; $('newCouponValue').value = '';
+        $('newCouponMinAmount').value = ''; $('newCouponExpiresAt').value = '';
         showToast('Kupon eklendi.');
       }).catch(function(err){
         showToast('Eklenemedi: ' + err.message, true);
@@ -2485,7 +2629,9 @@ a{color:inherit;}
           colorPhotos: (d.colorPhotos && typeof d.colorPhotos === 'object') ? d.colorPhotos : {},
           videoURL: d.videoURL || null,
           priceHistory: Array.isArray(d.priceHistory) ? d.priceHistory : [],
-          fabric: d.fabric || null
+          fabric: d.fabric || null,
+          flashSaleEndsAt: d.flashSaleEndsAt || null,
+          earlyAccessUntil: d.earlyAccessUntil || null
         });
       });
       list.sort(function(a,b){ return (a.id||0) - (b.id||0); });
@@ -2505,6 +2651,7 @@ a{color:inherit;}
         if(site.instagram) s.instagram = site.instagram;
         if(typeof site.phone === 'string') s.phone = site.phone;
         if(typeof site.shippingThreshold === 'number') s.shippingThreshold = site.shippingThreshold;
+        if(typeof site.shippingFee === 'number') s.shippingFee = site.shippingFee;
         if(typeof site.iyzicoEnabled === 'boolean') s.iyzicoEnabled = site.iyzicoEnabled;
         if(typeof site.deliveryEstimate === 'string') s.deliveryEstimate = site.deliveryEstimate;
         if(typeof site.welcomeCouponCode === 'string') s.welcomeCouponCode = site.welcomeCouponCode;
@@ -2521,6 +2668,12 @@ a{color:inherit;}
         if(typeof site.campaignEndsAt === 'string') s.campaignEndsAt = site.campaignEndsAt;
         if(typeof site.campaignLabel === 'string') s.campaignLabel = site.campaignLabel;
         if(typeof site.fcmVapidKey === 'string') s.fcmVapidKey = site.fcmVapidKey;
+        if(typeof site.recentSalesEnabled === 'boolean') s.recentSalesEnabled = site.recentSalesEnabled;
+        if(typeof site.birthdayCouponEnabled === 'boolean') s.birthdayCouponEnabled = site.birthdayCouponEnabled;
+        if(typeof site.birthdayCouponPercent === 'number') s.birthdayCouponPercent = site.birthdayCouponPercent;
+        if(typeof site.giftWrapEnabled === 'boolean') s.giftWrapEnabled = site.giftWrapEnabled;
+        if(typeof site.goldEarlyAccessHours === 'number') s.goldEarlyAccessHours = site.goldEarlyAccessHours;
+        if(Array.isArray(site.topSellerIds)) s.topSellerIds = site.topSellerIds;
       }
       if(results[1].exists){
         var legal = results[1].data() || {};
@@ -2530,6 +2683,9 @@ a{color:inherit;}
         if(legal.uyelik) s.legal.uyelik = legal.uyelik;
         if(legal.ileti) s.legal.ileti = legal.ileti;
         if(legal.beden) s.legal.beden = legal.beden;
+        if(legal.cerez) s.legal.cerez = legal.cerez;
+        if(legal.onbilgi) s.legal.onbilgi = legal.onbilgi;
+        if(legal.mesafeli) s.legal.mesafeli = legal.mesafeli;
       }
       state.settings = s;
     });
@@ -2706,6 +2862,8 @@ a{color:inherit;}
     $('prodOldPrice').value = p && p.oldPrice ? p.oldPrice : '';
     $('prodDesc').value = p ? p.desc : '';
     $('prodFabric').value = p ? (p.fabric || '') : '';
+    $('prodFlashSaleEndsAt').value = p ? (p.flashSaleEndsAt || '') : '';
+    $('prodEarlyAccessUntil').value = p ? (p.earlyAccessUntil || '') : '';
 
     renderCategorySelect();
     if(p) $('prodCat').value = p.cat;
@@ -3095,6 +3253,8 @@ a{color:inherit;}
       if(priceHistory.length > 50) priceHistory = priceHistory.slice(priceHistory.length - 50);
     }
     var fabric = $('prodFabric') ? $('prodFabric').value.trim() : '';
+    var flashSaleEndsAt = $('prodFlashSaleEndsAt') ? $('prodFlashSaleEndsAt').value.trim() : '';
+    var earlyAccessUntil = $('prodEarlyAccessUntil') ? $('prodEarlyAccessUntil').value.trim() : '';
     var data = {
       id: existing ? existing.id : nextNumericId(),
       cat: cat, name: name, price: price, oldPrice: oldPrice,
@@ -3105,7 +3265,9 @@ a{color:inherit;}
       colorPhotos: Object.keys(colorPhotosOut).length ? colorPhotosOut : null,
       videoURL: state.pendingVideoURL || null,
       priceHistory: priceHistory.length ? priceHistory : null,
-      fabric: fabric || null
+      fabric: fabric || null,
+      flashSaleEndsAt: flashSaleEndsAt || null,
+      earlyAccessUntil: earlyAccessUntil || null
     };
     var promise = existing
       ? db.collection('products').doc(existing.docId).set(data)
@@ -3172,6 +3334,11 @@ a{color:inherit;}
   // içine alınır, iç tırnaklar ikiye katlanır (Excel/Google Sheets ile uyumlu).
   function csvEscapeField(v){
     var s = (v === null || v === undefined) ? '' : String(v);
+    // Excel/Sheets "formül enjeksiyonu" koruması: alan =, +, -, @ veya tab ile başlıyorsa
+    // başına tek tırnak koyarak formül olarak yorumlanmasını engelliyoruz. Sipariş ürün adı
+    // gibi alanlar teoride misafir tarafından (Firestore create kuralı içerik doğrulamıyor)
+    // rastgele bir metin olarak yazılabildiği için bu, CSV'yi Excel'de açan yöneticiyi korur.
+    if(/^[=+\-@\t]/.test(s)) s = "'" + s;
     if(/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
     return s;
   }
@@ -3429,6 +3596,7 @@ a{color:inherit;}
     $('setInstagram').value = s.instagram || '';
     $('setPhone').value = s.phone || '';
     $('setShipping').value = s.shippingThreshold || 0;
+    $('setShippingFee').value = (typeof s.shippingFee === 'number') ? s.shippingFee : 0;
     $('setDeliveryEstimate').value = s.deliveryEstimate || '';
     $('setBundleMinItems').value = s.bundleMinItems || '';
     $('setBundlePercent').value = s.bundlePercent || '';
@@ -3445,12 +3613,20 @@ a{color:inherit;}
     $('setCampaignEndsAt').value = s.campaignEndsAt || '';
     $('setCampaignLabel').value = s.campaignLabel || '';
     $('setFcmVapidKey').value = s.fcmVapidKey || '';
+    $('setRecentSalesEnabled').checked = !!s.recentSalesEnabled;
+    $('setBirthdayCouponEnabled').checked = !!s.birthdayCouponEnabled;
+    $('setBirthdayCouponPercent').value = s.birthdayCouponPercent || '';
+    $('setGiftWrapEnabled').checked = !!s.giftWrapEnabled;
+    $('setGoldEarlyAccessHours').value = s.goldEarlyAccessHours || '';
     $('setGizlilik').value = s.legal.gizlilik || '';
     $('setKvkk').value = s.legal.kvkk || '';
     $('setIade').value = s.legal.iade || '';
     $('setUyelik').value = s.legal.uyelik || '';
     $('setIleti').value = s.legal.ileti || '';
     $('setBeden').value = s.legal.beden || '';
+    $('setCerez').value = s.legal.cerez || '';
+    $('setOnbilgi').value = s.legal.onbilgi || '';
+    $('setMesafeli').value = s.legal.mesafeli || '';
     renderMigrationStatus();
   }
 
@@ -3526,6 +3702,7 @@ a{color:inherit;}
       instagram: $('setInstagram').value.trim(),
       phone: $('setPhone').value.trim(),
       shippingThreshold: parseFloat($('setShipping').value) || 0,
+      shippingFee: parseFloat($('setShippingFee').value) || 0,
       deliveryEstimate: $('setDeliveryEstimate').value.trim(),
       bundleMinItems: parseInt($('setBundleMinItems').value, 10) || 0,
       bundlePercent: parseFloat($('setBundlePercent').value) || 0,
@@ -3541,7 +3718,12 @@ a{color:inherit;}
       loyaltyTierGold: parseFloat($('setLoyaltyTierGold').value) || 0,
       campaignEndsAt: $('setCampaignEndsAt').value.trim(),
       campaignLabel: $('setCampaignLabel').value.trim(),
-      fcmVapidKey: $('setFcmVapidKey').value.trim()
+      fcmVapidKey: $('setFcmVapidKey').value.trim(),
+      recentSalesEnabled: !!$('setRecentSalesEnabled').checked,
+      birthdayCouponEnabled: !!$('setBirthdayCouponEnabled').checked,
+      birthdayCouponPercent: parseFloat($('setBirthdayCouponPercent').value) || 0,
+      giftWrapEnabled: !!$('setGiftWrapEnabled').checked,
+      goldEarlyAccessHours: parseFloat($('setGoldEarlyAccessHours').value) || 0
     };
     var legalData = {
       gizlilik: $('setGizlilik').value,
@@ -3549,7 +3731,10 @@ a{color:inherit;}
       iade: $('setIade').value,
       uyelik: $('setUyelik').value,
       ileti: $('setIleti').value,
-      beden: $('setBeden').value
+      beden: $('setBeden').value,
+      cerez: $('setCerez').value,
+      onbilgi: $('setOnbilgi').value,
+      mesafeli: $('setMesafeli').value
     };
 
     Promise.all([
@@ -3560,6 +3745,7 @@ a{color:inherit;}
       state.settings.instagram = siteData.instagram;
       state.settings.phone = siteData.phone;
       state.settings.shippingThreshold = siteData.shippingThreshold;
+      state.settings.shippingFee = siteData.shippingFee;
       state.settings.deliveryEstimate = siteData.deliveryEstimate;
       state.settings.bundleMinItems = siteData.bundleMinItems;
       state.settings.bundlePercent = siteData.bundlePercent;
@@ -3576,6 +3762,11 @@ a{color:inherit;}
       state.settings.campaignEndsAt = siteData.campaignEndsAt;
       state.settings.campaignLabel = siteData.campaignLabel;
       state.settings.fcmVapidKey = siteData.fcmVapidKey;
+      state.settings.recentSalesEnabled = siteData.recentSalesEnabled;
+      state.settings.birthdayCouponEnabled = siteData.birthdayCouponEnabled;
+      state.settings.birthdayCouponPercent = siteData.birthdayCouponPercent;
+      state.settings.giftWrapEnabled = siteData.giftWrapEnabled;
+      state.settings.goldEarlyAccessHours = siteData.goldEarlyAccessHours;
       state.settings.legal = legalData;
       showToast('Ayarlar kaydedildi.');
     }).catch(function(err){

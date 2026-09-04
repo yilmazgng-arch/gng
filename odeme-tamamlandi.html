@@ -182,6 +182,7 @@
         items_text: itemsText,
         subtotal: (order.subtotal || 0) + ' ₺',
         discount: order.discount ? order.discount + ' ₺' : 'Yok',
+        shipping: order.shipping ? order.shipping + ' ₺' : 'Ücretsiz',
         total: order.total + ' ₺',
         coupon_code: order.couponCode || 'Yok',
         customer_name: order.userName || 'Misafir',
@@ -231,14 +232,15 @@
     return html;
   }
 
-  function buildOrderSummaryHtml(items, total, discount, subtotal){
+  function buildOrderSummaryHtml(items, total, discount, subtotal, shipping){
     var rows = (items || []).map(function(it){
       return '<div class="row"><span class="item-name">' + escapeHtml(it.name || 'Ürün') +
         ' <span class="item-meta">' + (it.size ? '· ' + escapeHtml(it.size) : '') + (it.qty ? ' · x' + it.qty : '') + '</span></span>' +
         '<span>' + (it.price != null ? money(it.price) : '') + '</span></div>';
     }).join('');
     var discountRow = discount ? '<div class="row"><span>İndirim</span><span>-' + money(discount) + '</span></div>' : '';
-    return '<div class="order-box">' + rows + discountRow +
+    var shippingRow = shipping ? '<div class="row"><span>Kargo</span><span>' + money(shipping) + '</span></div>' : '';
+    return '<div class="order-box">' + rows + discountRow + shippingRow +
       '<div class="row total"><span>Toplam</span><span>' + money(total) + '</span></div></div>';
   }
 
@@ -318,12 +320,17 @@
     var items = (snapshot && snapshot.items && snapshot.items.length) ? snapshot.items :
       (verified.items || []).map(function(it){ return { name: it.name, price: it.price, qty: 1, size: null, color: null, productId: null }; });
     var subtotal = items.reduce(function(sum, it){ return sum + (it.price || 0) * (it.qty || 1); }, 0);
-    var total = verified.paidPrice != null ? verified.paidPrice : subtotal;
-    var discount = snapshot ? Math.max(0, Math.round((subtotal - total) * 100) / 100) : 0;
+    // Kargo ücreti ödemeye yönlendirilirken kaydedilen anlık görüntüden okunuyor;
+    // indirim de bu yüzden "ara toplam + kargo − ödenen tutar" olarak hesaplanıyor
+    // (kargo hesaba katılmazsa indirim olduğundan küçük görünürdü).
+    var shipping = (snapshot && typeof snapshot.shipping === 'number') ? snapshot.shipping : 0;
+    var total = verified.paidPrice != null ? verified.paidPrice : (subtotal + shipping);
+    var discount = snapshot ? Math.max(0, Math.round((subtotal + shipping - total) * 100) / 100) : 0;
     var orderData = {
       items: items,
       subtotal: Math.round(subtotal * 100) / 100,
       discount: discount,
+      shipping: shipping,
       total: total,
       couponCode: (snapshot && snapshot.couponCode) || null,
       channel: 'kart',
@@ -342,14 +349,14 @@
     };
     return db.collection('orders').add(orderData).then(function(){
       sendOrderEmail({
-        items: items, subtotal: orderData.subtotal, discount: orderData.discount, total: orderData.total,
+        items: items, subtotal: orderData.subtotal, discount: orderData.discount, shipping: orderData.shipping, total: orderData.total,
         couponCode: orderData.couponCode, userName: orderData.userName, userEmail: orderData.userEmail,
         userPhone: orderData.userPhone, giftNote: orderData.giftNote
       });
-      return { items: items, total: total, discount: discount, subtotal: subtotal };
+      return { items: items, total: total, discount: discount, subtotal: subtotal, shipping: shipping };
     }).catch(function(err){
       console.warn('Sipariş kaydedilemedi:', err && err.message);
-      return { items: items, total: total, discount: discount, subtotal: subtotal, writeFailed: true };
+      return { items: items, total: total, discount: discount, subtotal: subtotal, shipping: shipping, writeFailed: true };
     });
   }
 
@@ -397,7 +404,7 @@
   function showSuccess(summary){
     clearCart();
     celebrateOrderSuccess();
-    var bodyHtml = buildOrderSummaryHtml(summary.items, summary.total, summary.discount, summary.subtotal);
+    var bodyHtml = buildOrderSummaryHtml(summary.items, summary.total, summary.discount, summary.subtotal, summary.shipping);
     render('ok', ICON_OK, 'Siparişin alındı!', 'Ödemen başarıyla tamamlandı, teşekkür ederiz. Sipariş detaylarını aşağıda görebilirsin.',
       bodyHtml + (summary.writeFailed ? '<p class="fine">Ödemen başarıyla alındı — sipariş kaydında küçük bir gecikme olabilir, merak etme.</p>' : ''),
       '<a class="btn" href="/">Alışverişe Devam Et</a>' + (currentUser ? '<a class="btn ghost" href="/hesabim.html">Siparişlerim</a>' : '')
@@ -451,7 +458,7 @@
         var snap = getPendingSnapshot(token);
         var items = snap ? snap.items : (data.items || []);
         var subtotal = items.reduce(function(sum, it){ return sum + (it.price || 0) * (it.qty || 1); }, 0);
-        showSuccess({ items: items, total: data.paidPrice != null ? data.paidPrice : subtotal, discount: 0, subtotal: subtotal });
+        showSuccess({ items: items, total: data.paidPrice != null ? data.paidPrice : subtotal, discount: 0, subtotal: subtotal, shipping: 0 });
         return;
       }
       var snapshot = getPendingSnapshot(token);

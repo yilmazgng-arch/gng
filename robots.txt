@@ -1,4 +1,13 @@
 User-agent: *
 Allow: /
 
+# Yönetim ekranları, kişisel sayfalar ve ödeme uç noktaları arama sonuçlarına
+# çıkmasın. (Bu sayfaların kendisinde de noindex etiketi var; bu satırlar arama
+# motorlarının bu adresleri hiç taramamasını sağlayan ikinci katman.)
+Disallow: /admin.html
+Disallow: /panel/
+Disallow: /hesabim.html
+Disallow: /odeme-tamamlandi.html
+Disallow: /odeme/
+
 Sitemap: https://sonyacollection.com/sitemap.xml

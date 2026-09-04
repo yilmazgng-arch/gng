@@ -72,6 +72,24 @@ function fetchAllProductsFromFirestore(){
   return $products;
 }
 
+/**
+ * Site ayarlarını (settings/site) döner — kargo ücreti ve ücretsiz kargo eşiği
+ * için gerekli. Bu belge herkese açık okumaya izinli (firestore-rules.txt →
+ * match /settings/{settingId} { allow read: if true }), o yüzden burada da
+ * servis hesabı gerekmiyor. Okunamazsa boş dizi döner: o durumda kargo ücreti
+ * 0 kabul edilir, yani müşteriden asla fazla para çekilmez.
+ */
+function fetchSiteSettingsFromFirestore(){
+  $url = 'https://firestore.googleapis.com/v1/projects/' . FIRESTORE_PROJECT_ID . '/databases/(default)/documents/settings/site';
+  try {
+    $data = firestoreHttpGet($url);
+  } catch (Exception $e){
+    return [];
+  }
+  if(!isset($data['fields'])) return [];
+  return firestoreDecodeFields($data['fields']);
+}
+
 /** Tek bir kupon kodunu getirir (doc id = normalize edilmiş kod), yoksa null. */
 function fetchCouponFromFirestore($code){
   $docId = rawurlencode(strtoupper(trim($code)));

@@ -33,3 +33,33 @@ ErrorDocument 404 /404.html
   ExpiresByType application/javascript "access plus 0 seconds"
   ExpiresByType text/html "access plus 0 seconds"
 </IfModule>
+
+# Metin dosyalarının sıkıştırılarak gönderilmesi (gzip / brotli).
+# HTML sayfaları ~350 KB metin; sıkıştırılınca ~70 KB'a iniyor, yani mobilde
+# sayfa yaklaşık 5 kat daha hızlı iniyor. Fotoğraflar (jpg/webp) zaten
+# sıkıştırılmış olduğu için listeye dahil edilmiyor — tekrar sıkıştırmak
+# boşuna işlemci harcar, dosyayı küçültmez.
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/css text/xml
+  AddOutputFilterByType BROTLI_COMPRESS application/javascript application/x-javascript text/javascript
+  AddOutputFilterByType BROTLI_COMPRESS application/json application/manifest+json application/xml
+  AddOutputFilterByType BROTLI_COMPRESS image/svg+xml
+</IfModule>
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/x-javascript text/javascript
+  AddOutputFilterByType DEFLATE application/json application/manifest+json application/xml
+  AddOutputFilterByType DEFLATE image/svg+xml
+  # Çok eski tarayıcılarda bozuk sıkıştırma yapmamak için güvenlik önlemi.
+  BrowserMatch ^Mozilla/4\.0[678] no-gzip
+  Header append Vary User-Agent env=!dont-vary
+</IfModule>
+
+# Fotoğraf klasörü: dosya adları değişmediği sürece içerikleri de değişmiyor,
+# bu yüzden uzun süreli (1 yıl) önbelleğe alınabilir. Yeni fotoğraf eklendiğinde
+# yeni bir dosya adıyla geldiği için ziyaretçi eski dosyayı görmez.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(jpg|jpeg|png|webp|gif|svg|ico)$">
+    Header set Cache-Control "public, max-age=31536000"
+  </FilesMatch>
+</IfModule>

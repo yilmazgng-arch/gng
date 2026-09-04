@@ -1,6 +1,95 @@
 # Sonya Collection — Hostinger'a Yükleme Rehberi
 
-## Bu turda ne değişti (2026-09-04 — "Bu Ay Trend" rozeti kontrolü + KVKK çerez onay bandı)
+## ⚠️ Bu turda yükleme şekli DEĞİŞTİ — önce şunu okuyun
+
+Zip'in içinde artık **`img` adında yeni bir klasör** var (6 fotoğraf, 2 formatta). Bu klasör **`public_html`'in içine, diğer dosyalarla aynı yere** yüklenmeli. Yüklemezseniz sitedeki büyük vitrin fotoğrafları görünmez.
+
+Sebebi aşağıdaki "sayfalar 6 kat hızlandı" bölümünde: fotoğraflar artık HTML'in içine gömülü değil, ayrı dosyalar olarak duruyor.
+
+## Bu turda ne değişti (2026-09-04 — satışa hazırlık denetimi: kargo, yasal onay, hız, SEO)
+
+Siteyi "satışa hazır mı" gözüyle baştan sona inceledim. Aşağıdakilerin hepsi yapıldı ve test edildi.
+
+### 1. Kargo ücreti artık gerçekten tahsil ediliyor (en önemlisi)
+
+Sitede "1.500 ₺ üzeri kargo ücretsiz" yazıyordu ve sepette "X ₺ daha ekle, kargo bedava olsun" uyarısı çıkıyordu — **ama 1.500 ₺ altındaki siparişlerden de hiç kargo ücreti alınmıyordu.** Ne sepette, ne de kartla ödemenin sunucu tarafında. Yani her küçük sipariş kargosu senin cebinden çıkıyordu; kartla ödeme açıldığında bu para gerçekten kaybedilecekti.
+
+Artık **Panel → Ayarlar → Kargo Ücreti (₺)** diye bir alan var:
+
+- **Şu an 0 yazıyor** — yani hiçbir şey değişmedi, kargo herkese ücretsiz ve site "Tüm siparişlerde ücretsiz kargo" diyor. **Kendi kargo ücretini oraya yazmadan bu düzeltme devreye girmez.**
+- Bir tutar yazdığında (ör. 150): 1.500 ₺ altındaki siparişlerde sepette ayrı bir **"Kargo"** satırı görünür, toplama eklenir; üst banttaki mesaj "1.500 ₺ üzeri kargo ücretsiz"e döner.
+- Ücretsiz kargo eşiğini de aynı yerden değiştirebilirsin.
+- Altın üyelerde kargo her zaman ücretsiz kalır (bu ayrıcalık zaten vardı).
+- Kargo ücreti **hem sepette hem de kartla ödemede sunucu tarafında** hesaplanıyor — müşterinin tarayıcısından gelen tutara güvenilmiyor. iyzico ekranında da "Kargo Ücreti" ayrı bir kalem olarak görünüyor, ürün fiyatına gizlice eklenmiş gibi durmuyor.
+- WhatsApp/Instagram sipariş özetine ve sipariş e-postalarına da kargo satırı eklendi.
+
+### 2. Ödeme öncesi yasal onay (mesafeli satış mevzuatı)
+
+Mesafeli Sözleşmeler Yönetmeliği, müşterinin siparişi onaylamadan **önce** Ön Bilgilendirme Formu ile Mesafeli Satış Sözleşmesi'ni onaylamasını ve siparişin ödeme yükümlülüğü doğurduğunun açıkça yazmasını zorunlu tutuyor. Sitede bu onay sadece **üye kayıt** formunda vardı, **ödeme adımında yoktu**. Ayrıca bu iki metnin kendisi de sitede hiç yoktu (yalnızca "İade & Değişim" metni vardı, o başka bir şey).
+
+Eklenenler:
+
+- **Ön Bilgilendirme Formu** ve **Mesafeli Satış Sözleşmesi** metinleri yazıldı; footer'a linklendi ve Panel → Ayarlar → Yasal Metinler'den düzenlenebiliyor.
+- Ödeme adımında, ödeme yöntemi butonlarının **hemen üstünde** bir onay kutusu: "Ön Bilgilendirme Formu'nu ve Mesafeli Satış Sözleşmesi'ni okudum, onaylıyorum" + altında "Siparişi onaylamakla ödeme yükümlülüğü altına girdiğini kabul edersin."
+- Kutu işaretlenmeden **hiçbir sipariş kanalı çalışmıyor** (kart, WhatsApp, Instagram, kapıda ödeme, havale). İşaretlemeden basılırsa kutu kırmızıya dönüp titriyor ve ekranda ona kaydırılıyor.
+- "Kartla Öde" butonunun yazısı **"Siparişi Onayla ve Öde"** oldu (mevzuat, butonun ödeme yükümlülüğünü belli etmesini istiyor).
+
+> **Senin yapman gereken:** bu iki yeni metnin içinde `[Şirket/Şahıs Adı]`, `[Adres]`, `[Telefon]` ve iade kargo masrafını kimin karşıladığı gibi **köşeli parantezli boşluklar** var. Bunlar doldurulmadan metinler eksik sayılır. Panel → Ayarlar → Yasal Metinler'den doldurabilirsin. Ben avukat değilim; metinler yaygın uygulamaya göre hazırlanmış şablonlar, mümkünse bir hukukçuya bir kez okutmanı öneririm.
+
+### 3. Sayfalar 6 kat küçüldü, ~22 kat hızlı iniyor
+
+Her sayfa **2 MB**'tı ve bunun **1,7 MB'ı sayfanın içine gömülü 10 fotoğraftı**. `.htaccess` HTML'i bilerek hiç önbelleğe almıyor (fiyat/stok değişikliği anında yansısın diye — doğru karar), ama fotoğraflar HTML'in *içinde* olduğu için **her sayfa geçişinde 1,7 MB fotoğraf yeniden iniyordu.**
+
+- Fotoğraflar `img/` klasörüne ayrı dosyalar olarak çıkarıldı ve modern **WebP** formatına çevrildi (görüntü kalitesi aynı, dosya yarı boyutta). Eski tarayıcılar için `.jpg` sürümleri de klasörde duruyor, tarayıcı hangisini destekliyorsa onu indiriyor.
+- Sayfa boyutu: **2.027 KB → 371 KB**.
+- `.htaccess`'e sıkıştırma (gzip/brotli) eklendi: bu 371 KB tel üzerinde **92 KB** olarak iniyor. Yani sayfa başına 2 MB yerine 92 KB.
+- Fotoğraflar 1 yıl önbelleğe alınıyor — ikinci sayfadan itibaren hiç yeniden inmiyor.
+- Ürün kartı fotoğrafları tarayıcının kendi "lazy loading" özelliğine geçti.
+
+Görsel olarak hiçbir şey değişmedi; site sadece belirgin şekilde hızlı açılıyor. Bu aynı zamanda Google sıralamasını doğrudan etkileyen bir şey (Core Web Vitals).
+
+### 4. SEO: ürünler artık Google'a görünüyor
+
+- **Ürün fotoğrafları artık gerçek `<img>` etiketi** (önce CSS arka planıydı). Google Görseller CSS arka planlarını indeksleyemiyor — yani ürün fotoğraflarınız Google Görseller'de hiç çıkmıyordu. Her fotoğrafa ürün adı + kategori içeren `alt` metni eklendi. Moda mağazası için bu ciddi bir trafik kanalı.
+- **Product yapılandırılmış verisi** eklendi: her sayfa, üzerindeki ürünlerin adını, fiyatını, para birimini ve stok durumunu Google'ın anlayacağı biçimde bildiriyor. Arama sonuçlarında fiyat/"stokta" bilgisinin çıkmasını sağlayan şey bu. Veriler gerçek üründen okunuyor, stoksuz ürün "OutOfStock" olarak işaretleniyor.
+- **robots.txt** düzeltildi: `admin.html`, `/panel/`, `hesabim.html`, `odeme/` artık arama motorlarına kapalı.
+
+### 5. 404 sayfası eskimişti — ve çerez onayı almadan takip kodu çalıştırıyordu
+
+Kırık bir bağlantıdan gelen ziyaretçinin gördüğü `404.html`, sitenin **çok eski bir kopyasıydı**: karanlık mod yok, kampanya bandı yok ve **geçen turda eklenen çerez onay bandı da yoktu** — yani o sayfada GA4 ve Meta Pixel onay alınmadan çalışıyordu. Üstelik sayfada "aradığınız sayfa bulunamadı" diye bir yazı bile yoktu, ziyaretçi sadece anasayfayı görüyordu.
+
+`404.html` güncel anasayfadan yeniden üretildi ve en üste net bir **"404 — Aradığın sayfa bulunamadı"** kutusu + "Anasayfaya Dön" / "Yeni Sezonu Gör" butonları eklendi.
+
+### 6. Kuponlara son kullanma tarihi ve minimum sepet tutarı
+
+Kuponların hiçbir sınırı yoktu: bir kod bir indirim sitesine düşerse süresiz ve sınırsız kullanılabiliyordu. Artık kupon eklerken (isteğe bağlı olarak) **minimum sepet tutarı** ve **son kullanma tarihi** girebilirsin. İkisi de boş bırakılırsa kupon eskisi gibi sınırsız çalışır; mevcut kuponların hiçbiri etkilenmedi. Kurallar hem sitede hem kartla ödemede sunucu tarafında ayrıca doğrulanıyor. Kupon listesinde süresi dolan kuponlar işaretli görünüyor.
+
+> Not: "bu kupon en fazla 50 kez kullanılsın" tarzı bir sayaç eklemedim — bunun güvenilir çalışması için bir arka uç sunucusu gerekiyor, sitenin mevcut yapısında (tarayıcıdan Firestore'a doğrudan yazma) müşteri tarafından atlatılabilir olurdu. Bir kod istemediğin yere yayılırsa panelden **Pasif Yap** ile anında kapatabilirsin.
+
+### 7. Misafir siparişlerine e-posta alanı
+
+Giriş yapmadan sipariş verenlerin e-postası hiç sorulmadığı için onlara "Siparişiniz Alındı" e-postası gidemiyordu. Ödeme adımına **isteğe bağlı** bir e-posta alanı eklendi; boş bırakılırsa sipariş akışı aynen eskisi gibi çalışır.
+
+### 8. İki panel dosyası birbirinden ayrışmıştı — birleştirildi
+
+`admin.html` (public_html'deki yedek kopya) ile `panel/index.html` (asıl kullandığın panel) zamanla farklılaşmıştı: birinde olan düzeltmeler diğerinde yoktu (panel dosyasında CSV formül koruması ve yeni renk tonu vardı, admin.html'de yoktu; GitHub zip'indeki admin.html ise ikisinden de eskiydi). İkisi tek dosyada birleştirildi, artık **birebir aynı** — ve iki zip'te de aynı.
+
+### Yapılan testler
+
+- 15 HTML dosyasının tamamında JavaScript sözdizimi kontrolü (55 kod bloğu) — temiz.
+- Sunucu tarafı fiyat/kargo/kupon hesabı için **22 birim testi** yazıldı (eşik altı/üstü kargo, altın üye muafiyeti, kupon süresi/minimum tutar, iyzico sepet kalemleri toplamının ödenen tutara eşitliği, stok aşımı) — hepsi geçti.
+- Gerçek tarayıcıda (Chromium) uçtan uca test: ürün ızgarasının doğru çizilmesi, sepete ekleme, kargo satırının doğru tutarla görünmesi, onay kutusu olmadan siparişin engellenmesi, onay verilince geçmesi, karanlık mod, 404 sayfası, panel — JavaScript hatası yok.
+- Ağ trafiği kontrolü: her fotoğrafın yalnızca **bir kez** ve yalnızca WebP olarak indiği doğrulandı.
+
+### Hâlâ senin yapman gerekenler (kod tarafında yapılamaz)
+
+1. **Yasal metinlerdeki köşeli parantezler**: şirket/şahıs adı, adres, telefon. Mesafeli satışta satıcı kimliği zorunlu.
+2. **ETBİS kaydı** — Ticaret Bakanlığı'na yapılan bir kayıt, dosya değil.
+3. **iyzico başvurusu** — kartla ödeme hâlâ kapalı; şu an tek satış kanalı WhatsApp/Instagram (aşağıdaki iyzico bölümü).
+4. **Panel → Ayarlar → Kargo Ücreti** alanına kendi kargo ücretini yaz (1. maddeye bak).
+5. **WhatsApp numarası** — hat alınınca panelden gir.
+
+## Bir önceki round (2026-09-04 — "Bu Ay Trend" rozeti + KVKK çerez onay bandı)
 
 **"Bu Ay Trend" rozeti çakışması:** Gönderdiğin ekran görüntüsünde "🔥 Bu Ay Trend" rozetinin "TAKIMLAR" etiketinin arkasında kaldığını gördüm. Bu, bir önceki turda zaten bulup düzelttiğim `.card-tag` çakışma hatasıyla birebir aynıydı — tam bu ikili kombinasyonu (kategori etiketi + Bu Ay Trend rozeti) izole bir testle tekrar doğruladım, düzeltme doğru çalışıyor. Ekran görüntüsü muhtemelen o düzeltmeyi içeren zip'in henüz Hostinger'a yüklenmediği bir andan — yani bu turda gönderdiğim zip'i yükleyince sorun kendiliğinden düzelecek, ekstra bir işlem gerekmiyor.
 
@@ -118,12 +207,13 @@ Bu tur, gönderdiğin ekran görüntülerine göre tek bir ince ayarı ele alıy
 - **.htaccess** → küçük bir sunucu ayarı dosyası (aşağıda "küçük bir sunucu ayarı düzeltmesi" bölümünde anlatılıyor). Gizli bir dosya olduğu için Dosya Yöneticisi'nde göstermeniz gerekebilir.
 - **odeme-tamamlandi.html** → kartla ödeme sonrası "sipariş tamamlandı" sayfası, adını değiştirmeden yükleyin (aşağıda "kartla ödeme (iyzico) entegrasyonu" bölümünde anlatılıyor — kurulum gerektirir, henüz siteye eklemeseniz de site bozulmaz).
 - **odeme/** klasörü → kartla ödemenin sunucu tarafı dosyaları, klasör olarak (içindeki dosya adlarını değiştirmeden) yükleyin.
+- **img/** klasörü → sitenin vitrin/banner fotoğrafları (6 fotoğraf, `.webp` ve `.jpg` sürümleriyle). **YENİ** — klasörü olduğu gibi `public_html`'in içine yükleyin. Yüklenmezse büyük vitrin fotoğrafları görünmez. Dosya adlarını değiştirmeyin.
 
 **`panel.sonyacollection.com` alt alan adının kök dizinine yüklenecek:**
 
 - **panel-sonyacollection-com-index.html** → yönetici paneli, adını **`index.html`** olarak değiştirerek yükleyin.
 
-Sayfaların hepsi tek parça HTML dosyası (fotoğraflar dosyanın içine gömülü) — npm/build gibi bir kurulum gerekmiyor, sadece dosyaları olduğu gibi yüklemeniz yeterli.
+Sayfaların hepsi tek parça HTML dosyası — npm/build gibi bir kurulum gerekmiyor, sadece dosyaları olduğu gibi yüklemeniz yeterli. (Bu turdan itibaren vitrin fotoğrafları HTML'in içine gömülü değil, ayrı `img/` klasöründe; sayfalar bu sayede 2 MB'tan 371 KB'a düştü.)
 
 ## Adım 1 — Alan adının Hostinger'a bağlı olduğundan emin olun
 
@@ -145,7 +235,7 @@ Zip'i indirip açtığınızda içinde bir de `panel` adlı alt klasör görecek
 
 1. **hPanel > Dosyalar > Dosya Yöneticisi** (File Manager) açın.
 2. Önce `public_html` klasörüne girin (panel klasörüne değil, ana klasöre):
-   - Zip'i açtığınızda çıkan **`panel` klasörü hariç, geri kalan her şeyi** (index.html, sonya-collection.html, yeni-sezon.html, indirim.html, pelerinler.html, kimonolar.html, takimlar.html, elbiseler.html, hesabim.html, admin.html, manifest.webmanifest, sw.js, ikonlar, .htaccess, odeme-tamamlandi.html, odeme/ klasörü, README.md hariç geri kalanlar) buraya yükleyip üzerine yazın (Replace).
+   - Zip'i açtığınızda çıkan **`panel` klasörü hariç, geri kalan her şeyi** (index.html, sonya-collection.html, yeni-sezon.html, indirim.html, pelerinler.html, kimonolar.html, takimlar.html, elbiseler.html, hesabim.html, admin.html, manifest.webmanifest, sw.js, ikonlar, .htaccess, odeme-tamamlandi.html, odeme/ klasörü, README.md hariç geri kalanlar) buraya yükleyip üzerine yazın (Replace). **Bu sefer `img` klasörü de bu listede — onu da yüklemeyi unutmayın.**
    - `.htaccess` dosyası nokta ile başladığı için Dosya Yöneticisi'nde görünmeyebilir, sağ üstteki ayarlar menüsünden "Gizli dosyaları göster"ü açmanız gerekebilir.
    - Not: `admin.html` dosyasının burada (public_html'in kendisinde) durması sorun değil, sadece yedek kopya gibi düşünün — asıl kullanılan panel dosyası aşağıdaki adımdaki.
 3. Şimdi `public_html/panel` klasörüne girin (yoksa Adım 2'deki gibi önce alt alan adını oluşturun):
@@ -259,6 +349,6 @@ Alternatif (ücretli) yol Google Ads'te "Business Logo Asset" + "Sitelink Asset"
 
 ## Notlar
 
-- Dosyalar büyük olabilir (özellikle ana site ~1.8 MB, tüm ürün fotoğrafları dosyanın içinde) — yükleme birkaç dakika sürebilir, normaldir.
+- Sayfalar artık çok daha küçük (~370 KB), ayrıca bir de ~1,2 MB'lık `img` klasörü var. Yükleme eskisinden hızlı olacak.
 - Yasal metinlerdeki `[iletişim e-postası]` alanları artık `siparis@sonyacollection.com` ile dolduruldu. Hâlâ placeholder olan bilgiler var: gerçek WhatsApp numarası/telefon (hat henüz alınmadı, beklemede), şirket/şahıs adı ve adres gibi yasal metinlerdeki diğer [köşeli parantez] alanları. Bunları netleştirdiğinizde yönetici panelinin **Ayarlar** sekmesinden kendiniz güncelleyebilirsiniz — kod değişikliği gerekmez.
 - PWA dosyaları (manifest/sw.js/ikonlar) sayesinde ziyaretçiler siteyi telefonlarına "Ana Ekrana Ekle" diyerek uygulama gibi kurabilir. Bu özellik yalnızca gerçek `https://` adresinde çalışır (yerel önizlemede çalışmaz), bu yüzden Hostinger'a yükledikten sonra telefonunuzdan test edin.
