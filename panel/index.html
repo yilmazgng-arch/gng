@@ -1417,14 +1417,18 @@ a{color:inherit;}
   var SHIPPING_CARRIERS = ['', 'Yurtiçi Kargo', 'Aras Kargo', 'MNG Kargo', 'PTT Kargo', 'Sürat Kargo', 'Diğer'];
 
   // ---------- Sipariş durumu değişince otomatik müşteri e-postası ----------
-  // Mevcut sipariş-bildirim şablonu (template_spvadv9) sana (satıcıya) e-posta göndermek üzere
-  // ayarlı — müşteriye e-posta göndermek için EmailJS'te AYRI bir şablon oluşturup, o şablonda
-  // "Alıcı e-posta" alanını {{customer_email}} olarak ayarlaman gerekiyor. Yeni şablonu
-  // oluşturduktan sonra ID'sini aşağıya (BURAYA_... yerine) yapıştır — o zamana kadar bu özellik
-  // sessizce devre dışı kalır, sipariş akışını hiçbir şekilde etkilemez.
+  // Bu, sonya-collection.html'deki (ve diğer 10 sayfadaki) "müşteriye giden e-posta" ile AYNI
+  // paylaşılan EmailJS şablonunu kullanıyor (EmailJS'in ücretsiz planı en fazla 2 şablona izin
+  // veriyor, biri zaten sana/admin'e giden sipariş bildirimi için kullanılıyor). O yüzden EmailJS'te
+  // TEK bir yeni şablon oluşturup, o şablonda "Alıcı e-posta" alanını {{customer_email}} olarak
+  // ayarlaman yeterli — içerik/konu {{customer_name}}/{{email_title}}/{{email_body}} değişkenleriyle
+  // JS'den geliyor. Şablonu oluşturduktan sonra ID'sini hem buraya hem de sonya-collection.html
+  // (ve diğer 10 sayfa) içindeki EMAILJS_CUSTOMER_TEMPLATE_ID alanına yapıştır — ikisi aynı ID'yi
+  // paylaşmalı. O zamana kadar bu özellik sessizce devre dışı kalır, sipariş akışını hiçbir
+  // şekilde etkilemez. Not: sadece hesabı olan (giriş yapmış) müşterilerde çalışır.
   var EMAILJS_PUBLIC_KEY = 'iIbGdrFA-cGeESqQj';
   var EMAILJS_STATUS_SERVICE_ID = 'service_do1pmfg';
-  var EMAILJS_STATUS_TEMPLATE_ID = 'BURAYA_DURUM_SABLON_ID';
+  var EMAILJS_STATUS_TEMPLATE_ID = 'template_asd2tad';
   function statusEmailConfigured(){
     return EMAILJS_STATUS_TEMPLATE_ID.indexOf('BURAYA_') !== 0;
   }
@@ -1434,11 +1438,15 @@ a{color:inherit;}
   function sendStatusUpdateEmail(order, newStatus){
     try{
       if(!statusEmailConfigured() || typeof emailjs === 'undefined' || !order.userEmail) return;
+      var statusLabel = ORDER_STATUSES[newStatus] || newStatus;
+      var trackingInfo = order.trackingCode ? ((order.trackingCarrier || 'Kargo') + ' — ' + order.trackingCode) : '';
+      var bodyText = 'Sipariş durumun güncellendi: ' + statusLabel + '.' +
+        (trackingInfo ? '\n\nKargo takip: ' + trackingInfo : '');
       emailjs.send(EMAILJS_STATUS_SERVICE_ID, EMAILJS_STATUS_TEMPLATE_ID, {
         customer_email: order.userEmail,
         customer_name: order.userName || 'Merhaba',
-        status_label: ORDER_STATUSES[newStatus] || newStatus,
-        tracking_info: order.trackingCode ? ((order.trackingCarrier || 'Kargo') + ' — ' + order.trackingCode) : ''
+        email_title: 'Sipariş Durumun Güncellendi',
+        email_body: bodyText
       }).catch(function(err){ console.warn('Durum e-postası gönderilemedi:', err && (err.text || err.message)); });
     }catch(e){ /* panelin geri kalanını asla bozma */ }
   }
