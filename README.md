@@ -1,20 +1,32 @@
 # Sonya Collection — Hostinger'a Yükleme Rehberi
 
-## Bu turda ne değişti (2026-09-03 — Stilini Paylaş kaldırma, anasayfa vitrini kaldırma, karanlık mod ve mobil menü ince ayarı)
+## Bu turda ne değişti (2026-09-04 — müşteriye giden sipariş e-postaları)
 
-Bu tur, gönderdiğin ekran görüntülerine göre 4 isteği ele alıyor, ayrıca test sırasında bulduğum önemli bir mobil hatayı da düzelttim. Firestore kural değişikliği yok.
+Sordun: "sepetinde ürün olan birine stok azaldı diye mail" ve "siparişi tamamlayana sipariş detayı mail" özellikleri var mıydı? Kontrol ettim — ikisi de yoktu. Konuştuğumuz gibi, senin onayınla **ikisini değil, en değerli iki şeyi** ekledim (sepet-stok e-postası yerine önerdiğim daha basit çözümü sen de tercih etmedin, o yüzden onu eklemedim — istersen ayrıca konuşuruz). Firestore kural değişikliği yok. **Sen de EmailJS'te yeni şablonu oluşturup ID'sini bana ilettin, ikisi de artık AKTİF.**
+
+**1) Müşteriye sipariş onay e-postası (yeni, AKTİF).** Şu ana kadar sipariş tamamlanınca e-posta SADECE sana (siparis@sonyacollection.com) gidiyordu, müşteri hiçbir e-posta almıyordu. Artık müşteri de kendi mailine "Siparişiniz Alındı" başlığıyla ürün listesi + tutar özeti içeren bir onay e-postası alıyor. **Not:** bu sadece hesabına giriş yapmış müşterilerde çalışıyor — misafir siparişlerinde e-posta adresi hiç kaydedilmiyor, o yüzden misafir siparişlerde bu e-posta gidemiyor (checkout'a e-posta alanı eklemek istersen ayrı bir iş olarak yapabiliriz).
+
+**2) Sipariş durumu değişince müşteriye e-posta (koddan hazırdı, şimdi AKTİF).** Panelden bir siparişin durumunu "Kargoya Verildi" gibi değiştirdiğinde, müşteriye otomatik e-posta gidiyor artık.
+
+**Tek şablon yeterli oldu:** EmailJS'in ücretsiz planı en fazla 2 şablona izin veriyor, biri zaten sana giden sipariş bildirimi için kullanılıyordu (`template_spvadv9`). Senin oluşturduğun yeni şablon (`template_asd2tad`) yukarıdaki iki özelliğin ikisini de tek başına karşılıyor — kotanız tam dolu (2/2) ama fazlasına ihtiyaç yok. Ayda 200 e-posta hakkınız var, küçük bir mağaza için fazlasıyla yeterli.
+
+## Bir önceki round (2026-09-04 — mobil boşluk, footer düzeni ve anasayfa vitrini düzeltmesi)
+
+Bu tur, gönderdiğin geri bildirime göre 3 isteği ele alıyor; ayrıca bir önceki turda "Bu Haftanın Seçkisi" ile ilgili yanlış anladığım bir noktayı da düzelttim. Firestore kural değişikliği yok.
 
 **1) "Stilini Paylaş, Ödül Kazan" footer'dan tamamen kaldırıldı.** Bir önceki turda diğer 3 link taşınırken bu biri kasıtlı olarak bırakılmıştı, bu tur onu da tamamen kaldırdım — ne footer'da ne başka bir yerde artık görünmüyor.
 
-**2) Anasayfadaki "Bu Haftanın Seçkisi" ürün vitrini (kategori butonları + ürün ızgarası) anasayfadan tamamen kaldırıldı.** Sadece anasayfada — Yeni Sezon, İndirim, Pelerinler, Kimonolar, Takımlar, Elbiseler sayfalarındaki kendi ürün vitrinlerine hiç dokunmadım, onlar aynen çalışmaya devam ediyor (o sayfaların tüm amacı zaten bu). Anasayfadaki "Ürünleri Gör" butonu ve favoriler/sepet gibi yerlerden gelen "ürünlere git" davranışları artık akıllıca en uygun sayfaya yönlendiriyor (örn. bir kategoriye tıklanırsa o kategorinin sayfasına, genel bir durumda Yeni Sezon sayfasına).
+**2) Anasayfadaki "Bu Haftanın Seçkisi" başlığı kaldırıldı, ürünler ve filtreler olduğu gibi duruyor.** Not: bir önceki turda bunu yanlış yapmıştım — o zaman bölümün tamamını (ürün ızgarası + filtre butonları dahil) kaldırmıştım, ama senin isteğin sadece "Bu Haftanın Seçkisi" başlık yazısının kaldırılmasıydı. Şimdi düzelttim: anasayfada ürünler ve üstteki filtre butonları (Tümü/İndirim/Yeni Sezon/Pelerinler/Kimonolar vb.) yine eskisi gibi tam çalışıyor, sadece o başlık metni yok.
 
 **3) Karanlık modun koyuluğu azaltıldı, daha yumuşak bir "acı kahve" tonuna çevrildi.** Önceki karanlık mod neredeyse siyaha yakındı; şimdi sıcak, yumuşak bir kahverengi tonunda — okunabilirlik ve kontrast aynen korunuyor, sadece göze daha rahat.
 
-**4) Mobil üst menüdeki ikonlar (karanlık mod/ara/hesap/favori/sepet) arasına belirgin boşluk eklendi.** Referans gönderdiğin bensubuyruk.com'daki gibi, artık ikonlar birbirine yapışık değil, ayrık duruyor.
+**4) Mobil üst menüdeki ikonlar arasına gerçekten belirgin bir boşluk eklendi — 2 aşamada.** İlk ince ayar (karanlık modu ☰ menüsüne taşımak) tek başına yeterince belirgin olmamıştı, geri bildirimin üzerine bir adım daha attım: **favoriler ikonunu da** üst sıradan çıkarıp sepet çekmecesinin en üstüne, "❤ Favorilerim" şeklinde tıklanabilir bir satır olarak taşıdım (misafirler dahil herkes ulaşabiliyor, giriş gerektirmiyor). Böylece üst sırada 5 yerine sadece 3 ikon kalıyor (ara/hesabım/sepet) ve aralarında artık gerçekten belirgin, masaüstündekiyle aynı ölçüde bir boşluk var — ikonlar da eski boyutuna (40px) geri döndü. Karanlık mod hâlâ ☰ menüsünün altında, favoriler artık sepet ikonuna tıklayınca çekmecenin en üstünde duruyor. Masaüstünde hiçbir şey değişmedi, tüm ikonlar hâlâ üst menüde.
 
-**Bulup düzelttiğim ek bir sorun: bazı telefonlarda sepet ikonu tamamen ekran dışında kalıyordu.** Bu değişikliği test ederken fark ettim — 5 ikon + logo bir arada, bazı telefon genişliklerinde (~390px ve altı) tam sığmıyordu ve en sondaki sepet ikonu görünmez oluyordu; bu, ikonları biraz sıklaştırmadan önce de zaten vardı, yeni bir hata değil ama bu tur fark edip düzelttim. Artık ikonlar hem daha ayrık duruyor hem de güncel iPhone/Android telefonların büyük çoğunluğunda (375px ve üzeri) sepet ikonu tam görünür durumda; çok eski/dar birkaç telefonda (360px ve altı) hâlâ sığmazsa üst menü o telefonlarda hafifçe sağa kaydırılabiliyor, yani sepet hiçbir zaman tamamen erişilemez kalmıyor.
+**5) Sayfanın en altındaki (footer) telif yazısı ve ödeme rozetleri mobilde artık ortalanmış duruyor.** Önceden sol köşeye yapışık görünüyorlardı, bu da özensiz bir izlenim veriyordu; şimdi ortalanmış ve daha düzenli/sofistike duruyor.
 
-## Bir önceki round (2026-09-03 — Hediye Çeki/Ölçü Profili/İade taşıma ve mobil kaydırma düzeltmesi)
+**Bulup düzelttiğim ek bir sorun (önceki turdan, hâlâ geçerli): bazı telefonlarda sepet ikonu tamamen ekran dışında kalıyordu.** Kök nedeni: 5 ikon + logo bir arada, bazı telefon genişliklerinde tam sığmıyordu. Bu tur karanlık mod + favoriler ikonlarının taşınmasıyla bu sorun tamamen çözüldü — artık en dar telefonlarda (360px) bile sepet ikonu rahatça sığıyor, kaydırmaya bile gerek kalmadı; güvenlik amacıyla üst menünün yatay kaydırma özelliği yine de duruyor.
+
+## Bu turdan önceki round (2026-09-03 — Hediye Çeki/Ölçü Profili/İade taşıma ve mobil kaydırma düzeltmesi)
 
 Bu tur, ekran görüntüsüyle işaret ettiğin footer düzeni sorununu ve ayrıca bildirdiğin bir mobil kaydırma hatasını ele alıyor. Firestore kural değişikliği yok.
 
@@ -26,25 +38,11 @@ Bu tur, ekran görüntüsüyle işaret ettiğin footer düzeni sorununu ve ayrı
 
 **4) Mobil görünümde siteyi sağa/sola çekince boşluk çıkması düzeltildi.** Bildirdiğin gibi, telefonda sayfayı parmakla sağa-sola oynatınca sağ tarafta boş bir alan görünüyordu. Kök nedeni: ekranın kenarından açılan sepet çekmecesi (sağdan kayan panel), kapalıyken bile ekranın sağına taşan görünmez bir alan bırakıyordu ve bu alan telefonun yatay kaydırmasına izin veriyordu. Bu görünmez taşmayı tamamen kapattım — artık sayfa hiçbir sayfada yatay olarak kaydırılamıyor/oynatılamıyor. Hem anasayfada hem diğer sayfalarda (ör. İndirim) test ettim, sıfır yatay taşma var.
 
-## Bu turdan önceki round (2026-09-03 — mobil menü konumu)
+## Daha önceki round (2026-09-03 — mobil menü konumu)
 
 Bu tur, gönderdiğin ekran görüntülerine göre tek bir ince ayarı ele alıyor. Firestore kural değişikliği yok.
 
 **Mobil görünümde üç çizgili menü ikonu artık "Sonya Collection" logosunun hemen yanında.** Önceden bu ikon sağdaki diğer ikonlarla (karanlık mod, ara, hesabım, favoriler, sepet) aynı grupta, logodan ayrı duruyordu. Referans olarak gönderdiğin örnek siteye (bensubuyruk.com) uygun şekilde, artık logonun solunda/yanında, kendi grubunda duruyor — diğer ikonlar sağda kalmaya devam ediyor. "Bu Haftanın Seçkisi" altındaki kategori butonlarına (Tümü/İndirim/Yeni Sezon/Pelerinler/Kimonolar vb.) hiç dokunmadım, olduğu gibi duruyorlar. Hem açık hem karanlık modda, menü açma/kapama davranışının bozulmadığını gerçek tarayıcıda test ettim.
-
-## Daha önceki round (2026-09-03 — vitrin, sepet paylaşımı ve erişilebilirlik ince ayarları)
-
-Bu tur, bir önceki turdaki düzeltmelerin ardından test ederken fark ettiğin 5 konuyu ele alıyor. Firestore kural değişikliği yok.
-
-**1) WhatsApp'a "Sepeti Gönder" ile paylaşınca fotoğraf hâlâ çıkmıyordu — gerçek neden WhatsApp'ın kendi önbelleğiymiş.** Sunucu tarafını (`og-image.png`) canlıda test ettim, tamamen doğru çalışıyor. Sorun şuymuş: "Sepeti WhatsApp'a Gönder" butonu her zaman aynı çıplak adresi (`sonyacollection.com/`) paylaşıyordu, ve bu adres için WhatsApp daha önceki (bozuk) önizlemeyi önbelleğe almıştı — link değişmediği için WhatsApp yeniden çekmiyordu. Çözüm: bu paylaşım linkinin sonuna artık her paylaşımda değişen görünmez bir işaret ekleniyor, böylece WhatsApp bunu her seferinde "yeni" bir adres sanıp önizlemeyi taze çekiyor. **Ayrıca paylaşılan metni de tamamen yeniledim** — eskiden "• Ürün (Beden: S, Renk: #3B2A1D) x1" gibi teknik ve okunması zor bir formattı (hatta renk kodunu ham hex olarak gösteriyordu); şimdi "SONYA COLLECTION" başlığıyla açılan, ürünleri "— Ürün Adı · Beden S, Kahverengi · 1 adet · 1.690 ₺" şeklinde sade ve okunaklı listeleyen, daha butik/mağaza havası veren bir metne çevirdim.
-
-**2) Karanlık moddayken üst menüdeki butonlara dokunurken kısa süreliğine aydınlık moda dönme sorunu — kök nedeni bulundu.** Sebebi, ekranın üstündeki küçük "A" (yüksek kontrast) butonuna yanlışlıkla dokunulduğunda sitenin arka planını zorla beyaza çeviren bir kod satırıydı — karanlık moddan bağımsız çalışıyordu, o yüzden anlık bir "beyaza dönme" hissi yaratıyordu. Aşağıdaki 3. maddeyle bu özelliği tamamen kaldırdığım için bu sorun da kendiliğinden ortadan kalktı.
-
-**3) Yüksek kontrast (erişilebilirlik) görünümü kaldırıldı.** İstediğin gibi, üst menüdeki "A" butonu ve arkasındaki özellik tamamen siteden çıkarıldı.
-
-**4) Ürün sayfasındaki "Bununla da İlgini Çekebilir" bölümüne, "Bu Ürünle Kombinle" bölümüyle aynı kurumsal alt başlık eklendi.** Artık o da "Seçkimizden öne çıkan diğer parçalar" gibi bir açıklama satırıyla görünüyor, önceden boştu.
-
-**5) Anasayfadaki büyük vitrin görselinin üzerindeki yazılar ("%30'a Varan İndirim" vb.) karanlık modda bulanık/soluk görünüyordu — kök nedeni bulundu ve düzeltildi.** Yazıların okunaklı olması için arkalarında bir "hale" (glow) efekti var; bu halenin rengi kodda sabit açık/krem tonda yazılmıştı ve karanlık moda hiç uyum sağlamıyordu — karanlık modda açık renkli yazının arkasında yine açık renkli bir hale olunca ikisi birbirine karışıp bulanık/soluk bir görüntü oluşturuyordu. Şimdi bu hale rengi karanlık modda otomatik olarak koyu tona dönüyor, yazı her iki modda da net görünüyor. Hem açık hem karanlık modda gerçek tarayıcıda karşılaştırmalı test ettim.
 
 ## Elinizdeki dosyalar
 
@@ -133,6 +131,14 @@ Görsel olarak hiçbir şey değişmedi, sadece arka planda daha hızlı çalı�
 Artık bir müşteri WhatsApp veya Instagram üzerinden sipariş verdiğinde, sipariş Firestore'a kaydedildikten hemen sonra otomatik olarak **siparis@sonyacollection.com** adresine bir bildirim e-postası gidiyor (EmailJS + Hostinger'dan aldığınız kendi mail hesabınız üzerinden). Şablonda ürünler, tutar, kupon, müşteri bilgisi ve varsa hediye notu yer alıyor. Ayda 200 e-postaya kadar ücretsiz (küçük bir mağaza için fazlasıyla yeterli).
 
 Kartla ödeme (aşağıdaki bölüm) aktif edildiğinde, o kanaldan gelen siparişler için de aynı bildirim otomatik çalışacak — ek bir kurulum gerekmiyor.
+
+## Müşteriye giden e-postalar (sipariş onayı + durum güncellemesi) — KURULDU ve AKTİF
+
+Sizin oluşturduğunuz "Contact Us" şablonu (`template_asd2tad`) hem sonya-collection.html (+ diğer 10 sayfa) içindeki `EMAILJS_CUSTOMER_TEMPLATE_ID`, hem admin.html içindeki `EMAILJS_STATUS_TEMPLATE_ID` alanına işlendi. Artık iki şey otomatik çalışıyor: (1) sipariş tamamlayan **giriş yapmış** müşterilere kendi mailine "Siparişiniz Alındı" başlıklı bir onay e-postası gidiyor, (2) panelden sipariş durumunu değiştirdiğinizde ("Kargoya Verildi" vb.) müşteriye otomatik güncelleme e-postası gidiyor. Reply-To olarak siparis@sonyacollection.com ayarlı, yani müşteri "yanıtla" derse size gelir.
+
+**Misafir siparişlerinde çalışmaz** — checkout'ta e-posta alanı olmadığı için misafirin adresi hiç kaydedilmiyor, bu yüzden bu iki e-posta sadece hesabı olan müşterilere gidiyor. İsterseniz checkout'a bir e-posta alanı eklemeyi ayrıca konuşabiliriz.
+
+EmailJS'in ücretsiz planı ayda 200 e-posta ve en fazla 2 şablona izin veriyor — hem sizin bildirim e-postanız (`template_spvadv9`) hem bu yeni müşteri şablonu (`template_asd2tad`) olmak üzere şu an 2 şablon kullanılıyor, tam kapasitedesiniz. Talep sayısı (Requests) EmailJS panelinde "X talep kaldı" şeklinde görünüyor, ay sonunda sıfırlanıyor — mağaza büyüdükçe bu sınıra yaklaşırsanız haber verin, ücretli plana geçmeyi konuşuruz.
 
 ## Önemli — kartla ödeme (iyzico) entegrasyonu eklendi (kurulum gerekiyor)
 

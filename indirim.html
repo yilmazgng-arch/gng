@@ -226,6 +226,24 @@
   .mobile-nav.open{max-height:420px;opacity:1;padding:6px clamp(20px,4vw,48px) 16px;}
   .mobile-nav a{padding:13px 0;border-bottom:1px solid var(--line);font-size:0.94rem;font-weight:600;color:var(--espresso);}
   .mobile-nav a:last-child{border-bottom:none;}
+  .mobile-theme-toggle{
+    display:flex;align-items:center;justify-content:space-between;width:100%;
+    padding:13px 0;border:none;border-bottom:1px solid var(--line);background:none;
+    font-family:inherit;font-size:0.94rem;font-weight:600;color:var(--espresso);cursor:pointer;
+  }
+  .mobile-theme-toggle:last-child{border-bottom:none;}
+  .mobile-theme-toggle-label{display:flex;align-items:center;gap:10px;}
+  .mobile-theme-toggle-label svg{width:18px;height:18px;color:var(--caramel-dk);}
+  .mobile-theme-toggle-switch{
+    position:relative;width:38px;height:22px;border-radius:999px;background:var(--line);
+    transition:background .2s;flex:none;
+  }
+  .mobile-theme-toggle-switch::after{
+    content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
+    background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,0.25);transition:transform .2s;
+  }
+  .mobile-theme-toggle[aria-pressed="true"] .mobile-theme-toggle-switch{background:var(--caramel-dk);}
+  .mobile-theme-toggle[aria-pressed="true"] .mobile-theme-toggle-switch::after{transform:translateX(16px);}
 
   /* ============ Vitrin (cinematic hero carousel) ============ */
   .vitrin{
@@ -683,6 +701,19 @@
   .drawer-head h3{font-size:1.15rem;}
   .close-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--espresso);display:flex;align-items:center;justify-content:center;}
   .close-btn svg{width:15px;height:15px;}
+  .cart-fav-link{
+    display:flex;align-items:center;gap:9px;width:100%;
+    padding:12px 22px;border:none;border-bottom:1px solid var(--line);
+    background:var(--surface-2);font-family:inherit;font-size:0.86rem;font-weight:700;
+    color:var(--espresso);cursor:pointer;transition:background .15s;
+  }
+  .cart-fav-link:hover{background:var(--surface);}
+  .cart-fav-link svg{width:16px;height:16px;color:var(--caramel-dk);flex:none;}
+  .cart-fav-count{
+    margin-left:auto;min-width:18px;height:18px;padding:0 5px;border-radius:999px;
+    background:var(--caramel);color:var(--accent-ink);font-size:0.68rem;font-weight:800;
+    display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;
+  }
   .drawer-body{flex:1;overflow-y:auto;padding:14px 22px;display:flex;flex-direction:column;gap:16px;}
   .cart-item{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--line);}
   .cart-item .thumb{
@@ -838,16 +869,19 @@
     .nav-toggle-btn{display:flex;}
     .grid{grid-template-columns:repeat(2,1fr);}
     .foot-grid{grid-template-columns:1fr 1fr;}
-    /* Dar ekranlarda logo + 5 üst ikon (karanlık mod/ara/hesap/favori/sepet) tam sığmayabiliyor;
-       ikonları biraz küçültüp aralarında yine de belirgin bir boşluk bırakıyoruz. En dar
-       telefonlarda hâlâ sığmazsa header-row kendi içinde yatay kaydırılabiliyor, böylece
-       sepet ikonu hiçbir zaman ekran dışında/görünmez kalmıyor. */
+    /* Mobilde karanlık mod düğmesi hamburger menüsüne (.mobile-theme-toggle), favoriler ise
+       sepet çekmecesinin başına (.cart-fav-link) taşındı — böylece üst sırada 5 yerine sadece
+       3 ikon (ara/hesap/sepet) kalıyor ve aralarına gerçekten belirgin bir boşluk sığıyor.
+       En dar telefonlarda hâlâ sığmazsa header-row kendi içinde yatay kaydırılabiliyor,
+       böylece sepet ikonu hiçbir zaman ekran dışında/görünmez kalmıyor. */
     .header-row{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;}
     .header-row::-webkit-scrollbar{display:none;}
+    .header-icons .theme-toggle-btn{display:none;}
+    .header-icons #favBtn{display:none;}
     .logo-group{gap:6px;flex-shrink:0;}
-    .header-icons{gap:7px;flex-shrink:0;}
-    .icon-btn{width:33px;height:33px;}
-    .icon-btn svg{width:16px;height:16px;}
+    .header-icons{gap:20px;flex-shrink:0;}
+    .icon-btn{width:40px;height:40px;}
+    .icon-btn svg{width:19px;height:19px;}
     .logo .name{font-size:1.32rem;}
   }
   @media (max-width:700px){
@@ -865,7 +899,8 @@
     .modal-media{height:auto;aspect-ratio:4/3;flex-shrink:0;}
     .modal-info{overflow-y:visible;max-height:none;}
     .foot-grid{grid-template-columns:1fr;}
-    .foot-bottom{flex-direction:column;align-items:flex-start;}
+    .foot-bottom{flex-direction:column;align-items:center;text-align:center;gap:10px;}
+    .pay-badges{justify-content:center;flex-wrap:wrap;}
   }
   @media (prefers-reduced-motion: reduce){
     *{transition-duration:0.01ms !important; animation-duration:0.01ms !important;}
@@ -1365,6 +1400,10 @@
     <a href="yeni-sezon.html">Yeni Sezon</a>
     <a href="#top" class="nav-sale">İndirim</a>
     <span id="mobileNavCatMarker" hidden></span>
+    <button type="button" class="mobile-theme-toggle" id="themeToggleMobile" aria-pressed="false">
+      <span class="mobile-theme-toggle-label"><svg><use href="#i-moon"/></svg>Karanlık Mod</span>
+      <span class="mobile-theme-toggle-switch" aria-hidden="true"></span>
+    </button>
   </nav>
 </header>
 
@@ -1557,6 +1596,11 @@
     <h3>Sepetim</h3>
     <button class="close-btn" id="closeCart" aria-label="Kapat"><svg><use href="#i-close"/></svg></button>
   </div>
+  <button type="button" class="cart-fav-link" id="cartFavBtn">
+    <svg><use href="#i-heart"/></svg>
+    <span>Favorilerim</span>
+    <span class="cart-fav-count" id="cartFavCount" hidden>0</span>
+  </button>
   <div class="drawer-body" id="cartBody"></div>
   <div class="drawer-foot" id="cartFoot"></div>
 </aside>
@@ -1784,21 +1828,30 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
   var compareIds = []; // Ürün karşılaştırma listesi — bilinçli olarak sayfa yenilenince sıfırlanır (kısa süreli bir karşılaştırma aracı)
 
   // ---------- Karanlık mod ---------- (elle açılan, sistem tercihini takip etmeyen — bkz. yukarıdaki CSS notu)
+  // Mobilde üst ikon sırasında yer açmak için karanlık mod düğmesi hamburger menüsüne
+  // taşındı (#themeToggleMobile); masaüstünde orijinal #themeToggle aynen duruyor. İkisi de
+  // aynı state'i paylaşıp birbiriyle senkron kalıyor.
   var THEME_KEY = 'sonya_theme';
   (function(){
     try{
       var on = localStorage.getItem(THEME_KEY) === 'dark';
       if(on) document.documentElement.setAttribute('data-theme', 'dark');
-      var btn = document.getElementById('themeToggle');
-      if(btn){
-        btn.setAttribute('aria-pressed', String(on));
-        btn.classList.toggle('active', on);
-        btn.addEventListener('click', function(){
-          var next = document.documentElement.getAttribute('data-theme') !== 'dark';
-          document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light');
-          btn.setAttribute('aria-pressed', String(next));
-          btn.classList.toggle('active', next);
-          try{ localStorage.setItem(THEME_KEY, next ? 'dark' : 'light'); }catch(e){}
+      var btns = [document.getElementById('themeToggle'), document.getElementById('themeToggleMobile')].filter(Boolean);
+      if(btns.length){
+        btns.forEach(function(btn){
+          btn.setAttribute('aria-pressed', String(on));
+          btn.classList.toggle('active', on);
+        });
+        btns.forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var next = document.documentElement.getAttribute('data-theme') !== 'dark';
+            document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light');
+            btns.forEach(function(b){
+              b.setAttribute('aria-pressed', String(next));
+              b.classList.toggle('active', next);
+            });
+            try{ localStorage.setItem(THEME_KEY, next ? 'dark' : 'light'); }catch(e){}
+          });
         });
       }
     }catch(e){ /* localStorage yoksa da site normal (aydınlık) görünümde sorunsuz çalışır */ }
@@ -2221,7 +2274,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     giftNoteText = ''; giftNoteOpen = false; giftWrapWanted = false;
   }
 
-  // ---------- Yeni sipariş e-posta bildirimi (EmailJS) ----------
+  // ---------- Yeni sipariş e-posta bildirimi (EmailJS — sana/admin'e gider) ----------
   // Ücretsiz EmailJS hesabından alınan 3 değer buraya girilene kadar bu özellik
   // sessizce devre dışı kalır — sipariş akışını asla engellemez veya geciktirmez.
   var EMAILJS_PUBLIC_KEY = 'iIbGdrFA-cGeESqQj';
@@ -2232,8 +2285,19 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       EMAILJS_SERVICE_ID.indexOf('BURAYA_') !== 0 &&
       EMAILJS_TEMPLATE_ID.indexOf('BURAYA_') !== 0;
   }
+  // ---------- Müşteriye giden e-postalar (sipariş onayı + admin.html'deki durum güncellemesi) ----------
+  // EmailJS'in ücretsiz planı en fazla 2 şablona izin veriyor, biri (yukarıdaki) zaten sana
+  // gidiyor — o yüzden müşteriye giden her şey TEK bir paylaşılan/genel şablonu kullanıyor
+  // (konu+içerik JS'den geliyor, şablon sadece {{customer_name}}/{{email_title}}/{{email_body}}
+  // alanlarını basıyor). Aynı şablon ID'si admin.html'deki EMAILJS_STATUS_TEMPLATE_ID alanına da
+  // yapıştırılmalı — ikisi aynı şablonu paylaşıyor. Sadece hesabı olan (giriş yapmış) müşterilerde
+  // çalışır; misafir siparişlerinde e-posta adresi kayıtlı olmadığı için sessizce atlanır.
+  var EMAILJS_CUSTOMER_TEMPLATE_ID = 'template_asd2tad';
+  function customerEmailConfigured(){
+    return EMAILJS_CUSTOMER_TEMPLATE_ID.indexOf('BURAYA_') !== 0;
+  }
   try{
-    if(emailjsConfigured() && typeof emailjs !== 'undefined'){
+    if((emailjsConfigured() || customerEmailConfigured()) && typeof emailjs !== 'undefined'){
       emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
     }
   }catch(e){ /* e-posta bildirimini asla siteyi bozacak şekilde çalıştırma */ }
@@ -2256,6 +2320,27 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         gift_note: order.giftNote || 'Yok'
       }).catch(function(err){
         console.warn('Sipariş bildirim e-postası gönderilemedi:', err && (err.text || err.message));
+      });
+    }catch(e){ /* sipariş akışını asla bozma */ }
+  }
+  function sendCustomerOrderConfirmationEmail(order){
+    try{
+      if(!customerEmailConfigured() || typeof emailjs === 'undefined' || !order.userEmail) return;
+      var itemsText = order.items.map(function(it){
+        return '- ' + (it.name || 'Ürün') + ' (Beden: ' + it.size + (it.color ? ', Renk: ' + it.color : '') + ') x' + it.qty + ' — ' + (it.price || 0) + ' ₺';
+      }).join('\n');
+      var bodyText = 'Siparişin bize ulaştı, teşekkür ederiz!\n\n' + itemsText + '\n\n' +
+        'Ara toplam: ' + order.subtotal + ' ₺\n' +
+        (order.discount ? 'İndirim: -' + order.discount + ' ₺\n' : '') +
+        'Toplam: ' + order.total + ' ₺\n\n' +
+        'Sorularin olursa bize WhatsApp\'tan ulaşabilirsin.';
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_CUSTOMER_TEMPLATE_ID, {
+        customer_email: order.userEmail,
+        customer_name: order.userName || 'Merhaba',
+        email_title: 'Siparişiniz Alındı',
+        email_body: bodyText
+      }).catch(function(err){
+        console.warn('Müşteri sipariş onay e-postası gönderilemedi:', err && (err.text || err.message));
       });
     }catch(e){ /* sipariş akışını asla bozma */ }
   }
@@ -2330,12 +2415,14 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         status: 'pending',
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(function(){
-        sendOrderNotificationEmail({
+        var orderForEmail = {
           items: items, subtotal: subtotal, discount: discount, total: subtotal - discount,
           couponCode: appliedCoupon ? appliedCoupon.code : null, channel: channel,
           userName: user ? user.displayName : null, userEmail: user ? user.email : null,
           userPhone: currentUserPhone || null, giftNote: giftNoteText || null
-        });
+        };
+        sendOrderNotificationEmail(orderForEmail);
+        sendCustomerOrderConfirmationEmail(orderForEmail);
         trackEvent('purchase', 'Purchase', { currency: 'TRY', value: subtotal - discount, items: items.map(function(it){ return { item_id: it.productId, item_name: it.name, quantity: it.qty }; }) });
         recordRecentSale(items);
       }).catch(function(err){
@@ -3246,6 +3333,8 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     var cc = document.getElementById('cartCount'), fc = document.getElementById('favCount');
     cc.textContent = cartTotal; cc.hidden = cartTotal === 0;
     fc.textContent = favTotal; fc.hidden = favTotal === 0;
+    var cfc = document.getElementById('cartFavCount');
+    if(cfc){ cfc.textContent = favTotal; cfc.hidden = favTotal === 0; }
   }
 
   var checkoutStep = 'cart'; // 'cart' | 'confirm'
@@ -3576,6 +3665,16 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     renderGrid();
     goToShopSection(FAV_VIEW);
   });
+  var cartFavBtn = document.getElementById('cartFavBtn');
+  if(cartFavBtn){
+    cartFavBtn.addEventListener('click', function(){
+      closeCart();
+      state.filter = FAV_VIEW;
+      document.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+      renderGrid();
+      goToShopSection(FAV_VIEW);
+    });
+  }
   // ---------- Modal ----------
   var modalWrap = document.getElementById('modalWrap');
   var modalContent = document.getElementById('modalContent');
