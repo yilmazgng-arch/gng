@@ -1,6 +1,65 @@
 # Sonya Collection — Hostinger'a Yükleme Rehberi
 
-## Bu turda ne değişti (2026-09-04 — müşteriye giden sipariş e-postaları)
+## Bu turda ne değişti (2026-09-04 — "Bu Ay Trend" rozeti kontrolü + KVKK çerez onay bandı)
+
+**"Bu Ay Trend" rozeti çakışması:** Gönderdiğin ekran görüntüsünde "🔥 Bu Ay Trend" rozetinin "TAKIMLAR" etiketinin arkasında kaldığını gördüm. Bu, bir önceki turda zaten bulup düzelttiğim `.card-tag` çakışma hatasıyla birebir aynıydı — tam bu ikili kombinasyonu (kategori etiketi + Bu Ay Trend rozeti) izole bir testle tekrar doğruladım, düzeltme doğru çalışıyor. Ekran görüntüsü muhtemelen o düzeltmeyi içeren zip'in henüz Hostinger'a yüklenmediği bir andan — yani bu turda gönderdiğim zip'i yükleyince sorun kendiliğinden düzelecek, ekstra bir işlem gerekmiyor.
+
+**Eklenti araştırması — KVKK çerez onay bandı eklendi:** "Site için gerekli bir eklenti var mı?" sorunu araştırdım. Türkiye'de bir e-ticaret sitesinin ihtiyaç duyduğu zorunlu metinlerin (mesafeli satış/cayma hakkı, gizlilik politikası, KVKK aydınlatma metni) hepsi sitede zaten vardı. Tek somut eksik: site GA4 (Google Analytics) ve Meta Pixel'i her ziyaretçide otomatik çalıştırıyordu ama hiçbir onay almıyordu — KVKK'ya göre bu tür analiz/reklam çerezleri için ziyaretçiden onay alınması gerekiyor. Bunun için:
+1. Sayfanın altında, marka renkleriyle uyumlu bir "Çerez Kullanımı" bandı eklendi — "Tümünü Kabul Et" ve "Sadece Zorunlu Çerezler" seçenekleriyle.
+2. **Gerçekten işlevsel**: ziyaretçi "Sadece Zorunlu Çerezler"i seçerse GA4 ve Meta Pixel o ziyaretçide hiç yüklenmez/çalışmaz. Sadece "Tümünü Kabul Et" seçilirse aktif olurlar. Sepet/favori gibi sitenin çalışması için zorunlu olan localStorage kullanımı bundan etkilenmiyor (zaten KVKK kapsamında onay gerektirmiyor).
+3. Tercih tarayıcıda hatırlanıyor, bir daha sorulmuyor. Footer'a eklenen "Çerez Tercihleri" linkiyle ziyaretçi dilediği zaman kararını değiştirebilir.
+4. Yeni bir "Çerez Politikası" metni eklendi (diğer yasal metinler gibi Panel → Ayarlar → Yasal Metinler'den düzenlenebilir).
+5. Bant, sağ altta duran WhatsApp/sohbet balonunun üzerine binmiyor — bant açıkken balon otomatik olarak yukarı kayıyor.
+6. Sadece 11 mağaza sayfasına eklendi, yönetim paneline dokunulmadı (panelde müşteri takip kodu zaten çalışmıyor).
+
+Diğer araştırma notları: ETBİS kaydı bir web sitesi dosyası değil, Ticaret Bakanlığı'na yapılan bir kayıt işlemi — eğer daha önce yapılmadıysa bunu ayrıca hallettiğinizden emin olun, kod tarafında yapılabilecek bir şey değil. Yasal metinlerdeki köşeli parantez yer tutucuları (`[Şirket/Şahıs Adı]` vb.) hâlâ bekliyor — aşağıdaki "bekleyen işler" listesinde.
+
+Tüm 11 sayfada ve panelde JavaScript hata kontrolü yaptım + çerez bandının her sayfada doğru açılıp kapandığını, tercihi hatırladığını ve karanlık modda okunaklı kaldığını tek tek test ettim, hepsi temiz.
+
+## Bir önceki round (2026-09-04 — komple site denetimi: güvenlik, metin ve tasarım düzeltmeleri)
+
+Sitenin tamamını (11 mağaza sayfası + yönetim paneli + kartla ödeme arka ucu) baştan sona taradım: bitişik/çakışan görünümler, Türkçe hataları, demodan kalan içerik ve güvenlik açıkları için. Firestore kural değişikliği var ama sadece bir tanesi (aşağıda "Firebase Console'a eklemen gereken" bölümünde) — panele giriş yapmadım, hiçbir kişisel/finansal veri girmedim.
+
+**Güvenlik — bulundu ve düzeltildi:**
+1. **Yönetim panelinde bir güvenlik açığı buldum ve kapattım.** Panelin sipariş listesi ekranı, sipariş içindeki ürün adını/bedenini/rengini ekrana yazarken bunları güvenli hale getirmiyordu (teknik adıyla "XSS"). Siparişleri herkes (misafir dahil) oluşturabildiği için, kötü niyetli biri tarayıcı konsolundan doğrudan Firestore'a, ürün adı alanına zararlı bir kod içeren sahte bir "sipariş" gönderebilir, sen panelde siparişleri açtığında bu kod paneldeki oturumunda çalışabilirdi (ürünlerini/fiyatlarını/kuponlarını değiştirebilecek bir yetkiyle). Şimdi tüm bu alanlar ekrana yazılmadan önce güvenli hale getiriliyor — panel artık bu tür bir saldırıya kapalı.
+2. **Sipariş CSV dışa aktarımını da güçlendirdim.** Aynı sebeple (sipariş verisi herkesten gelebiliyor), "=" ile başlayan bir ürün adı Excel'de açıldığında bir formül gibi çalışabilirdi ("formül enjeksiyonu" olarak bilinen bir saldırı türü). Artık böyle bir alan varsa başına otomatik olarak koruma karakteri ekleniyor.
+3. **Müşteri yorumlarındaki fotoğraf linki için küçük bir sızdırmazlık düzeltmesi** — yorum fotoğrafı linkinin gerçekten bir fotoğraf (https://) olduğunu doğruluyoruz artık, teorik bir link-tabanlı açığı kapatıyor.
+4. **Firebase Console'a eklemen gereken tek şey**: `firestore-rules.txt` dosyasını güncelledim (yorum fotoğrafının https ile başlamasını zorunlu kılan tek satırlık ek kural). Firestore kurallarını daha önce hiç Console'a yapıştırmadıysan (bu zaten bekleyen bir işti), yapıştırdığında bu da otomatik gelmiş olacak — ayrıca bir şey yapmana gerek yok.
+5. Ayrıca kod içini taradım: gizli/parola bilgisi sızıntısı yok, tehlikeli `eval` kullanımı yok, kartla ödeme arka ucu (henüz aktif değil) tutarı doğru şekilde sunucu tarafında yeniden hesaplıyor — bu kısımlar zaten sağlamdı.
+
+**Metin/Türkçe düzeltmeleri:**
+6. Stil Rehberi sayfasında bir yazım hatası düzeltildi: "arananmamış" → "aranmamış".
+7. Panelin KVKK metni site ile birebir aynı olacak şekilde düzeltildi (panelde yanlışlıkla resmi "haklarınız" yazıyordu, sitedeki gibi samimi "hakların" oldu).
+8. Hakkımızda, SSS ve Stil Rehberi sayfalarında, kod içinde küçük bir kopyala-yapıştır hatası vardı (bu sayfalar yanlışlıkla "hesap sayfası" gibi davranıyordu) — düzelttim, artık bu sayfalarda "Son Görüntülenenler" ürün şeridi doğru şekilde çalışıyor.
+
+**Görünüm/tasarım düzeltmeleri:**
+9. Anasayfada 3 fotoğraflık vitrinin altındaki "Sonbahar/Kış 26" başlığı ve üstündeki-altındaki boşluklar düzeltildi — hem fotoğraflara hem "Ürünleri Gör" butonunun altındaki foto banner'a artık yapışık değil.
+10. Ürün listesinin altındaki "Son Görüntülenenler" şeridiyle ürün ızgarası arasına da boşluk eklendi (daha önce sadece üstteki boşluğu düzeltmiştim, alttakini kaçırmışım).
+11. "Flaş İndirim" kutusunun (aktif olduğunda görünür) kendi içindeki ve çevresindeki boşluklar eksikti — artık diğer vitrin kutularıyla tutarlı.
+12. SSS ve Stil Rehberi sayfalarının başlıkları menüye yapışıktı, düzelttim. Bu iki sayfadaki soru-cevap ve öneri kutularının hiç tasarımı yoktu (düz metin gibi görünüyorlardı) — artık sitenin geri kalanıyla tutarlı, kart görünümlü, güzel görünüyorlar (ekran görüntülerini gönderdim).
+13. Bir ürün hem kategori etiketi hem "Yeni"/"Çok Satan" gibi bir rozet taşıdığında, ikisi üst üste biniyordu — artık düzgün alt alta diziliyorlar.
+14. Bazı küçük rozet/panel öğeleri (favori paylaş butonu, sadakat puanı paneli, "şu an bakıyor" etiketi) gizlenmesi gerektiğinde bazen görünür kalabiliyordu (teknik bir CSS çakışması) — hepsini düzelttim.
+15. Karanlık modda, aktif bir kampanya geri sayımı varsa üzerindeki yazı neredeyse görünmez oluyordu (koyu krem zemin üzerinde beyaz yazı) — okunabilir hale getirildi.
+
+Tüm 11 sayfada ve panelde JavaScript hata kontrolü + sepet/favori/karanlık mod smoke testi yaptım, hepsi temiz.
+
+## Bir önceki round (2026-09-04 — vitrin fotoğrafı/filtreler arası boşluk + beyaz alanlar bej oldu)
+
+İki şey düzeltildi: (1) Anasayfa ve kategori sayfalarında (Yeni Sezon, İndirim, Pelerinler, Kimonolar, Takımlar, Elbiseler) vitrin fotoğrafının hemen altında filtre butonlarının (Tümü/İndirim/...) yapışık durması — bir önceki turda kaldırılan "Bu Haftanın Seçkisi" başlığıyla birlikte oradaki boşluk da gitmiş, düzelttim, artık aralarında belirgin bir nefes payı var. (2) Açık moddaki neredeyse-beyaz yüzey rengi (kartlar, filtre çipleri, header, sepet/favori çekmeceleri, form alanları, footer — sitede "beyaz" görünen her yer) daha sıcak, belirgin bir bej tona çevrildi; yazılar zaten koyu kahve tonundaydı, değişmedi. Sadece mağaza tarafına (11 sayfa) uygulandı, yönetim paneline dokunmadım — istersen orayı da aynı bej tona çevirebilirim. Karanlık mod hiç değişmedi. Firestore kural değişikliği yok.
+
+## Bir önceki round (2026-09-04 — "Favorilerimi Paylaş" sepete taşındı)
+
+Ürünler bölümünün üstünde, favoriler görünümünde çıkan "Favorilerimi Paylaş" butonu oradan kaldırıldı, sepet çekmecesine (Favorilerim satırının hemen altına) taşındı. Buton artık misafir dahil herkese, hangi sayfada olursan ol sepeti açtığında görünüyor — sadece favorilerin en az 1 ürün içerdiğinde beliriyor. Tıklandığında aynı eski davranış: paylaşım linki kopyalanıyor / cihaz paylaşım menüsü açılıyor. Firestore kural değişikliği yok.
+
+## Bir önceki round (2026-09-04 — footer'dan "Kategoriler" sütunu kaldırıldı)
+
+Footer'da "Kurumsal" sütununun üstünde duran "Kategoriler" başlığı ve altındaki liste tamamen kaldırıldı. Geriye "Kurumsal" ve "Bize Ulaşın" kalıyor, marka bloğuyla birlikte 3 sütun olarak daha dengeli/sofistike bir görünüm aldı — hem masaüstünde hem mobilde boş sütun ya da garip boşluk kalmıyor, ızgara (grid) genişlikleri buna göre yeniden ayarlandı. Bu, `#magaza` bölümündeki ürün/kategori filtrelerini etkilemiyor, sadece footer'daki bu tekrarlı linkler kaldırıldı. Firestore kural değişikliği yok.
+
+## Bir önceki round (2026-09-04 — yönetim paneli de yeni ana tona geçti)
+
+Bir önceki turda mağaza tarafında (sonya-collection.html ve diğer 10 sayfa) uyguladığım yeni taş/greige ana rengi (`#928273` / koyu ton `#706358`), senin isteğinle şimdi **yönetim paneline (panel.sonyacollection.com) de** uygulandı. Panelde kullanılan tüm "karamel" vurgu rengi (yükleniyor ikonu, sekme aktif çizgisi, form odak çerçeveleri, satış grafiği çubukları, fotoğraf yükleme çubuğu, linkler) artık sitenin geri kalanıyla aynı tonda. Panelin karanlık modu yok, o yüzden tek bir renk seti güncellendi. Firestore kural değişikliği yok, sadece görsel bir güncelleme.
+
+## Bir önceki round (2026-09-04 — müşteriye giden sipariş e-postaları)
 
 Sordun: "sepetinde ürün olan birine stok azaldı diye mail" ve "siparişi tamamlayana sipariş detayı mail" özellikleri var mıydı? Kontrol ettim — ikisi de yoktu. Konuştuğumuz gibi, senin onayınla **ikisini değil, en değerli iki şeyi** ekledim (sepet-stok e-postası yerine önerdiğim daha basit çözümü sen de tercih etmedin, o yüzden onu eklemedim — istersen ayrıca konuşuruz). Firestore kural değişikliği yok. **Sen de EmailJS'te yeni şablonu oluşturup ID'sini bana ilettin, ikisi de artık AKTİF.**
 
@@ -9,6 +68,10 @@ Sordun: "sepetinde ürün olan birine stok azaldı diye mail" ve "siparişi tama
 **2) Sipariş durumu değişince müşteriye e-posta (koddan hazırdı, şimdi AKTİF).** Panelden bir siparişin durumunu "Kargoya Verildi" gibi değiştirdiğinde, müşteriye otomatik e-posta gidiyor artık.
 
 **Tek şablon yeterli oldu:** EmailJS'in ücretsiz planı en fazla 2 şablona izin veriyor, biri zaten sana giden sipariş bildirimi için kullanılıyordu (`template_spvadv9`). Senin oluşturduğun yeni şablon (`template_asd2tad`) yukarıdaki iki özelliğin ikisini de tek başına karşılıyor — kotanız tam dolu (2/2) ama fazlasına ihtiyaç yok. Ayda 200 e-posta hakkınız var, küçük bir mağaza için fazlasıyla yeterli.
+
+**3) Footer'ın tamamı ortalandı (bir önceki turdaki düzeltme eksikmiş — düzelttim).** Bir önceki turda sadece en alttaki telif/ödeme rozeti satırını ortalamıştım; gönderdiğin ekran görüntüsünde gördüğün gibi bunun üstündeki Kategoriler/Kurumsal/Bize Ulaşın sütunları ve logo/açıklama hâlâ sola yaslıydı. Şimdi mobilde footer'ın tamamı (başlıklar, linkler, sosyal medya ikonları, marka bloğu dahil) ortalanmış duruyor.
+
+**4) Sitenin ana rengi değişti — gönderdiğin taş/greige tonuna göre.** Gönderdiğin renk görselinden tam tonu aldım (`#8E8277`) ve sitenin her yerinde kullanılan "karamel" vurgu rengini bununla değiştirdim: butonlar, fiyatlar, aktif filtre çipleri, linkler, rozetler, ikonlar — hepsi artık bu yeni, daha sofistike/mat tonda. Hem açık hem karanlık mod için ayrı ayrı ayarladım (karanlık modda okunabilirlik için biraz açık tonu kullanıyor, tıpkı eskisi gibi). Sadece sonya-collection.html (mağaza tarafı) değişti, yönetici paneline (admin.html) dokunmadım — istersen onu da aynı tona çevirebilirim.
 
 ## Bir önceki round (2026-09-04 — mobil boşluk, footer düzeni ve anasayfa vitrini düzeltmesi)
 

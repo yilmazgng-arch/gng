@@ -101,7 +101,8 @@ service cloud.firestore {
           || (request.resource.data.name is string && request.resource.data.name.size() <= 100))
         && (!('photo' in request.resource.data)
           || request.resource.data.photo == null
-          || (request.resource.data.photo is string && request.resource.data.photo.size() <= 500))
+          || (request.resource.data.photo is string && request.resource.data.photo.size() <= 500
+            && request.resource.data.photo.matches('^https://.*')))
         && (!('verifiedPurchase' in request.resource.data)
           || request.resource.data.verifiedPurchase is bool);
       // "Faydalı buldum" oylaması: herkes (misafir dahil) sadece helpfulCount alanını, sadece

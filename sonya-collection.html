@@ -59,12 +59,12 @@
   :root{
     --cream:      #FBF7F1;
     --cream-rgb:  251,247,241;
-    --surface:    #FFFEFB;
+    --surface:    #F6EEDD;
     --surface-2:  #F3EADA;
     --espresso:   #59442F;
     --espresso-70:#59442FB3;
-    --caramel:    #B98657;
-    --caramel-dk: #9C6B41;
+    --caramel:    #928273;
+    --caramel-dk: #706358;
     --latte:      #DCB78E;
     --line:       #EEE3D1;
     --accent-ink: #FFFCF7;
@@ -88,8 +88,8 @@
     --surface-2:  #443422;
     --espresso:   #F2E9DA;
     --espresso-70:#F2E9DAB3;
-    --caramel:    #D9A468;
-    --caramel-dk: #E8B67E;
+    --caramel:    #D1CAC2;
+    --caramel-dk: #E3DEDA;
     --latte:      #8A6F4E;
     --line:       #4E3D28;
     --accent-ink: #241E17;
@@ -168,7 +168,7 @@
     padding:9px 16px;
   }
   .announce b{color:var(--caramel-dk);}
-  .campaign-bar{background:var(--espresso);color:#fff;text-align:center;font-size:0.78rem;font-weight:700;letter-spacing:0.02em;padding:8px 16px;}
+  .campaign-bar{background:var(--espresso);color:var(--mocha-ink);text-align:center;font-size:0.78rem;font-weight:700;letter-spacing:0.02em;padding:8px 16px;}
   .campaign-bar b{color:var(--caramel);font-variant-numeric:tabular-nums;}
 
   /* ============ Header ============ */
@@ -213,6 +213,11 @@
     font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;
     font-variant-numeric:tabular-nums;
   }
+  /* display:flex/inline-flex tarzı rozet ve panel sınıfları, HTML "hidden" özniteliğinin
+     varsayılan display:none kuralıyla eşit özgüllükte çakışıyor ve üzerine yazabiliyor —
+     bu yüzden her biri için hidden halini burada açıkça sıfırlıyoruz. */
+  .badge[hidden],.cart-fav-count[hidden],.cart-fav-link[hidden],
+  .loyalty-actions[hidden],.presence-label[hidden]{display:none;}
   .nav-toggle{display:none;}
   .nav-toggle-btn{display:none;}
   .mobile-nav{
@@ -349,7 +354,7 @@
   @media (max-width:700px){ .hero-gallery-3{height:clamp(280px,78vw,380px);} }
 
   /* ============ Seasonal promo ============ */
-  .promo{max-width:600px;margin:0 auto;text-align:center;}
+  .promo{max-width:600px;margin:clamp(44px,6vw,72px) auto;text-align:center;}
   .promo h2{font-size:clamp(1.9rem,3.6vw,2.7rem);margin:14px 0 16px;line-height:1.1;text-wrap:balance;}
   .promo p{color:var(--espresso-70);max-width:48ch;margin:0 auto;}
   .promo-btn{margin-top:28px;text-transform:uppercase;letter-spacing:0.14em;font-size:0.76rem;padding:15px 36px;}
@@ -406,10 +411,9 @@
   @keyframes favPop{0%{transform:scale(1);}35%{transform:scale(1.35);}60%{transform:scale(.9);}100%{transform:scale(1);}}
   @media (prefers-reduced-motion: reduce){ .fav-btn.fav-pop{animation:none !important;} }
   .card-tag{
-    position:absolute;top:10px;left:10px;
     background:var(--surface);border:1px solid var(--line);border-radius:999px;
     font-size:0.64rem;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;
-    padding:4px 10px;color:var(--espresso-70);
+    padding:4px 10px;color:var(--espresso-70);align-self:flex-start;
   }
   .card-body{padding:16px 16px 18px;display:flex;flex-direction:column;gap:10px;flex:1;}
   .card-body .cat-label{font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--caramel);}
@@ -582,7 +586,7 @@
   }
 
   /* ============ Ürün bazlı flaş indirim ============ */
-  .flash-section{background:var(--surface-2);border-radius:var(--radius-l);}
+  .flash-section{background:var(--surface-2);border-radius:var(--radius-l);margin-top:20px;padding-top:32px;padding-bottom:32px;}
   .flash-head{text-align:center;max-width:560px;margin:0 auto 24px;display:flex;flex-direction:column;align-items:center;gap:10px;}
   .flash-head h2{font-size:clamp(1.4rem,2.6vw,1.9rem);}
   .flash-grid{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 4px 10px;-webkit-overflow-scrolling:touch;}
@@ -624,7 +628,7 @@
   /* ============ Footer ============ */
   footer{border-top:1px solid var(--line);background:var(--surface);}
   .foot-grid{
-    display:grid;grid-template-columns:1.3fr repeat(3,1fr);gap:32px;padding:clamp(48px,7vw,72px) 0 32px;
+    display:grid;grid-template-columns:1.3fr repeat(2,1fr);gap:32px;padding:clamp(48px,7vw,72px) 0 32px;
   }
   .foot-grid h4{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--caramel);margin-bottom:16px;}
   .foot-grid ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
@@ -897,7 +901,10 @@
     .modal{grid-template-columns:1fr;overflow-y:auto;}
     .modal-media{height:auto;aspect-ratio:4/3;flex-shrink:0;}
     .modal-info{overflow-y:visible;max-height:none;}
-    .foot-grid{grid-template-columns:1fr;}
+    .foot-grid{grid-template-columns:1fr;text-align:center;}
+    .foot-grid ul{align-items:center;}
+    .foot-brand{display:flex;flex-direction:column;align-items:center;}
+    .foot-social{justify-content:center;}
     .foot-bottom{flex-direction:column;align-items:center;text-align:center;gap:10px;}
     .pay-badges{justify-content:center;flex-wrap:wrap;}
   }
@@ -906,7 +913,8 @@
   }
 
   /* ---------- Chat assistant ---------- */
-  .chat-widget{position:fixed;right:clamp(14px,3vw,26px);bottom:clamp(14px,3vw,26px);z-index:90;}
+  .chat-widget{position:fixed;right:clamp(14px,3vw,26px);bottom:clamp(14px,3vw,26px);z-index:90;transition:bottom .25s ease;}
+  body.cookie-banner-open .chat-widget{bottom:calc(var(--cookie-banner-h, 96px) + clamp(14px,3vw,26px));}
   .chat-fab{
     position:relative;width:58px;height:58px;border-radius:50%;
     background:var(--espresso);color:var(--mocha-ink);border:none;
@@ -1179,6 +1187,37 @@
   .search-row .price-old{font-size:0.68rem;}
   .search-empty{padding:32px 16px;text-align:center;color:var(--espresso-70);font-size:0.86rem;}
 
+  /* ============ Çerez onay bandı ============ */
+  .cookie-banner{
+    position:fixed;left:0;right:0;bottom:0;z-index:55;
+    background:var(--espresso);color:var(--mocha-ink);
+    padding:18px clamp(16px,4vw,32px);
+    display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+    box-shadow:0 -12px 30px -10px rgba(0,0,0,0.25);
+  }
+  .cookie-banner[hidden]{display:none;}
+  .cookie-banner-text{flex:1 1 320px;font-size:0.86rem;line-height:1.55;}
+  .cookie-banner-text strong{font-family:'Fraunces',serif;font-weight:600;font-size:1rem;display:block;margin-bottom:4px;}
+  .cookie-banner-text a{color:inherit;text-decoration:underline;text-underline-offset:2px;}
+  .cookie-banner-actions{display:flex;gap:10px;flex:1 1 100%;}
+  .cookie-btn{
+    border-radius:999px;padding:10px 18px;font-size:0.82rem;font-weight:700;
+    cursor:pointer;white-space:nowrap;flex:1 1 auto;text-align:center;
+    transition:transform .2s ease,opacity .2s ease;
+  }
+  .cookie-btn:hover{transform:translateY(-1px);}
+  .cookie-btn-reject{background:transparent;color:inherit;border:1px solid currentColor;opacity:0.78;}
+  .cookie-btn-reject:hover{opacity:1;}
+  .cookie-btn-accept{background:var(--latte);color:var(--espresso);border:none;font-weight:800;}
+  @media (max-width:479px){
+    .cookie-banner-actions{flex-direction:column;}
+    .cookie-btn{white-space:normal;}
+  }
+  @media (min-width:720px){
+    .cookie-banner-actions{flex:0 0 auto;}
+    .cookie-btn{flex:0 0 auto;}
+  }
+
   /* ---------- Varyant (renk+beden) stok secimi ---------- */
   .swatch{padding:0;cursor:default;transition:transform .15s ease;}
   .swatch-btn{cursor:pointer;}
@@ -1229,7 +1268,6 @@
   .theme-toggle-btn.active{background:var(--espresso);color:var(--mocha-ink);border-radius:50%;}
 
   /* ---------- Favori listesini paylaş ---------- */
-  .fav-share-btn{margin-right:auto;}
 
   /* ---------- Ürün karşılaştırma ---------- */
   .compare-toggle-btn{
@@ -1474,10 +1512,9 @@
   </section>
 
   <!-- ============ Shop ============ -->
-  <section class="wrap" id="magaza">
+  <section class="wrap" id="magaza" style="padding-top:clamp(44px,6vw,72px);padding-bottom:clamp(44px,6vw,72px);">
     <div class="shop-head">
       <div class="shop-controls">
-        <button type="button" class="btn ghost fav-share-btn" id="favShareBtn" hidden>Favorilerimi Paylaş</button>
         <div class="filters" id="filters"></div>
         <select class="sort-select" id="fabricFilterSelect" aria-label="Kumaşa göre filtrele" hidden></select>
         <select class="sort-select" id="sortSelect" aria-label="Ürünleri sırala">
@@ -1544,12 +1581,6 @@
       <button type="button" class="push-optin-btn" id="pushOptInBtn" hidden>🔔 Stok/Kampanya Bildirimlerine İzin Ver</button>
     </div>
     <div>
-      <h4>Kategoriler</h4>
-      <ul>
-        <li id="footCatMarker" hidden></li>
-      </ul>
-    </div>
-    <div>
       <h4>Kurumsal</h4>
       <ul>
         <li><a href="hakkimizda.html">Hakkımızda</a></li>
@@ -1559,6 +1590,8 @@
         <li><a href="#" data-info="gizlilik">Gizlilik Politikası</a></li>
         <li><a href="#" data-info="iade">İade &amp; Değişim</a></li>
         <li><a href="#" data-info="kvkk">Kişisel Verilerin Korunması</a></li>
+        <li><a href="#" data-info="cerez">Çerez Politikası</a></li>
+        <li><a href="#" id="footCookiePrefs">Çerez Tercihleri</a></li>
       </ul>
     </div>
     <div id="bize-ulasin">
@@ -1595,6 +1628,10 @@
     <svg><use href="#i-heart"/></svg>
     <span>Favorilerim</span>
     <span class="cart-fav-count" id="cartFavCount" hidden>0</span>
+  </button>
+  <button type="button" class="cart-fav-link" id="favShareBtn" hidden>
+    <svg><use href="#i-send"/></svg>
+    <span>Favorilerimi Paylaş</span>
   </button>
   <div class="drawer-body" id="cartBody"></div>
   <div class="drawer-foot" id="cartFoot"></div>
@@ -1671,6 +1708,18 @@
   <div class="info-modal">
     <button class="close-btn modal-close" id="infoClose" type="button" aria-label="Kapat"><svg><use href="#i-close"/></svg></button>
     <div id="infoBody"></div>
+  </div>
+</div>
+
+<!-- ============ Çerez onayı ============ -->
+<div class="cookie-banner" id="cookieBanner" hidden>
+  <div class="cookie-banner-text">
+    <strong>Çerez Kullanımı</strong>
+    Size daha iyi bir alışveriş deneyimi sunmak, site trafiğini analiz etmek ve kampanyalarımızı ölçmek için çerezler kullanıyoruz. Detaylar için <a href="#" data-info="cerez">Çerez Politikası</a>'nı inceleyebilirsin.
+  </div>
+  <div class="cookie-banner-actions">
+    <button type="button" class="cookie-btn cookie-btn-reject" id="cookieEssentialBtn">Sadece Zorunlu Çerezler</button>
+    <button type="button" class="cookie-btn cookie-btn-accept" id="cookieAcceptBtn">Tümünü Kabul Et</button>
   </div>
 </div>
 
@@ -1931,7 +1980,8 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       iade: "Cayma hakkı\nMesafeli Sözleşmeler Yönetmeliği kapsamında, ürünü teslim aldığın tarihten itibaren 14 gün içinde herhangi bir gerekçe göstermeden cayma hakkına sahipsin.\n\nİade şartları\nÜrün kullanılmamış, yıkanmamış ve etiketleri çıkarılmamış olmalı. Mümkünse orijinal ambalajıyla birlikte gönderilmeli. İç giyim, mayo/bikini gibi hijyen bandı sökülmüş ürünlerde iade kabul edilmeyebilir.\n\nNasıl iade/değişim talep edilir?\nSipariş numaranla birlikte Instagram ya da WhatsApp üzerinden bize ulaş; iade adresini ve süreci seninle birlikte netleştirelim.\n\nKargo ücreti\n[Kargo ücretini kim karşılıyor buraya eklenecek — örn. \"İade kargo ücreti alıcıya aittir\" ya da \"İlk iadede kargo ücretsizdir.\"]",
       uyelik: "İşbu Üyelik Sözleşmesi, Sonya Collection (\"[Şirket/Şahıs Adı]\", \"biz\") ile siteye üye olan kullanıcı (\"Üye\", \"sen\") arasında, sitenin kullanım şartlarını belirlemek amacıyla düzenlenmiştir.\n\nÜyelik\nÜye olmak için ad soyad ve e-posta adresi ile bir hesap oluşturulur. Üye, kayıt sırasında verdiği bilgilerin doğru ve güncel olduğunu kabul eder. Hesap bilgileri (e-posta, şifre) üçüncü kişilerle paylaşılmamalıdır; hesap üzerinden yapılan işlemlerden Üye sorumludur.\n\nSiparişler\nSitede oluşturulan sepet, WhatsApp veya Instagram üzerinden bize iletilen bir sipariş talebidir; ödeme ve teslimat detayları bu iletişim kanalları üzerinden ayrıca netleştirilir.\n\nFesih\nÜye, dilediği zaman hesabının silinmesini talep edebilir. Bu talepler için siparis@sonyacollection.com adresinden bize ulaşabilirsin.\n\nDeğişiklikler\nBu sözleşme, güncellenen koşulları yansıtmak amacıyla zaman zaman güncellenebilir; güncel hali her zaman bu sayfada yer alır.",
       ileti: "Bu onay, Sonya Collection tarafından kampanya, indirim ve yeni ürün duyurularının e-posta ve/veya kayıt sırasında paylaştığın telefon numarası üzerinden (SMS/WhatsApp) tarafına iletilmesi içindir.\n\n6563 sayılı Elektronik Ticaretin Düzenlenmesi Hakkında Kanun ve ilgili Ticari İletişim ve Ticari Elektronik İletiler Hakkında Yönetmelik uyarınca, ticari elektronik ileti gönderimi ancak açık onayınla mümkündür.\n\nBu onayı vermek tamamen isteğe bağlıdır; onay vermemen üyeliğini veya sipariş verebilmeni hiçbir şekilde etkilemez. Dilediğin zaman gönderdiğimiz iletilerdeki \"Ret\" bağlantısını kullanarak ya da siparis@sonyacollection.com adresine yazarak bu onayı geri alabilirsin.",
-      beden: "S (36)\nGöğüs: 84-88 cm · Bel: 64-68 cm · Kalça: 90-94 cm\n\nM (38)\nGöğüs: 88-92 cm · Bel: 68-72 cm · Kalça: 94-98 cm\n\nL (40)\nGöğüs: 92-96 cm · Bel: 72-76 cm · Kalça: 98-102 cm\n\nXL (42)\nGöğüs: 96-100 cm · Bel: 76-80 cm · Kalça: 102-106 cm\n\nÖlçü nasıl alınır?\nGöğüs: Göğsün en geniş noktasından, mezura yere paralel olacak şekilde ölçün. Bel: Belin en ince noktasından ölçün. Kalça: Kalçanın en geniş noktasından ölçün.\n\nNot\nParçalarımız genelde rahat ve salaş bir kesime sahiptir; iki beden arasında kalırsan küçük olanı tercih edebilirsin. Ürüne özel kumaş/kesim farkı olabileceğinden, ürün açıklamasındaki notları da kontrol etmeni öneririz."
+      beden: "S (36)\nGöğüs: 84-88 cm · Bel: 64-68 cm · Kalça: 90-94 cm\n\nM (38)\nGöğüs: 88-92 cm · Bel: 68-72 cm · Kalça: 94-98 cm\n\nL (40)\nGöğüs: 92-96 cm · Bel: 72-76 cm · Kalça: 98-102 cm\n\nXL (42)\nGöğüs: 96-100 cm · Bel: 76-80 cm · Kalça: 102-106 cm\n\nÖlçü nasıl alınır?\nGöğüs: Göğsün en geniş noktasından, mezura yere paralel olacak şekilde ölçün. Bel: Belin en ince noktasından ölçün. Kalça: Kalçanın en geniş noktasından ölçün.\n\nNot\nParçalarımız genelde rahat ve salaş bir kesime sahiptir; iki beden arasında kalırsan küçük olanı tercih edebilirsin. Ürüne özel kumaş/kesim farkı olabileceğinden, ürün açıklamasındaki notları da kontrol etmeni öneririz.",
+      cerez: "Bu site hangi çerezleri kullanır?\nAlışveriş deneyimini iyileştirmek, tercihlerini hatırlamak, site trafiğini analiz etmek ve kampanyalarımızı ölçmek için çerezler ve benzeri teknolojiler (localStorage) kullanıyoruz.\n\nZorunlu çerezler\nSepetin, favori listen ve oturum bilgilerin tarayıcının hafızasında (localStorage) saklanır. Bunlar sitenin çalışması için gereklidir, kapatılamaz.\n\nAnaliz ve reklam çerezleri\nİzin verirsen Google Analytics (GA4) ve Meta Pixel ile site trafiğini analiz eder, reklam performansımızı ölçeriz. Bu çerezler yalnızca \"Tümünü Kabul Et\" seçeneğini onayladığında yüklenir; \"Sadece Zorunlu Çerezler\"i seçersen hiç çalışmazlar.\n\nTercihini değiştirme\nDilediğin zaman sayfanın altındaki \"Çerez Tercihleri\" bağlantısına tıklayarak seçimini değiştirebilirsin."
     }
   };
   var SETTINGS = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
@@ -2622,6 +2672,19 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     window.fbq('init', SETTINGS.metaPixelId);
     window.fbq('track', 'PageView');
   }
+  // ---------- Çerez onayı (KVKK) ----------
+  // GA4/Meta Pixel, ziyaretçi "Tümünü Kabul Et"i seçmeden ASLA yüklenmez — 'sc_cookie_consent'
+  // localStorage'da yoksa (henüz karar verilmemiş) analiz/reklam çerezleri devre dışı kalır.
+  var COOKIE_CONSENT_KEY = 'sc_cookie_consent'; // localStorage değeri: 'all' | 'essential'
+  function getCookieConsent(){
+    try{ return localStorage.getItem(COOKIE_CONSENT_KEY); }catch(e){ return null; }
+  }
+  function setCookieConsent(val){
+    try{ localStorage.setItem(COOKIE_CONSENT_KEY, val); }catch(e){}
+  }
+  function applyCookieConsent(){
+    if(getCookieConsent() === 'all'){ initGoogleAnalytics(); initMetaPixel(); }
+  }
   // trackEvent(): GA4 + Meta Pixel'e aynı anda, ilgili olay adıyla gönderir — ID girilmemişse sessizce hiçbir şey yapmaz.
   function trackEvent(gaName, fbName, params){
     try{ if(typeof window.gtag === 'function') window.gtag('event', gaName, params || {}); }catch(e){}
@@ -3113,8 +3176,6 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     var heading = shopHeadingFor(state.filter);
     if(shopHead) shopHead.textContent = heading.eyebrow;
     if(shopTitle) shopTitle.textContent = heading.title;
-    var favShareBtn = document.getElementById('favShareBtn');
-    if(favShareBtn) favShareBtn.hidden = !(state.filter === FAV_VIEW && Object.keys(state.favs).length);
     list = sortList(list);
     if(list.length === 0){
       gridEl.innerHTML = state.filter === FAV_VIEW
@@ -3330,6 +3391,8 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     fc.textContent = favTotal; fc.hidden = favTotal === 0;
     var cfc = document.getElementById('cartFavCount');
     if(cfc){ cfc.textContent = favTotal; cfc.hidden = favTotal === 0; }
+    var fsb = document.getElementById('favShareBtn');
+    if(fsb){ fsb.hidden = favTotal === 0; }
   }
 
   var checkoutStep = 'cart'; // 'cart' | 'confirm'
@@ -3759,7 +3822,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
             '<div class="r-head"><span class="r-name">'+escapeHtmlLocal(r.name || 'Müşteri')+'</span>'+(r.verifiedPurchase?' <span class="r-verified" title="Bu ürünü satın aldığı doğrulandı">✓ Doğrulanmış Alıcı</span>':'')+(date?'<span class="r-date">'+date+'</span>':'')+'</div>' +
             starsHtml(r.rating) +
             (r.comment ? '<div class="r-comment">'+escapeHtmlLocal(r.comment)+'</div>' : '') +
-            (r.photo ? '<a class="r-photo" href="'+escapeHtmlLocal(r.photo)+'" target="_blank" rel="noopener" style="background-image:url('+escapeHtmlLocal(r.photo)+')" aria-label="Müşteri fotoğrafını büyüt"></a>' : '') +
+            (r.photo && /^https:\/\//i.test(r.photo) ? '<a class="r-photo" href="'+escapeHtmlLocal(r.photo)+'" target="_blank" rel="noopener" style="background-image:url('+escapeHtmlLocal(r.photo)+')" aria-label="Müşteri fotoğrafını büyüt"></a>' : '') +
             '<button type="button" class="r-helpful'+(iVoted?' voted':'')+'" data-helpful="'+r.id+'"'+(iVoted?' disabled':'')+'><svg><use href="#i-heart"/></svg>'+(iVoted?'Faydalı buldun':'Faydalı buldum')+(hc?' ('+hc+')':'')+'</button>' +
           '</div>';
         }).join('') + '</div>'
@@ -6102,7 +6165,8 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       iade: 'İade & Değişim',
       uyelik: 'Üyelik Sözleşmesi',
       ileti: 'Ticari Elektronik İleti Onayı',
-      beden: 'Beden Rehberi'
+      beden: 'Beden Rehberi',
+      cerez: 'Çerez Politikası'
     };
     // Not: bu metinler daha önce her modalın altında müşteriye görünen bir "bu bir şablondur"
     // uyarı kutusu (INFO_NOTES) içeriyordu — o kutu geliştirici notuydu, müşterinin görmesi
@@ -6144,6 +6208,47 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     if(infoClose) infoClose.addEventListener('click', closeInfoModal);
     infoWrap.addEventListener('click', function(e){ if(e.target === infoWrap) closeInfoModal(); });
     document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeInfoModal(); });
+  })();
+
+  // ---------- Çerez onay bandı ----------
+  (function(){
+    var banner = document.getElementById('cookieBanner');
+    if(!banner) return;
+    var acceptBtn = document.getElementById('cookieAcceptBtn');
+    var essentialBtn = document.getElementById('cookieEssentialBtn');
+    var manageLink = document.getElementById('footCookiePrefs');
+
+    // Bant görünürken sağ-alttaki sohbet balonuyla çakışmasın diye body'ye bir
+    // sınıf ekleyip bandın gerçek yüksekliğini CSS değişkenine yazıyoruz (bkz. .chat-widget kuralı).
+    function syncOffset(){
+      if(!banner.hidden){
+        document.documentElement.style.setProperty('--cookie-banner-h', banner.offsetHeight + 'px');
+        document.body.classList.add('cookie-banner-open');
+      } else {
+        document.body.classList.remove('cookie-banner-open');
+      }
+    }
+
+    if(!getCookieConsent()) banner.hidden = false;
+    syncOffset();
+    window.addEventListener('resize', syncOffset);
+
+    if(acceptBtn) acceptBtn.addEventListener('click', function(){
+      setCookieConsent('all');
+      applyCookieConsent();
+      banner.hidden = true;
+      syncOffset();
+    });
+    if(essentialBtn) essentialBtn.addEventListener('click', function(){
+      setCookieConsent('essential');
+      banner.hidden = true;
+      syncOffset();
+    });
+    if(manageLink) manageLink.addEventListener('click', function(e){
+      e.preventDefault();
+      banner.hidden = false;
+      syncOffset();
+    });
   })();
 
   // ---------- Arama ----------
@@ -6354,8 +6459,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         SETTINGS.giftWrapEnabled = !!s.giftWrapEnabled;
         SETTINGS.goldEarlyAccessHours = (typeof s.goldEarlyAccessHours === 'number' && s.goldEarlyAccessHours >= 0) ? s.goldEarlyAccessHours : SETTINGS.goldEarlyAccessHours;
         SETTINGS.topSellerIds = Array.isArray(s.topSellerIds) ? s.topSellerIds : [];
-        initGoogleAnalytics();
-        initMetaPixel();
+        applyCookieConsent();
         renderCampaignCountdown();
         updatePushOptInVisibility();
         updatePayBadges();
@@ -6369,6 +6473,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         SETTINGS.legal.uyelik = l.uyelik || SETTINGS.legal.uyelik;
         SETTINGS.legal.ileti = l.ileti || SETTINGS.legal.ileti;
         SETTINGS.legal.beden = l.beden || SETTINGS.legal.beden;
+        SETTINGS.legal.cerez = l.cerez || SETTINGS.legal.cerez;
       }
 
       renderFilters();
