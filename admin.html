@@ -20,10 +20,10 @@
   --surface:    #FFFFFF;
   --surface-2:  #F4EEE3;
   --page-bg:    #F6F1E8;
-  --espresso:   #4A392A;
-  --espresso-70:#4A392AB3;
-  --caramel:    #928273;
-  --caramel-dk: #706358;
+  --espresso:   #6E5744;
+  --espresso-70:#6E5744CC;
+  --caramel:    #946C44;
+  --caramel-dk: #7E5E3A;
   --latte:      #DCB78E;
   --line:       #E7DBC7;
   --line-soft:  #F0E8D9;
@@ -33,8 +33,8 @@
   --danger-line:#EFC9C0;
   --success:    #4B7B5A;
   --success-bg: #EAF3EC;
-  --shadow-s:   0 8px 20px -12px rgba(74,57,42,0.22);
-  --shadow-m:   0 20px 45px -25px rgba(74,57,42,0.28);
+  --shadow-s:   0 8px 20px -12px rgba(110,87,68,0.22);
+  --shadow-m:   0 20px 45px -25px rgba(110,87,68,0.28);
   --radius-s: 6px;
   --radius-m: 12px;
   --radius-l: 20px;
@@ -1001,6 +1001,17 @@ a{color:inherit;}
         </div>
 
         <div class="settings-section">
+          <h3>Adres Otomatik Tamamlama (Google)</h3>
+          <p class="sec-sub">Müşteri adres eklerken sokak/mahalle yazmaya başladığında Google'dan gerçek adres önerileri çıkar; birini seçtiğinde il, ilçe ve posta kodu kendiliğinden dolar. Yanlış/eksik adres yüzünden geri dönen kargoları azaltır.</p>
+          <p class="sec-sub"><strong>Kutu boş olduğu sürece bu özellik tamamen kapalıdır</strong> — sitede hiçbir Google kodu yüklenmez, adres formu bugünkü gibi elle doldurulur. Kurulum: <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">console.cloud.google.com</a> → yeni proje → <strong>Places API (New)</strong> ve <strong>Maps JavaScript API</strong> servislerini etkinleştir → Kimlik Bilgileri'nden bir API anahtarı oluştur. Anahtarı mutlaka kısıtla: "Uygulama kısıtlamaları" → HTTP yönlendirenleri → <code>sonyacollection.com/*</code>. Google'ın aylık ücretsiz kullanım kotası küçük bir mağaza için fazlasıyla yeterlidir.</p>
+          <div class="field">
+            <label for="setGoogleMapsKey">Google Maps API Anahtarı</label>
+            <input type="text" id="setGoogleMapsKey" placeholder="AIza...">
+            <div class="hint">Bu anahtar sitenin kaynak kodunda görünür (Google'ın tasarımı böyle) — bu yüzden yukarıdaki adres kısıtlamasını eklemek önemli, aksi halde başkası anahtarını kullanabilir.</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
           <h3>Yasal Metinler</h3>
           <div class="legal-hint">
             Paragrafları ayırmak için aralarında <strong>boş bir satır</strong> bırakın. Bir paragrafın ilk satırını yeni satıra geçip devamını yazarsanız, ilk satır sitede <strong>kalın başlık</strong> olarak görünür.
@@ -1367,7 +1378,7 @@ a{color:inherit;}
     {id:6, cat:"Kimonolar", name:"İpek Karışımlı Uzun Kimono", price:1890, colors:["#3B2A1D"], sizes:["S","M","L"], stock:2, desc:"Yere yakın boyda, ipek karışımlı akıcı kimono. Hem ev hem dışarı için şık bir seçenek."},
     {id:7, cat:"Takımlar", name:"Keten İki Parça Takım", price:2150, oldPrice:2390, colors:["#EFE4D3","#3B2A1D"], sizes:["S","M","L"], stock:16, desc:"Keten karışımlı blazer ve pantolon takımı. Yazdan sonbahara geçiş parçası."},
     {id:8, cat:"Takımlar", name:"Simli Bluz & Pantolon Takımı", price:2390, colors:["#6E4526","#F6EFE4"], sizes:["S","M","L"], stock:7, desc:"Hafif simli dokulu bluz ve yüksek bel pantolondan oluşan davet takımı."},
-    {id:9, cat:"Takımlar", name:"Örme Two-Piece Set", price:1980, oldPrice:2640, colors:["#6E4526","#F6EFE4"], sizes:["S","M","L","XL"], stock:19, desc:"Kazak ve etek ikilisi, rahat ve şık bir günlük kombin."},
+    {id:9, cat:"Takımlar", name:"Örme İkili Takım", price:1980, oldPrice:2640, colors:["#6E4526","#F6EFE4"], sizes:["S","M","L","XL"], stock:19, desc:"Kazak ve etek ikilisi, rahat ve şık bir günlük kombin."},
     {id:10, cat:"Elbiseler", name:"Saten Midi Elbise", price:1690, oldPrice:2410, colors:["#3B2A1D","#C79768"], sizes:["S","M","L"], stock:13, desc:"Kayan saten dokulu, ince askılı midi elbise. Davetler için ideal."},
     {id:11, cat:"Elbiseler", name:"Krem Dantelli Elbise", price:2290, colors:["#F6EFE4"], sizes:["S","M","L"], stock:5, desc:"El işi dantel detaylı, uzun kollu zarif elbise."},
     {id:12, cat:"Elbiseler", name:"Pudra Drape Elbise", price:1790, colors:["#C79768","#F6EFE4"], sizes:["S","M","L","XL"], stock:0, desc:"Yumuşak pudra tonunda, drape detaylı zarif midi elbise."}
@@ -1379,6 +1390,7 @@ a{color:inherit;}
     phone: "",
     shippingThreshold: 1500,
     shippingFee: 0,
+    googleMapsKey: "",
     iyzicoEnabled: false,
     welcomeCouponCode: "",
     deliveryEstimate: "",
@@ -2652,6 +2664,7 @@ a{color:inherit;}
         if(typeof site.phone === 'string') s.phone = site.phone;
         if(typeof site.shippingThreshold === 'number') s.shippingThreshold = site.shippingThreshold;
         if(typeof site.shippingFee === 'number') s.shippingFee = site.shippingFee;
+        if(typeof site.googleMapsKey === 'string') s.googleMapsKey = site.googleMapsKey;
         if(typeof site.iyzicoEnabled === 'boolean') s.iyzicoEnabled = site.iyzicoEnabled;
         if(typeof site.deliveryEstimate === 'string') s.deliveryEstimate = site.deliveryEstimate;
         if(typeof site.welcomeCouponCode === 'string') s.welcomeCouponCode = site.welcomeCouponCode;
@@ -3597,6 +3610,7 @@ a{color:inherit;}
     $('setPhone').value = s.phone || '';
     $('setShipping').value = s.shippingThreshold || 0;
     $('setShippingFee').value = (typeof s.shippingFee === 'number') ? s.shippingFee : 0;
+    $('setGoogleMapsKey').value = s.googleMapsKey || '';
     $('setDeliveryEstimate').value = s.deliveryEstimate || '';
     $('setBundleMinItems').value = s.bundleMinItems || '';
     $('setBundlePercent').value = s.bundlePercent || '';
@@ -3703,6 +3717,7 @@ a{color:inherit;}
       phone: $('setPhone').value.trim(),
       shippingThreshold: parseFloat($('setShipping').value) || 0,
       shippingFee: parseFloat($('setShippingFee').value) || 0,
+      googleMapsKey: $('setGoogleMapsKey').value.trim(),
       deliveryEstimate: $('setDeliveryEstimate').value.trim(),
       bundleMinItems: parseInt($('setBundleMinItems').value, 10) || 0,
       bundlePercent: parseFloat($('setBundlePercent').value) || 0,
@@ -3746,6 +3761,7 @@ a{color:inherit;}
       state.settings.phone = siteData.phone;
       state.settings.shippingThreshold = siteData.shippingThreshold;
       state.settings.shippingFee = siteData.shippingFee;
+      state.settings.googleMapsKey = siteData.googleMapsKey;
       state.settings.deliveryEstimate = siteData.deliveryEstimate;
       state.settings.bundleMinItems = siteData.bundleMinItems;
       state.settings.bundlePercent = siteData.bundlePercent;

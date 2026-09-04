@@ -1,12 +1,157 @@
 # Sonya Collection — Hostinger'a Yükleme Rehberi
 
-## ⚠️ Bu turda yükleme şekli DEĞİŞTİ — önce şunu okuyun
+## Bu turda ne değişti (2026-09-04 — www yönlendirmesi, adres tamamlama, puan düzeltmesi, e-posta doğrulama)
 
-Zip'in içinde artık **`img` adında yeni bir klasör** var (6 fotoğraf, 2 formatta). Bu klasör **`public_html`'in içine, diğer dosyalarla aynı yere** yüklenmeli. Yüklemezseniz sitedeki büyük vitrin fotoğrafları görünmez.
+### 1. www adresi artık doğrudan anasayfaya gidiyor
 
-Sebebi aşağıdaki "sayfalar 6 kat hızlandı" bölümünde: fotoğraflar artık HTML'in içine gömülü değil, ayrı dosyalar olarak duruyor.
+`.htaccess`'teki kural, `www` ile gelen **her** isteği (alt sayfalar dahil) kalıcı olarak www'suz adresin **anasayfasına** yönlendirecek şekilde güncellendi. Yani `www.sonyacollection.com/yeni-sezon.html` de doğrudan `sonyacollection.com/` açar.
 
-## Bu turda ne değişti (2026-09-04 — satışa hazırlık denetimi: kargo, yasal onay, hız, SEO)
+> Bilmen gereken tek şey: Google, bir sayfanın tamamen başka bir sayfaya yönlendirilmesini "o sayfa artık yok" gibi okur. Bu yüzden aramadaki www'lu kayıtlar (senin ekran görüntündeki 4. sıra gibi) zamanla düşer ve o sayfaların birikmiş değeri anasayfaya aktarılmaz. Fikrin değişirse geri almak tek satır: `.htaccess` içindeki `https://%1/` ifadesini `https://%1%{REQUEST_URI}` yapmak yeterli — dosyada bunu açıklayan not da duruyor.
+
+### 2. Sadakat puanı artık onaylanmamış siparişten birikmiyor
+
+**Bulduğum sorun:** puan hesabı, siparişin durumuna hiç bakmadan müşterinin bütün siparişlerini topluyordu. WhatsApp/Instagram'dan verilen bir sipariş sen panelden onaylayana kadar "Alındı" durumunda bekler — yani daha para tahsil edilmemiştir. Bu siparişler de sayıldığı için:
+
+- Sepeti doldurup "Instagram'dan Sipariş Ver"e basan herkes, hiçbir şey satın almadan puan biriktirebiliyordu.
+- Daha kötüsü: aynı yöntemle 5.000 ₺ eşiğini aşıp **"Altın Üye"** olunabiliyordu — ve Altın üyelik her siparişte ücretsiz kargo demek. Yani kargo ücreti düzeltmesi bu açıktan atlatılabilirdi.
+
+**Düzeltme:** artık yalnızca gerçekten gerçekleşmiş siparişler sayılıyor — panelden onayladıkların (Hazırlanıyor / Kargoda / Teslim Edildi) ve kartla ödenmiş olanlar. Bekleyen ve iptal edilen siparişler puan da üyelik seviyesi de üretmiyor. Müşteri "puanım neden artmadı?" demesin diye hesap sayfasındaki yazı da akıllandı: onay bekleyen siparişi varsa **"Onay bekleyen 2 siparişin var — puanlar sipariş onaylanınca eklenir"** yazıyor.
+
+> Not: daha önce bekleyen siparişlerden puan görmüş bir müşteri varsa puanı düşecektir — çünkü o puanlar zaten gerçek bir alışverişin karşılığı değildi.
+
+### 3. Google adres otomatik tamamlama (kurulum gerekiyor)
+
+Adres formuna, müşteri sokak/mahalle yazmaya başladığında gerçek adres önerileri çıkaran Google tamamlama eklendi; öneriyi seçince **açık adres, ilçe, il ve posta kodu kendiliğinden doluyor**. Yanlış/eksik adres yüzünden geri dönen kargoları belirgin şekilde azaltır.
+
+**Şu an tamamen kapalı** — panele bir API anahtarı girilene kadar sitede Google'a ait tek bir satır bile yüklenmiyor, adres formu bugünkü gibi elle dolduruluyor. Anahtar hatalıysa ya da Google'a ulaşılamazsa da form normal çalışmaya devam eder; adres girişi hiçbir koşulda Google'a bağımlı hale gelmiyor.
+
+**Kurulum (senin yapman gereken):**
+
+1. [console.cloud.google.com](https://console.cloud.google.com/) adresine kendi Google hesabınla gir, yeni bir proje oluştur.
+2. Faturalandırmayı etkinleştir (kart tanımlaman gerekiyor — Google'ın aylık ücretsiz kullanım kotası küçük bir mağaza için fazlasıyla yeterli, pratikte ücret çıkmaz).
+3. "API'ler ve Hizmetler" bölümünden şu ikisini etkinleştir: **Places API (New)** ve **Maps JavaScript API**.
+4. "Kimlik Bilgileri" → "API anahtarı oluştur".
+5. **Anahtarı mutlaka kısıtla:** oluşturduğun anahtara tıkla → "Uygulama kısıtlamaları" → "HTTP yönlendirenleri" → `sonyacollection.com/*` ekle. (Anahtar sitenin kaynak kodunda görünür — Google'ın tasarımı böyle — bu yüzden kısıtlama önemli, aksi halde başkası senin kotanı kullanabilir.)
+6. Anahtarı **Panel → Ayarlar → Adres Otomatik Tamamlama (Google)** kutusuna yapıştırıp kaydet.
+
+> Teknik not: Google, 1 Mart 2025'ten sonra açılan hesaplarda eski adres tamamlama bileşenini kapattı. Senin anahtarın yeni olacağı için kodu Google'ın **yeni** API'siyle (PlaceAutocompleteElement) yazdım — eski yöntemle yazsaydım anahtarınla hiç çalışmazdı.
+
+### 4. Hoş geldin kuponunda gerçek e-posta doğrulaması
+
+Önceden ziyaretçi herhangi bir şey yazınca (`asd@asd.com` bile) indirim kodu anında görünüyordu; ne adresin gerçek olduğu ne de kişinin ona erişebildiği doğrulanıyordu.
+
+Artık: ziyaretçi e-postasını yazar → **Firebase kendi altyapısından bir doğrulama bağlantısı gönderir** → ziyaretçi kendi posta kutusundan bağlantıya tıklar → siteye doğrulanmış olarak döner ve indirim kodu o zaman görünür. Kod, doğrulama tamamlanmadan hiçbir şekilde ekrana gelmiyor (bunu ayrıca test ettim).
+
+Yan faydası: pazarlama listene artık yalnızca **doğrulanmış** e-postalar düşüyor (panelde kaynağı `welcome-dogrulanmis` olarak görünür), ve doğrulayan kişi aynı zamanda üye olmuş oluyor.
+
+Bu yöntem Firebase'in kendi e-posta altyapısını kullanıyor: **ücretsiz** ve EmailJS'in aylık 200 e-posta kotasını harcamıyor.
+
+**Kurulum (senin yapman gereken — tek seferlik, 1 dakika):** Firebase Console → **Authentication** → **Sign-in method** → **Email/Password** sağlayıcısını aç ve hemen altındaki **"Email link (passwordless sign-in)"** seçeneğini de işaretleyip kaydet. Bu açılmadan bağlantı gönderilemez (ziyaretçiye kibar bir "birazdan tekrar dene" mesajı gösterilir, site bozulmaz).
+
+> Neden 6 haneli kod göndermedik: sitenin kendi arka uç sunucusu olmadığı için kodu ziyaretçinin tarayıcısı üretmek zorunda kalırdı — yani kodu bilen taraf zaten ziyaretçinin kendisi olurdu. Görüntüde doğrulama olur, gerçekte atlatılabilirdi. Firebase'in bağlantı yöntemi ise gerçekten doğruluyor.
+
+### Bu turda ayrıca düzeltilen bir hata
+
+Adres tamamlama alanını test ederken şunu yakaladım: alana verdiğim `display:flex` kuralı, HTML'in `hidden` özelliğini eziyordu — yani Google anahtarı hiç girilmemişken bile boş bir "Adres Ara" kutusu görünecekti. Düzeltildi ve test edildi (anahtar yokken alan gizli, Google'a tek istek gitmiyor).
+
+### Yapılan testler
+
+- 15 HTML dosyasında JavaScript sözdizimi kontrolü (55 blok) — temiz.
+- 16 sayfa gerçek tarayıcıda açıldı — JavaScript hatası yok.
+- **Sadakat puanı için 9 birim testi** (bekleyen/iptal/onaylı/kargoda/teslim/kartla ödenmiş kombinasyonları + sahte siparişle Altın üyelik denemesi) — hepsi geçti.
+- Karşılama penceresi: geçersiz e-posta reddediliyor, **kupon kodu doğrulama olmadan ekrana gelmiyor**, sayfa açılışında Google'a hiç istek gitmiyor.
+- Adres tamamlama: anahtar yokken alan gizli ve hiç script yüklenmiyor; anahtar varken Google çağrılıyor; Google'a ulaşılamazsa alan gizleniyor ve form elle doldurulmaya devam ediyor.
+- Sunucu tarafı fiyat/kargo/kupon testleri (22 test) ve sepet/yasal onay/favori akışları yeniden çalıştırıldı — hepsi temiz.
+
+### Senin yapman gereken işler (özet)
+
+1. **Firebase Console** → Authentication → Sign-in method → "Email link (passwordless sign-in)" seçeneğini aç (4. madde).
+2. **Google Cloud** → anahtar oluştur → panele gir (3. madde) — istersen sonra.
+3. Yasal metinlerdeki köşeli parantezler (şirket/şahıs adı, adres, telefon), ETBİS kaydı, iyzico başvurusu, kargo ücreti ve WhatsApp numarası — önceki turlardan devam eden liste, aşağıda duruyor.
+
+## Bir önceki round — "anasayfa boş" sorununun sebebi (www / www'suz ayrımı)
+
+Siteni canlıda baştan sona inceledim. **Sunucudaki dosyalarda bir sorun yok:** `sonyacollection.com` ve `www.sonyacollection.com` adreslerinin ikisi de aynı dosyayı sunuyor (aynı boyut, aynı tarih, aynı sürüm), HTML eksiksiz geliyor, fotoğrafların hepsi iniyor, konsolda hata yok. Temiz bir tarayıcıda açtığımda anasayfa da ürünler de eksiksiz görünüyor.
+
+Sorun şu: **siten iki ayrı adresten birden yayında** — `www` olan ve olmayan. Tarayıcılar bu ikisini **birbirinden tamamen ayrı iki site** sayar. Yani:
+
+- Sepet, favoriler ve çerez tercihi ikisinde ayrı ayrı tutulur (birinde sepete attığın ürün diğerinde görünmez).
+- Sitenin "uygulama gibi kurulabilme" özelliği için kullandığı önbellek de ikisinde ayrı. Yeni dosyaları yükledikten sonra bir adreste güncel sayfayı, diğerinde tarayıcıda **takılı kalmış eski bir kopyayı** görebilirsin — senin yaşadığın tam olarak bu.
+- Google da ikisini ayrı ayrı indeksliyor; gönderdiğin arama ekran görüntüsünde de zaten aynı site iki kez çıkıyor (1. sırada www'suz, 4. sırada www'lu).
+
+**Kalıcı çözüm bu zip'te:** `.htaccess` dosyasına, `www` ile gelen her ziyaretçiyi www'suz adrese yönlendiren kalıcı bir kural eklendi (sayfa yolu korunuyor: `/yeni-sezon.html` yine `/yeni-sezon.html` açılıyor). Sitedeki canonical etiketleri ve site haritası zaten www'suz adresi gösterdiği için doğru yön bu. **`.htaccess` gizli bir dosya olduğu için Dosya Yöneticisi'nde "Gizli dosyaları göster" seçeneğini açman gerekebilir.**
+
+**Kendi telefonunda/bilgisayarında şimdi yapman gereken (tek seferlik):** takılı kalan eski kopyayı temizlemek için siteyi bir kez **sayfayı zorla yenile** (telefonda en kolayı: gizli/özel sekmede aç, ya da tarayıcı ayarlarından `sonyacollection.com` için site verilerini temizle). Zip'i yükledikten sonra bunu bir kez yapman yeterli; sonrasında tek adres kaldığı için bir daha yaşanmaz.
+
+## ⚠️ Yükleme şekli geçen turda DEĞİŞTİ — önce şunu okuyun
+
+Zip'in içinde **`img` adında bir klasör** var (6 fotoğraf, 2 formatta). Bu klasör **`public_html`'in içine, diğer dosyalarla aynı yere** yüklenmeli. Yüklemezseniz sitedeki büyük vitrin fotoğrafları görünmez.
+
+## Bu turda ne değişti (2026-09-04 — sadeleştirme, Türkçe düzeltmeleri ve yeni renk tonu)
+
+### 1. Renkler yumuşak açık kahveye geçti
+
+Sitenin ve yönetim panelinin ana metin/vurgu renkleri, istediğiniz gibi daha yumuşak ve sıcak bir açık kahve tonuna alındı:
+
+| | Eskiden | Şimdi |
+|---|---|---|
+| Ana metin | `#59442F` (koyu espresso) | `#6E5744` (yumuşak kahve) |
+| Vurgu / butonlar | `#928273` (gri-kahve) | `#946C44` (sıcak açık kahve) |
+| Bağlantı / kalın vurgu | `#706358` | `#7E5E3A` |
+
+Eski vurgu rengi grimsiydi; yeni ton "Sonya COLLECTION" logosundaki sıcak kahveyle uyumlu. Karanlık mod da aynı yönde ısıtıldı ve test edildi.
+
+Bunu yaparken okunabilirliği ölçtüm — renk seçerken göz kararıyla değil kontrast oranıyla ilerledim:
+
+- Gövde metni krem zeminde **6,3:1** (WCAG AA sınırı 4,5:1 — rahat üstünde).
+- Butonlardaki beyaz yazı **3,6:1'den 4,6:1'e çıktı** — yani eski gri vurgu rengi aslında erişilebilirlik sınırının *altındaydı*, yeni ton hem daha sıcak hem daha okunaklı.
+- Sönük/ikincil metnin şeffaflığı %70'ten %80'e çıkarıldı; yeni ana ton daha açık olduğu için aksi halde okunabilirlik düşerdi.
+
+### 2. Kategori filtresi çipleri ve sıralama menüsü kaldırıldı
+
+Ürün listesinin üstündeki "Tümü / İndirim / Yeni Sezon / Pelerinler…" çipleri ve "Önerilen Sıralama" menüsü kaldırıldı. Kategorilere üst menüden (ve mobil menüden) gidilmeye devam ediliyor.
+
+**Küçük bir ek:** çipler kaldırılınca, kalp ikonuna basıp favorilerine bakan ziyaretçinin geri dönebileceği bir yol kalmıyordu (kilitlenip kalıyordu). Bu yüzden favoriler görünümünde ürün listesinin üstünde **"‹ Tüm ürünler"** bağlantısı beliriyor; anasayfada tüm ürünlere, kategori sayfalarında o kategoriye geri dönüyor. Sadece favoriler görünümünde görünüyor, normalde gizli.
+
+> **Bilmeniz gereken:** sıralama menüsüyle birlikte "Fiyat: Düşükten Yükseğe / Yüksekten Düşüğe / En Yeni" seçenekleri de gitti. İsterseniz çipler olmadan sadece sıralama menüsünü geri koyabilirim — söylemeniz yeterli.
+
+### 3. "Yeni Gelenler / Bu Haftanın Seçkisi" bölümü kaldırıldı — ve altından bir hata çıktı
+
+O bölüm aslında **"Son Görüntülenenler"** bölümüydü. Bir hata yüzünden başlığı yanlış yazılıyordu: kod, sayfadaki *ilk* başlık alanını bulup mağaza başlığını oraya yazıyordu; anasayfada mağaza bölümünün kendi başlığı olmadığı için yazı yanlışlıkla "Son Görüntülenenler" bölümünün başlığına gidiyordu. Yani ziyaretçi, daha önce baktığı ürünleri "Bu Haftanın Seçkisi" başlığı altında görüyordu.
+
+İstediğiniz gibi bölüm tamamen kaldırıldı (başlık hatası da kendiliğinden ortadan kalktı). Geride kullanılmayan kod bırakılmadı; ürün görüntüleme geçmişi de artık tarayıcıya hiç kaydedilmiyor.
+
+### 4. Türkçe düzeltmeleri (tüm site tarandı)
+
+Sitedeki bütün görünür metinleri (463 ayrı metin) çıkarıp taradım. Bulunanlar:
+
+- **"Bununla da İlgini Çekebilir" → "Bunlar da İlgini Çekebilir"** — özne çoğul olduğu için doğrusu bu (diğer kurumsal sitelerde de "Bunlar da ilginizi çekebilir" biçiminde geçiyor).
+- **"Sorularin olursa…" → "Soruların olursa…"** — müşteriye giden sipariş onay e-postasındaki yazım hatası.
+- **Çerez bandı:** "**Size** daha iyi bir alışveriş deneyimi sunmak… inceleyebilir**sin**" — aynı cümlede hem "siz" hem "sen" vardı. Site genelinde samimi dil kullanıldığı için "Sana daha iyi…" olarak düzeltildi.
+- **Müşteriye gösterilen 4 hata mesajında geliştirici dili kalmış:** "Bu önizlemede çalışmayabilir; siteni kendi adresine yükledikten sonra tekrar dene" ve "**Firebase** bilgileri eklenip site kendi adresine yüklendiğinde aktif olacak" gibi cümleler müşteriye görünüyordu. Hepsi normal müşteri diline çevrildi ("İnternet bağlantına ulaşamadık…", "Üyelik sistemine şu an ulaşılamıyor…").
+- **Para birimi yazımı:** üst banttaki "1.500₺" ve sadakat puanı metinlerindeki "50₺" → site genelindeki gibi araya boşluk ("1.500 ₺", "50 ₺").
+- **E-posta konusu** "Siparişiniz Alındı" → "Siparişin Alındı" (e-postanın gövdesi zaten "Siparişin bize ulaştı" diyordu, konu satırı tek başına resmî kalmıştı).
+- **"Örme Two-Piece Set" → "Örme İkili Takım"** — Türkçe sitedeki tek İngilizce ürün adı. Not: bu isim koddaki varsayılan listede düzeltildi; sitede görünen ürün adı Firestore'dan geliyorsa aynı ismi **panelden de** düzeltmeniz gerekiyor.
+
+Ayrıca "birşey/herşey/yalnız" gibi klasik yazım hataları, büyük/küçük İ-I karışıklıkları ve sen/siz tutarsızlıkları için tüm metinler otomatik tarandı — başka bir şey çıkmadı.
+
+### 5. Tıklanabilirlik ve bozuk format taraması
+
+Masaüstü (1280px) ve mobil (390px) genişliklerde, 8 sayfada otomatik denetim yaptım:
+
+- **Yatay taşma yok**, **kırpılan/taşan yazı yok**, **boş buton/başlık yok**, **hiçbir yere gitmeyen ölü bağlantı yok.**
+- **Üç yerde dokunma hedefi çok küçüktü** (parmakla ıskalanacak kadar): vitrin altındaki noktalar (7px), ürün kartındaki renk yuvarlakları (14px) ve footer bağlantıları (16px yükseklik). Üçüne de görünmez tıklama alanı eklendi — **görünüm hiç değişmedi**, sadece tıklanabilir alan büyüdü. Test ettim: artık noktanın 9px, renk yuvarlağının 5px dışına basınca da çalışıyor.
+
+### Yapılan testler
+
+- 15 HTML dosyasında JavaScript sözdizimi kontrolü (55 blok) — temiz.
+- 16 sayfa gerçek tarayıcıda açıldı — JavaScript hatası yok.
+- Sunucu tarafı fiyat/kargo/kupon testleri (22 test) — hepsi geçti.
+- Sepet → kargo satırı → yasal onay kutusu akışı yeniden test edildi; onay kutusu işaretlenmeden sipariş hâlâ engelleniyor.
+- Favoriler → "‹ Tüm ürünler" dönüşü hem anasayfada hem kategori sayfasında test edildi.
+- Karanlık mod yeni renklerle kontrol edildi.
+
+## Bir önceki round (2026-09-04 — satışa hazırlık denetimi: kargo, yasal onay, hız, SEO)
 
 Siteyi "satışa hazır mı" gözüyle baştan sona inceledim. Aşağıdakilerin hepsi yapıldı ve test edildi.
 

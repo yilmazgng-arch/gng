@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://res.cloudinary.com">
 <link rel="preconnect" href="https://firestore.googleapis.com">
 <link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#59442F">
+<meta name="theme-color" content="#6E5744">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -67,17 +67,23 @@
     --cream-rgb:  251,247,241;
     --surface:    #F6EEDD;
     --surface-2:  #F3EADA;
-    --espresso:   #59442F;
-    --espresso-70:#59442FB3;
-    --caramel:    #928273;
-    --caramel-dk: #706358;
+    /* Ana metin tonu: eski koyu espresso yerine daha yumuşak, açık kahve.
+       Krem zemin üzerinde 6,3:1 kontrast — WCAG AA'nın (4,5:1) rahat üstünde. */
+    --espresso:   #6E5744;
+    /* İkincil/sönük metin. Alfa %70'ten %80'e çıkarıldı: yeni ana ton daha açık
+       olduğu için, eski %70 ile okunabilirlik düşerdi (3,2:1). Şimdi 4,0:1. */
+    --espresso-70:#6E5744CC;
+    /* Vurgu/buton rengi: eski gri-kahve (#928273) yerine sıcak açık kahve.
+       Üzerindeki beyaz yazıyla 4,6:1 — eskisi (3,6:1) AA sınırının altındaydı. */
+    --caramel:    #946C44;
+    --caramel-dk: #7E5E3A;
     --latte:      #DCB78E;
     --line:       #EEE3D1;
     --accent-ink: #FFFCF7;
-    --mocha:      #8A7058;
-    --mocha-rgb:  138,112,88;
+    --mocha:      #96754F;
+    --mocha-rgb:  150,117,79;
     --mocha-ink:  #FBF4E8;
-    --shadow:     0 20px 45px -25px rgba(89,68,47,0.14);
+    --shadow:     0 20px 45px -25px rgba(110,87,68,0.14);
     --radius-s: 4px;
     --radius-m: 10px;
     --radius-l: 22px;
@@ -94,13 +100,13 @@
     --surface-2:  #443422;
     --espresso:   #F2E9DA;
     --espresso-70:#F2E9DAB3;
-    --caramel:    #D1CAC2;
-    --caramel-dk: #E3DEDA;
+    --caramel:    #D9BE97;
+    --caramel-dk: #E8D3B4;
     --latte:      #8A6F4E;
     --line:       #4E3D28;
     --accent-ink: #241E17;
-    --mocha:      #C7B8A2;
-    --mocha-rgb:  199,184,162;
+    --mocha:      #D8C3A4;
+    --mocha-rgb:  216,195,164;
     --mocha-ink:  #241E17;
     --shadow:     0 20px 45px -25px rgba(0,0,0,0.5);
   }
@@ -374,6 +380,17 @@
   @media (prefers-reduced-motion: reduce){ .pb-scene{animation:none !important;} }
 
   /* ============ Shop ============ */
+  /* Favoriler görünümünden çıkış — kategori çipleri kaldırıldığı için, favorilerine
+     bakan ziyaretçinin tüm ürünlere tek tıkla dönebilmesi gerekiyor. */
+  .shop-backlink{margin-bottom:14px;}
+  .shop-backlink button{
+    background:none;border:none;padding:0;
+    font-family:inherit;font-size:0.82rem;font-weight:700;
+    color:var(--espresso-70);cursor:pointer;
+    transition:color .2s ease;
+  }
+  .shop-backlink button:hover{color:var(--espresso);}
+
   .shop-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:28px;flex-wrap:wrap;}
   .filters{display:flex;gap:8px;flex-wrap:wrap;}
   .chip{
@@ -548,7 +565,6 @@
   .review-login-hint button{background:none;border:none;color:var(--caramel-dk);font-weight:700;text-decoration:underline;text-underline-offset:2px;padding:0;}
 
   /* ============ Sıralama ============ */
-  .shop-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
   .sort-select{
     border:1px solid var(--line);border-radius:var(--radius-m);padding:9px 14px;
     font-size:0.78rem;font-weight:700;color:var(--espresso-70);background:var(--surface);font-family:inherit;
@@ -642,6 +658,21 @@
     display:grid;grid-template-columns:1.3fr repeat(2,1fr);gap:32px;padding:clamp(48px,7vw,72px) 0 32px;
   }
   .foot-grid h4{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--caramel);margin-bottom:16px;}
+  /* ---------- Dokunma hedefi büyütmeleri ----------
+     Vitrin noktaları (7px), ürün kartındaki renk yuvarlakları (14px) ve footer
+     bağlantıları görsel olarak küçük; parmakla ıskalanmasınlar diye görünmez bir
+     tıklama alanıyla genişletiliyorlar. Görünüm hiç değişmiyor, yalnızca
+     tıklanabilir alan büyüyor. */
+  .vitrin-dots .dot{position:relative;}
+  .vitrin-dots .dot::after{content:"";position:absolute;inset:-11px;border-radius:50%;}
+  .card .swatch-btn{position:relative;}
+  .card .swatch-btn::after{content:"";position:absolute;inset:-6px;border-radius:50%;}
+  .foot-grid a{display:inline-block;padding:3px 0;}
+  @media (max-width:700px){
+    .foot-grid ul{gap:6px;}
+    .foot-grid a{padding:6px 0;}
+  }
+
   .foot-grid ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
   .foot-grid a{font-size:0.86rem;color:var(--espresso-70);transition:color .2s;}
   .foot-grid a:hover{color:var(--espresso);}
@@ -1074,6 +1105,15 @@
   }
   @media (prefers-reduced-motion: reduce){ .checkout-consent.needs-attention{animation:none;} }
 
+  /* Google adres tamamlama alanı — yalnızca panele API anahtarı girildiğinde görünür. */
+  .addr-autocomplete{display:flex;flex-direction:column;gap:6px;}
+  /* display:flex, HTML "hidden" özniteliğinin display:none kuralını ezdiği için
+     (yukarıdaki .badge[hidden] notuna bakınız) burada da açıkça sıfırlıyoruz —
+     aksi halde Google anahtarı girilmemişken bile boş bir "Adres Ara" kutusu görünürdü. */
+  .addr-autocomplete[hidden]{display:none;}
+  .addr-autocomplete gmp-place-autocomplete{width:100%;display:block;}
+  .addr-auto-hint{font-size:0.72rem;color:var(--espresso-70);line-height:1.45;}
+
   .auth-consent{display:flex;align-items:flex-start;gap:9px;margin-bottom:12px;}
   .auth-consent input{margin-top:3px;flex:0 0 auto;width:15px;height:15px;accent-color:var(--caramel-dk);cursor:pointer;}
   .auth-consent label{font-size:0.74rem;line-height:1.5;color:var(--espresso-70);cursor:pointer;}
@@ -1434,7 +1474,7 @@
 </svg>
 
 <!-- ============ Announcement ============ -->
-<div class="announce">Sonbahar/Kış 26 koleksiyonu geldi &nbsp;·&nbsp; <b id="shipInfo">1.500₺ üzeri kargo ücretsiz</b> &nbsp;·&nbsp; %30'a varan indirimler</div>
+<div class="announce">Sonbahar/Kış 26 koleksiyonu geldi &nbsp;·&nbsp; <b id="shipInfo">1.500 ₺ üzeri kargo ücretsiz</b> &nbsp;·&nbsp; %30'a varan indirimler</div>
 
 <!-- ============ Kampanya geri sayımı (yalnızca admin gerçek bir bitiş tarihi girdiyse) ============ -->
 <div class="campaign-bar" id="campaignBar" hidden>⏰ <span id="campaignBarLabel"></span> bitmesine: <b id="campaignBarTime"></b></div>
@@ -1555,30 +1595,11 @@
         <span class="eyebrow">Elbiseler</span>
         <h2 style="font-size:clamp(1.6rem,3vw,2.1rem);margin-top:8px;">Elbiseler Koleksiyonu</h2>
       </div>
-      <div class="shop-controls">
-        <div class="filters" id="filters"></div>
-        <select class="sort-select" id="fabricFilterSelect" aria-label="Kumaşa göre filtrele" hidden></select>
-        <select class="sort-select" id="sortSelect" aria-label="Ürünleri sırala">
-          <option value="onerilen">Önerilen Sıralama</option>
-          <option value="fiyat-artan">Fiyat: Düşükten Yükseğe</option>
-          <option value="fiyat-azalan">Fiyat: Yüksekten Düşüğe</option>
-          <option value="yeni">En Yeni</option>
-        </select>
-      </div>
     </div>
+    <div class="shop-backlink" id="shopBackLink" hidden><button type="button" id="backToAllBtn">‹ Tüm ürünler</button></div>
     <div class="grid" id="productGrid"></div>
   </section>
 
-  <!-- ============ Son Görüntülenenler ============ -->
-  <section class="wrap" id="recentlyViewedSection" hidden>
-    <div class="shop-head" style="margin-bottom:14px;">
-      <div>
-        <span class="eyebrow">Senin İçin</span>
-        <h2 style="font-size:clamp(1.3rem,2.4vw,1.7rem);margin-top:6px;">Son Görüntülenenler</h2>
-      </div>
-    </div>
-    <div class="recent-grid" id="recentlyViewedGrid"></div>
-  </section>
 
   <!-- ============ Öne çıkan yorumlar ============ -->
   <section class="wrap testi-section" id="testimonialsSection" hidden>
@@ -1758,7 +1779,7 @@
 <div class="cookie-banner" id="cookieBanner" hidden>
   <div class="cookie-banner-text">
     <strong>Çerez Kullanımı</strong>
-    Size daha iyi bir alışveriş deneyimi sunmak, site trafiğini analiz etmek ve kampanyalarımızı ölçmek için çerezler kullanıyoruz. Detaylar için <a href="#" data-info="cerez">Çerez Politikası</a>'nı inceleyebilirsin.
+    Sana daha iyi bir alışveriş deneyimi sunmak, site trafiğini analiz etmek ve kampanyalarımızı ölçmek için çerezler kullanıyoruz. Detaylar için <a href="#" data-info="cerez">Çerez Politikası</a>'nı inceleyebilirsin.
   </div>
   <div class="cookie-banner-actions">
     <button type="button" class="cookie-btn cookie-btn-reject" id="cookieEssentialBtn">Sadece Zorunlu Çerezler</button>
@@ -1862,7 +1883,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     {id:6, cat:"Kimonolar", icon:"g-coat", name:"İpek Karışımlı Uzun Kimono", price:1890, colors:["#3B2A1D"], sizes:["S","M","L"], stock:2, desc:"Yere yakın boyda, ipek karışımlı akıcı kimono. Hem ev hem dışarı için şık bir seçenek."},
     {id:7, cat:"Takımlar", icon:"g-set", name:"Keten İki Parça Takım", price:2150, oldPrice:2390, colors:["#EFE4D3","#3B2A1D"], sizes:["S","M","L"], stock:16, desc:"Keten karışımlı blazer ve pantolon takımı. Yazdan sonbahara geçiş parçası."},
     {id:8, cat:"Takımlar", icon:"g-set", name:"Simli Bluz & Pantolon Takımı", price:2390, colors:["#6E4526","#F6EFE4"], sizes:["S","M","L"], stock:7, desc:"Hafif simli dokulu bluz ve yüksek bel pantolondan oluşan davet takımı."},
-    {id:9, cat:"Takımlar", icon:"g-set", name:"Örme Two-Piece Set", price:1980, oldPrice:2640, colors:["#6E4526","#F6EFE4"], sizes:["S","M","L","XL"], stock:19, desc:"Kazak ve etek ikilisi, rahat ve şık bir günlük kombin."},
+    {id:9, cat:"Takımlar", icon:"g-set", name:"Örme İkili Takım", price:1980, oldPrice:2640, colors:["#6E4526","#F6EFE4"], sizes:["S","M","L","XL"], stock:19, desc:"Kazak ve etek ikilisi, rahat ve şık bir günlük kombin."},
     {id:10, cat:"Elbiseler", icon:"g-dress", name:"Saten Midi Elbise", price:1690, oldPrice:2410, colors:["#3B2A1D","#C79768"], sizes:["S","M","L"], stock:13, desc:"Kayan saten dokulu, ince askılı midi elbise. Davetler için ideal."},
     {id:11, cat:"Elbiseler", icon:"g-dress", name:"Krem Dantelli Elbise", price:2290, colors:["#F6EFE4"], sizes:["S","M","L"], stock:5, desc:"El işi dantel detaylı, uzun kollu zarif elbise."},
     {id:12, cat:"Elbiseler", icon:"g-dress", name:"Pudra Drape Elbise", price:1790, colors:["#C79768","#F6EFE4"], sizes:["S","M","L","XL"], stock:0, desc:"Yumuşak pudra tonunda, drape detaylı zarif midi elbise."}
@@ -2007,6 +2028,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     phone: "",
     shippingThreshold: 1500,
     shippingFee: 0, // Kargo ücreti (TL). 0 = tüm siparişlerde ücretsiz kargo. Ayarlar → Kargo'dan değiştirilir; eşiğin üzerindeki siparişlerde ve altın üyelerde alınmaz
+    googleMapsKey: "", // Panel → Ayarlar'a girilirse adres formunda Google adres tamamlama açılır, boşsa hiç yüklenmez
     iyzicoEnabled: false,
     welcomeCouponCode: "", // Ayarlar → Pazarlama'da tanımlanırsa ilk ziyaretçi indirim kodu açılır penceresi gösterilir
     deliveryEstimate: "", // Ayarlar'da tanımlanırsa ürün sayfasında "Tahmini teslimat: ..." gösterilir (boşsa hiç gösterilmez)
@@ -2456,11 +2478,11 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         (order.discount ? 'İndirim: -' + order.discount + ' ₺\n' : '') +
         (order.shipping ? 'Kargo: ' + order.shipping + ' ₺\n' : '') +
         'Toplam: ' + order.total + ' ₺\n\n' +
-        'Sorularin olursa bize WhatsApp\'tan ulaşabilirsin.';
+        'Soruların olursa bize WhatsApp\'tan ulaşabilirsin.';
       emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_CUSTOMER_TEMPLATE_ID, {
         customer_email: order.userEmail,
         customer_name: order.userName || 'Merhaba',
-        email_title: 'Siparişiniz Alındı',
+        email_title: 'Siparişin Alındı',
         email_body: bodyText
       }).catch(function(err){
         console.warn('Müşteri sipariş onay e-postası gönderilemedi:', err && (err.text || err.message));
@@ -2865,43 +2887,6 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     return '<div class="product-video-wrap"><video src="'+escapeHtmlLocal(p.videoURL)+'" controls playsinline preload="metadata" muted loop></video></div>';
   }
 
-  // ---------- Son Görüntülenenler ----------
-  var RECENT_VIEWED_KEY = 'sonya_recent_viewed';
-  var MAX_RECENT_VIEWED = 12;
-  function loadRecentlyViewedIds(){
-    try{
-      var raw = localStorage.getItem(RECENT_VIEWED_KEY);
-      var list = raw ? JSON.parse(raw) : [];
-      return Array.isArray(list) ? list : [];
-    }catch(e){ return []; }
-  }
-  function trackRecentlyViewed(id){
-    try{
-      var list = loadRecentlyViewedIds().filter(function(x){ return x !== id; });
-      list.unshift(id);
-      if(list.length > MAX_RECENT_VIEWED) list = list.slice(0, MAX_RECENT_VIEWED);
-      localStorage.setItem(RECENT_VIEWED_KEY, JSON.stringify(list));
-    }catch(e){ /* bu özellik olmadan da site sorunsuz çalışmaya devam etmeli */ }
-  }
-  function renderRecentlyViewed(){
-    var section = document.getElementById('recentlyViewedSection');
-    var grid = document.getElementById('recentlyViewedGrid');
-    if(!section || !grid) return;
-    if(typeof CURRENT_PAGE_ACCOUNT !== 'undefined' && CURRENT_PAGE_ACCOUNT){ section.hidden = true; return; }
-    var items = loadRecentlyViewedIds().map(byId).filter(Boolean).slice(0, 8);
-    if(!items.length){ section.hidden = true; return; }
-    section.hidden = false;
-    grid.innerHTML = items.map(function(o){
-      return '<button type="button" class="related-card" data-open="'+o.id+'">' +
-        '<span class="r-thumb" style="background-image:url('+photoFor(o)+')"></span>' +
-        '<span class="r-name">'+o.name+'</span>' +
-        '<span class="r-price">'+money(o.price)+'</span>' +
-      '</button>';
-    }).join('');
-    grid.querySelectorAll('[data-open]').forEach(function(btn){
-      btn.addEventListener('click', function(){ openModal(parseInt(btn.dataset.open, 10)); });
-    });
-  }
   function discountPct(p){ return p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0; }
   function priceHtml(p){
     return p.oldPrice
@@ -3116,7 +3101,11 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     renderGrid();
     goToShopSection(cat);
   }
+  // Kategori filtresi çipleri ve sıralama menüsü mağaza bölümünden kaldırıldı —
+  // kategorilere üst menüden (ve mobil menüden) gidiliyor. Fonksiyonlar, ileride
+  // yeniden eklenmek istenirse diye duruyor ama sayfada karşılığı yoksa hiçbir şey yapmıyor.
   function renderFilters(){
+    if(!filtersEl) return;
     filtersEl.innerHTML = '';
     CATEGORIES.forEach(function(cat){
       var b = document.createElement('button');
@@ -3126,11 +3115,13 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       filtersEl.appendChild(b);
     });
   }
-  filtersEl.addEventListener('click', function(e){
-    var b = e.target.closest('.chip');
-    if(!b) return;
-    selectCategory(b.dataset.cat);
-  });
+  if(filtersEl){
+    filtersEl.addEventListener('click', function(e){
+      var b = e.target.closest('.chip');
+      if(!b) return;
+      selectCategory(b.dataset.cat);
+    });
+  }
   renderFilters();
   renderFabricFilter();
 
@@ -3326,8 +3317,22 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       document.head.appendChild(el);
     }catch(e){ /* yapılandırılmış veri sayfayı asla bozmamalı */ }
   }
+  // Favoriler görünümündeyken "‹ Tüm ürünler" bağlantısını göster: kategori
+  // çipleri kaldırıldığı için ziyaretçinin geri dönebileceği tek yol bu.
+  function updateShopBackLink(){
+    var el = document.getElementById('shopBackLink');
+    if(!el) return;
+    el.hidden = state.filter !== FAV_VIEW;
+  }
+  (function(){
+    var backBtn = document.getElementById('backToAllBtn');
+    if(!backBtn) return;
+    backBtn.addEventListener('click', function(){
+      selectCategory(CURRENT_PAGE_CATEGORY || 'Tümü');
+    });
+  })();
   function renderGrid(){
-    renderRecentlyViewed();
+    updateShopBackLink();
     gridEl.innerHTML = '';
     var shopHead = document.querySelector('.shop-head .eyebrow');
     var shopTitle = document.querySelector('.shop-head h2');
@@ -3983,7 +3988,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     });
     more = more.slice(0, 3);
     return productRowHtml('Bu Ürünle Kombinle', 'Birlikte şık duran parçalar', combo) +
-           productRowHtml('Bununla da İlgini Çekebilir', 'Seçkimizden öne çıkan diğer parçalar', more);
+           productRowHtml('Bunlar da İlgini Çekebilir', 'Seçkimizden öne çıkan diğer parçalar', more);
   }
   function trustRowHtml(){
     return '<div class="trust-row">' +
@@ -4299,6 +4304,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
   // siteye ilk kez gelen ziyaretçiye bir kez gösterilir. E-posta bırakınca gerçek,
   // panelde tanımlı bir kupon kodu gösterilir — uydurma bir indirim değil.
   var WELCOME_SEEN_KEY = 'sonya_welcome_seen';
+  var WELCOME_PENDING_EMAIL_KEY = 'sonya_welcome_email';
   var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
   function maybeShowWelcomePopup(){
     try{
@@ -4317,15 +4323,115 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     var wrap = document.getElementById('welcomeWrap');
     if(wrap) wrap.classList.remove('open');
   }
+
+  // İndirim kodunu gösteren ekran — hem doğrulama dönüşünde hem (kod zaten
+  // alınmışsa) tekrar açıldığında aynı görünüm kullanılıyor.
+  function renderWelcomeCodeScreen(){
+    var body = document.getElementById('welcomeBody');
+    if(!body) return;
+    var codeLabel = SETTINGS.welcomeCouponCode;
+    function paint(valueLabel){
+      body.innerHTML =
+        '<span class="eyebrow welcome-eyebrow">E-postan doğrulandı ✓</span>' +
+        '<h3>Kodun Hazır</h3>' +
+        (valueLabel ? '<p>Sepette bu kodu uygulayınca <b>'+valueLabel+'</b> kazanıyorsun.</p>' : '<p>Sepette bu kodu uygula.</p>') +
+        '<div class="welcome-code-box"><div class="welcome-code">'+escapeHtmlLocal(codeLabel)+'</div><div class="welcome-code-hint">Sepet → Kupon kodu kutusuna yapıştır</div></div>' +
+        '<button type="button" class="btn welcome-copy-btn" id="welcomeCopyBtn">Kodu Kopyala</button>';
+      var copyBtn = document.getElementById('welcomeCopyBtn');
+      if(copyBtn) copyBtn.addEventListener('click', function(){
+        try{
+          navigator.clipboard.writeText(codeLabel);
+          copyBtn.textContent = 'Kopyalandı!';
+          setTimeout(function(){ copyBtn.textContent = 'Kodu Kopyala'; }, 1800);
+        }catch(e){}
+      });
+    }
+    try{ localStorage.setItem(WELCOME_SEEN_KEY, '1'); }catch(e){}
+    if(!firebaseReady){ paint(''); return; }
+    firebase.firestore().collection('coupons').doc(codeLabel).get().then(function(doc){
+      var valueLabel = '';
+      if(doc.exists && doc.data()){
+        var d = doc.data();
+        valueLabel = d.type === 'amount' ? (money(d.value) + ' indirim') : ('%' + d.value + ' indirim');
+      }
+      paint(valueLabel);
+    }).catch(function(){ paint(''); });
+  }
+
+  // ---------- E-posta doğrulama (Firebase e-posta linki) ----------
+  // Eskiden ziyaretçi herhangi bir e-posta yazınca kod anında görünüyordu; yani ne
+  // adresin gerçek olduğu ne de kişinin ona erişebildiği doğrulanıyordu. Artık kod,
+  // ancak Firebase'in gönderdiği linke kendi posta kutusundan tıklandıktan sonra
+  // görünüyor. Bu yöntem Firebase'in kendi altyapısını kullandığı için ücretsizdir ve
+  // EmailJS kotanı harcamaz.
+  //
+  // KURULUM (bir kez): Firebase Console → Authentication → Sign-in method →
+  // "Email/Password" sağlayıcısını aç ve altındaki "Email link (passwordless sign-in)"
+  // seçeneğini de işaretle. Bu açılmadan link gönderilemez (kullanıcıya "şu an
+  // gönderilemedi" mesajı gösterilir, site bozulmaz).
+  function welcomeActionCodeSettings(){
+    return { url: location.origin + '/?hosgeldin=1', handleCodeInApp: true };
+  }
+  function renderWelcomeSentScreen(email){
+    var body = document.getElementById('welcomeBody');
+    if(!body) return;
+    body.innerHTML =
+      '<span class="eyebrow welcome-eyebrow">Son Bir Adım</span>' +
+      '<h3>Postanı Kontrol Et</h3>' +
+      '<p><b>'+escapeHtmlLocal(email)+'</b> adresine bir doğrulama bağlantısı gönderdik. Bağlantıya tıkladığında siteye geri döneceksin ve indirim kodun ekranda görünecek.</p>' +
+      '<p class="welcome-code-hint">Postayı göremiyorsan spam/gereksiz klasörüne de bakmayı unutma.</p>' +
+      '<button type="button" class="welcome-dismiss" id="welcomeDismissBtn">Kapat</button>';
+    var d = document.getElementById('welcomeDismissBtn');
+    if(d) d.addEventListener('click', function(){
+      var wrap = document.getElementById('welcomeWrap');
+      if(wrap) wrap.classList.remove('open');
+    });
+  }
+  // Ziyaretçi posta kutusundaki bağlantıya tıklayıp siteye döndüğünde çalışır.
+  function handleWelcomeEmailLinkReturn(){
+    try{
+      if(!firebaseReady || !firebase.auth) return;
+      if(!firebase.auth().isSignInWithEmailLink(location.href)) return;
+      var email = '';
+      try{ email = localStorage.getItem(WELCOME_PENDING_EMAIL_KEY) || ''; }catch(e){}
+      // Bağlantı başka bir cihazda açıldıysa e-posta hafızada olmaz; o zaman soruyoruz.
+      if(!email) email = window.prompt('Doğrulamayı tamamlamak için e-posta adresini tekrar yaz:') || '';
+      if(!EMAIL_RE.test(email)) return;
+      firebase.auth().signInWithEmailLink(email, location.href).then(function(){
+        try{ localStorage.removeItem(WELCOME_PENDING_EMAIL_KEY); }catch(e){}
+        // Adresteki tek kullanımlık doğrulama parametrelerini temizle.
+        try{ history.replaceState(null, '', location.pathname); }catch(e){}
+        // Artık DOĞRULANMIŞ bir e-posta: pazarlama listesine şimdi yazılıyor.
+        try{
+          firebase.firestore().collection('leads').add({
+            email: email,
+            // Firestore kuralı leads belgesinde yalnızca 4 alana izin veriyor, bu yüzden
+            // "doğrulandı" bilgisini ayrı bir alan yerine kaynak adında taşıyoruz —
+            // böylece güvenlik kurallarını değiştirmeye gerek kalmıyor.
+            source: 'welcome-dogrulanmis',
+            page: location.pathname,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          }).catch(function(){});
+        }catch(e){}
+        if(!SETTINGS.welcomeCouponCode) return;
+        renderWelcomeCodeScreen();
+        var wrap = document.getElementById('welcomeWrap');
+        if(wrap) wrap.classList.add('open');
+      }).catch(function(err){
+        console.warn('E-posta doğrulama tamamlanamadı:', err && err.message);
+      });
+    }catch(e){ /* doğrulama akışı sitenin geri kalanını asla etkilemesin */ }
+  }
+
   function renderWelcomeModal(){
     var body = document.getElementById('welcomeBody');
     body.innerHTML =
       '<span class="eyebrow welcome-eyebrow">Hoş Geldin</span>' +
       '<h3>İlk Siparişine Özel</h3>' +
-      '<p>E-posta adresini bırak, sana özel indirim kodunu hemen görelim.</p>' +
+      '<p>E-posta adresini bırak, doğrulama bağlantısını gönderelim — bağlantıya tıkladığında indirim kodun hemen görünsün.</p>' +
       '<div class="welcome-form">' +
         '<input type="email" id="welcomeEmail" placeholder="E-posta adresin" autocomplete="email">' +
-        '<button type="button" class="btn welcome-submit" id="welcomeSubmitBtn">İndirim Kodumu Gönder</button>' +
+        '<button type="button" class="btn welcome-submit" id="welcomeSubmitBtn">Doğrulama Bağlantısı Gönder</button>' +
       '</div>' +
       '<div class="welcome-error" id="welcomeError"></div>' +
       '<button type="button" class="welcome-dismiss" id="welcomeDismissBtn">Belki sonra</button>';
@@ -4341,46 +4447,23 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         errEl.classList.add('show');
         return;
       }
-      if(!firebaseReady){
+      if(!firebaseReady || !firebase.auth){
         errEl.textContent = 'Şu an bağlantı yok, birazdan tekrar dene.';
         errEl.classList.add('show');
         return;
       }
       submitBtn.disabled = true; submitBtn.textContent = 'Gönderiliyor…';
-      var db = firebase.firestore();
-      db.collection('leads').add({
-        email: email,
-        source: 'welcome-popup',
-        page: location.pathname,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(function(){
-        return db.collection('coupons').doc(SETTINGS.welcomeCouponCode).get();
-      }).then(function(doc){
-        var codeLabel = SETTINGS.welcomeCouponCode;
-        var valueLabel = '';
-        if(doc.exists && doc.data()){
-          var d = doc.data();
-          valueLabel = d.type === 'amount' ? (money(d.value) + ' indirim') : ('%' + d.value + ' indirim');
-        }
-        try{ localStorage.setItem(WELCOME_SEEN_KEY, '1'); }catch(e){}
-        body.innerHTML =
-          '<span class="eyebrow welcome-eyebrow">Teşekkürler!</span>' +
-          '<h3>Kodun Hazır</h3>' +
-          (valueLabel ? '<p>Sepette bu kodu uygulayınca <b>'+valueLabel+'</b> kazanıyorsun.</p>' : '<p>Sepette bu kodu uygula.</p>') +
-          '<div class="welcome-code-box"><div class="welcome-code">'+escapeHtmlLocal(codeLabel)+'</div><div class="welcome-code-hint">Sepet → Kupon kodu kutusuna yapıştır</div></div>' +
-          '<button type="button" class="btn welcome-copy-btn" id="welcomeCopyBtn">Kodu Kopyala</button>';
-        var copyBtn = document.getElementById('welcomeCopyBtn');
-        if(copyBtn) copyBtn.addEventListener('click', function(){
-          try{
-            navigator.clipboard.writeText(codeLabel);
-            copyBtn.textContent = 'Kopyalandı!';
-            setTimeout(function(){ copyBtn.textContent = 'Kodu Kopyala'; }, 1800);
-          }catch(e){}
-        });
+      firebase.auth().sendSignInLinkToEmail(email, welcomeActionCodeSettings()).then(function(){
+        try{ localStorage.setItem(WELCOME_PENDING_EMAIL_KEY, email); }catch(e){}
+        renderWelcomeSentScreen(email);
       }).catch(function(err){
-        errEl.textContent = 'Bir şeyler ters gitti: ' + (err && err.message ? err.message : 'bilinmeyen hata');
+        var code = (err && err.code) || '';
+        errEl.textContent = (code === 'auth/operation-not-allowed' || code === 'auth/unauthorized-continue-uri')
+          ? 'Doğrulama e-postası şu an gönderilemiyor. Birazdan tekrar dener misin?'
+          : 'Doğrulama e-postası gönderilemedi, birazdan tekrar dene.';
         errEl.classList.add('show');
-        submitBtn.disabled = false; submitBtn.textContent = 'İndirim Kodumu Gönder';
+        submitBtn.disabled = false; submitBtn.textContent = 'Doğrulama Bağlantısı Gönder';
+        console.warn('sendSignInLinkToEmail hatası:', code, err && err.message);
       });
     }
     submitBtn.addEventListener('click', doSubmit);
@@ -4838,8 +4921,6 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       showToast('Bu ürün şu an sadece Altın üyelere özel erken erişimde.');
       return;
     }
-    trackRecentlyViewed(id);
-    renderRecentlyViewed();
     trackEvent('view_item', 'ViewContent', { currency: 'TRY', value: p.price, items: [{ item_id: id, item_name: p.name }] });
     joinProductPresence(id);
     var isFav = !!state.favs[id];
@@ -5586,7 +5667,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         'auth/wrong-password': 'Şifre hatalı görünüyor.',
         'auth/invalid-credential': 'E-posta veya şifre hatalı.',
         'auth/too-many-requests': 'Çok fazla deneme yapıldı, biraz sonra tekrar dene.',
-        'auth/network-request-failed': 'Şu an hesap sistemine bağlanılamadı. Bu önizlemede çalışmayabilir; siteni kendi adresine yükledikten sonra tekrar dene.'
+        'auth/network-request-failed': 'İnternet bağlantına ulaşamadık. Bağlantını kontrol edip tekrar dener misin?'
       };
       return map[code] || 'Bir şeyler ters gitti, lütfen tekrar dene.';
     }
@@ -5611,7 +5692,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       document.getElementById('backToLogin').addEventListener('click', function(){ mode = 'login'; renderAuthForm(); });
       document.getElementById('authFormEl').addEventListener('submit', function(e){
         e.preventDefault();
-        if(!firebaseReady){ showAuthError('Hesap sistemi henüz bağlı değil.'); return; }
+        if(!firebaseReady){ showAuthError('Üyelik sistemine şu an ulaşılamıyor. Birazdan tekrar dener misin?'); return; }
         var email = document.getElementById('fpEmail').value.trim();
         firebase.auth().sendPasswordResetEmail(email).then(function(){
           showToast('Sıfırlama bağlantısı e-postana gönderildi');
@@ -5642,7 +5723,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
           '<button type="submit" class="btn auth-submit">' + (isRegister ? 'Üye Ol' : 'Giriş Yap') + '</button>' +
         '</form>' +
         '<p class="auth-alt">' + (isRegister ? 'Zaten hesabın var mı? ' : 'Hesabın yok mu? ') + '<button type="button" id="switchMode">' + (isRegister ? 'Giriş yap' : 'Üye ol') + '</button></p>' +
-        (!firebaseReady ? '<p class="auth-hint">Hesap sistemi henüz bağlanmadı — Firebase bilgileri eklenip site kendi adresine yüklendiğinde aktif olacak.</p>' : '');
+        (!firebaseReady ? '<p class="auth-hint">Üyelik sistemine şu an ulaşılamıyor. Birazdan tekrar dener misin?</p>' : '');
 
       document.querySelectorAll('.auth-tab').forEach(function(tab){
         tab.addEventListener('click', function(){ mode = tab.dataset.mode; renderAuthForm(); });
@@ -5654,7 +5735,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       document.getElementById('authFormEl').addEventListener('submit', function(e){
         e.preventDefault();
         if(!firebaseReady){
-          showAuthError('Hesap sistemi henüz bağlanmadı. Bu bölüm Firebase bilgileri eklenip site kendi adresine yüklendiğinde aktif olacak.');
+          showAuthError('Üyelik sistemine şu an ulaşılamıyor. Birazdan tekrar dener misin?');
           return;
         }
         var email = document.getElementById('authEmail').value.trim();
@@ -5713,10 +5794,10 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
             '<span class="loyalty-tier-badge" id="loyaltyTierBadge" hidden></span>' +
             '<span class="loyalty-points" id="loyaltyPoints">0</span>' +
             '<span class="loyalty-label">Sadakat Puanın</span>' +
-            '<span class="loyalty-note">Her 50₺ alışverişte 1 puan kazanırsın</span>' +
+            '<span class="loyalty-note">Her 50 ₺ alışverişte 1 puan kazanırsın</span>' +
             '<div class="loyalty-actions" id="loyaltyActions" hidden>' +
               '<span id="loyaltyRedeemHint"></span>' +
-              '<button type="button" class="btn ghost btn-sm" id="loyaltyRedeemBtn">'+LOYALTY_REDEEM_POINTS+' Puanı 50₺ Kupona Çevir</button>' +
+              '<button type="button" class="btn ghost btn-sm" id="loyaltyRedeemBtn">'+LOYALTY_REDEEM_POINTS+' Puanı 50 ₺ Kupona Çevir</button>' +
             '</div>' +
           '</div>' +
           '<div class="referral-card">' +
@@ -5950,12 +6031,32 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
 
     // Puanlar hiçbir yerde saklanmıyor — her seferinde gerçek sipariş toplamlarından anlık
     // hesaplanıyor. Böylece kimse tarayıcı konsolundan kendi puanını değiştiremez.
+    //
+    // ÖNEMLİ: yalnızca GERÇEKLEŞMİŞ siparişler sayılır. WhatsApp/Instagram/kapıda ödeme
+    // gibi kanallarda sipariş, sen panelden onaylayana kadar "Alındı" (pending) durumunda
+    // bekler — yani henüz para tahsil edilmemiştir. Bunlar sayılsaydı, biri arka arkaya
+    // sahte Instagram siparişi vererek hem puan biriktirebilir hem de "Altın Üye" olup
+    // ücretsiz kargo kazanabilirdi. İptal edilen siparişler de doğal olarak sayılmaz.
+    // Kartla ödenen siparişler ('paid') zaten tahsil edildiği için doğrudan sayılır.
+    var EARNING_ORDER_STATUSES = ['confirmed', 'shipped', 'delivered', 'paid'];
+    function orderCountsForLoyalty(o){
+      return !!o && EARNING_ORDER_STATUSES.indexOf(o.status) !== -1;
+    }
     function renderLoyaltyPoints(orders){
       var el = document.getElementById('loyaltyPoints');
       if(!el) return;
-      var totalSpent = orders.reduce(function(sum, o){
+      var earning = (orders || []).filter(orderCountsForLoyalty);
+      var pending = (orders || []).filter(function(o){ return o && o.status === 'pending'; });
+      var totalSpent = earning.reduce(function(sum, o){
         return sum + (typeof o.total === 'number' ? o.total : (o.subtotal || 0));
       }, 0);
+      // Onay bekleyen sipariş varsa müşteri "puanım neden artmadı?" diye merak etmesin.
+      var noteEl = document.querySelector('.loyalty-note');
+      if(noteEl){
+        noteEl.textContent = pending.length
+          ? ('Onay bekleyen ' + pending.length + ' siparişin var — puanlar sipariş onaylanınca eklenir.')
+          : 'Her 50 ₺ alışverişte 1 puan kazanırsın';
+      }
       var points = Math.floor(totalSpent / LOYALTY_TL_PER_POINT);
       el.textContent = points;
       var available = Math.max(0, points - (currentUserRedeemedPoints || 0));
@@ -6054,7 +6155,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       }).catch(function(err){
         showToast('Kupon oluşturulamadı: ' + (err && err.message ? err.message : 'tekrar dener misin?'), true);
       }).finally(function(){
-        btn.textContent = LOYALTY_REDEEM_POINTS + ' Puanı 50₺ Kupona Çevir';
+        btn.textContent = LOYALTY_REDEEM_POINTS + ' Puanı 50 ₺ Kupona Çevir';
       });
     }
 
@@ -6131,6 +6232,86 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       }
       listEl.innerHTML = currentUserAddresses.map(addressCardHtml).join('');
     }
+    // ---------- Google adres otomatik tamamlama ----------
+    // Panel → Ayarlar'a bir Google Maps API anahtarı girilene kadar bu özellik TAMAMEN
+    // kapalıdır: hiçbir script yüklenmez, adres formu bugünkü gibi elle doldurulur.
+    // Anahtar hatalıysa ya da kota dolarsa da form normal çalışmaya devam eder — adres
+    // girişi hiçbir koşulda Google'a bağımlı hale gelmez.
+    //
+    // Not: Google, 1 Mart 2025'ten sonra açılan hesaplarda eski `places.Autocomplete`
+    // bileşenini kullanıma kapattı; bu yüzden burada YENİ API (PlaceAutocompleteElement)
+    // kullanılıyor. Google Cloud projesinde açılması gereken servis: "Places API (New)".
+    var googleMapsLoader = null;
+    function loadGoogleMaps(){
+      if(googleMapsLoader) return googleMapsLoader;
+      var key = (SETTINGS.googleMapsKey || '').trim();
+      if(!key) return Promise.reject(new Error('Google Maps anahtarı tanımlı değil'));
+      googleMapsLoader = new Promise(function(resolve, reject){
+        if(window.google && window.google.maps && window.google.maps.importLibrary){ resolve(); return; }
+        var sc = document.createElement('script');
+        sc.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key) +
+                 '&libraries=places&loading=async&language=tr&region=TR&v=weekly';
+        sc.async = true;
+        sc.onload = function(){ resolve(); };
+        sc.onerror = function(){ reject(new Error('Google Haritalar yüklenemedi')); };
+        document.head.appendChild(sc);
+      });
+      return googleMapsLoader;
+    }
+    // Google'ın adres parçalarından bizim alanlarımıza eşleme. Türkiye adreslerinde
+    // il = administrative_area_level_1, ilçe genelde level_2; bazı yerlerde farklı
+    // seviyelerde geldiği için sırayla deneniyor.
+    function pickAddressPart(components, types){
+      for(var t = 0; t < types.length; t++){
+        for(var i = 0; i < components.length; i++){
+          var c = components[i] || {};
+          var ct = c.types || [];
+          if(ct.indexOf(types[t]) !== -1) return c.longText || c.shortText || '';
+        }
+      }
+      return '';
+    }
+    function setupAddressAutocomplete(){
+      var wrap = document.getElementById('addrAutocomplete');
+      var host = document.getElementById('addrAutocompleteHost');
+      if(!wrap || !host) return;
+      if(!(SETTINGS.googleMapsKey || '').trim()) return; // anahtar yoksa alan hiç görünmez
+      loadGoogleMaps().then(function(){
+        return google.maps.importLibrary('places');
+      }).then(function(places){
+        var el = new places.PlaceAutocompleteElement({ includedRegionCodes: ['tr'] });
+        host.innerHTML = '';
+        host.appendChild(el);
+        wrap.hidden = false;
+        el.addEventListener('gmp-select', function(ev){
+          var pred = ev && ev.placePrediction;
+          if(!pred) return;
+          var place = pred.toPlace();
+          place.fetchFields({ fields: ['addressComponents', 'formattedAddress'] }).then(function(res){
+            var p = (res && res.place) ? res.place : place;
+            var comps = p.addressComponents || [];
+            var il      = pickAddressPart(comps, ['administrative_area_level_1']);
+            var ilce    = pickAddressPart(comps, ['administrative_area_level_2', 'administrative_area_level_3', 'sublocality_level_1', 'locality']);
+            var mahalle = pickAddressPart(comps, ['neighborhood', 'administrative_area_level_4', 'sublocality_level_2']);
+            var cadde   = pickAddressPart(comps, ['route']);
+            var kapiNo  = pickAddressPart(comps, ['street_number']);
+            var posta   = pickAddressPart(comps, ['postal_code']);
+            var line1 = [mahalle, cadde, kapiNo].filter(Boolean).join(' ');
+            if(!line1) line1 = p.formattedAddress || '';
+            function fld(id){ return document.getElementById(id); }
+            if(fld('addrLine1') && line1) fld('addrLine1').value = line1;
+            if(fld('addrDistrict') && ilce) fld('addrDistrict').value = ilce;
+            if(fld('addrCity') && il) fld('addrCity').value = il;
+            if(fld('addrPostal') && posta) fld('addrPostal').value = posta;
+            var hint = document.getElementById('addrAutoHint');
+            if(hint) hint.textContent = 'Adres dolduruldu — kapı/daire numarası gibi eksikleri aşağıdan tamamlayabilirsin.';
+          }).catch(function(){ /* seçim okunamazsa form elle doldurulmaya devam eder */ });
+        });
+      }).catch(function(err){
+        wrap.hidden = true;
+        console.warn('Google adres tamamlama kullanılamıyor:', err && err.message);
+      });
+    }
     function showAddressForm(existing){
       var wrap = document.getElementById('addressFormWrap');
       if(!wrap || !currentUser) return;
@@ -6142,6 +6323,11 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
           '<div class="auth-field"><label>Ad Soyad</label><input type="text" id="addrFullName" value="'+escapeHtmlLocal(existing ? existing.fullName : (currentUser.displayName||''))+'"></div>' +
         '</div>' +
         '<div class="auth-field"><label>Telefon</label><input type="tel" id="addrPhone" placeholder="05XX XXX XX XX" value="'+escapeHtmlLocal(existing ? existing.phone : (currentUserPhone||''))+'"></div>' +
+        '<div class="auth-field addr-autocomplete" id="addrAutocomplete" hidden>' +
+          '<label>Adres Ara</label>' +
+          '<div id="addrAutocompleteHost"></div>' +
+          '<span class="addr-auto-hint" id="addrAutoHint">Sokak veya mahalle adını yazmaya başla, listeden seç — il, ilçe ve posta kodu kendiliğinden dolsun.</span>' +
+        '</div>' +
         '<div class="auth-field"><label>Açık Adres</label><input type="text" id="addrLine1" placeholder="Mahalle, sokak, no, daire..." value="'+escapeHtmlLocal(existing ? existing.line1 : '')+'"></div>' +
         '<div class="auth-row2">' +
           '<div class="auth-field"><label>İlçe</label><input type="text" id="addrDistrict" value="'+escapeHtmlLocal(existing ? existing.district : '')+'"></div>' +
@@ -6155,6 +6341,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
           '<button type="button" class="btn ghost" id="addrCancelBtn">Vazgeç</button>' +
         '</div>';
       document.getElementById('addrCancelBtn').addEventListener('click', function(){ wrap.hidden = true; wrap.innerHTML = ''; });
+      setupAddressAutocomplete();
       document.getElementById('addrSaveBtn').addEventListener('click', function(){
         var label = document.getElementById('addrLabel').value.trim() || 'Adres';
         var fullName = document.getElementById('addrFullName').value.trim();
@@ -6637,6 +6824,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         SETTINGS.phone = s.phone || '';
         SETTINGS.shippingThreshold = typeof s.shippingThreshold === 'number' ? s.shippingThreshold : SETTINGS.shippingThreshold;
         SETTINGS.shippingFee = typeof s.shippingFee === 'number' ? s.shippingFee : SETTINGS.shippingFee;
+        SETTINGS.googleMapsKey = (typeof s.googleMapsKey === 'string') ? s.googleMapsKey.trim() : '';
         SETTINGS.iyzicoEnabled = !!s.iyzicoEnabled;
         SETTINGS.welcomeCouponCode = (typeof s.welcomeCouponCode === 'string' && s.welcomeCouponCode.trim()) ? s.welcomeCouponCode.trim().toUpperCase() : '';
         SETTINGS.deliveryEstimate = (typeof s.deliveryEstimate === 'string') ? s.deliveryEstimate.trim() : '';
@@ -6688,6 +6876,7 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       renderProductStructuredData();
       applySettings();
       renderCart();
+      handleWelcomeEmailLinkReturn();
       maybeShowWelcomePopup();
       applyPendingReferralCode();
       checkLowStockAndAlert();
