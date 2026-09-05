@@ -1,8 +1,8 @@
-# Bu klasördeki config.php / iyzico-client.php / firestore-helper.php dosyaları
-# sadece diğer PHP dosyaları tarafından include edilmek için var — tarayıcıdan
-# doğrudan açılabilir olmamalı (içinde API anahtarları var).
-<FilesMatch "^(config|iyzico-client|firestore-helper)\.php$">
+# Bu klasordeki gecici dogrulama kayitlari disaridan okunamaz.
+<IfModule mod_authz_core.c>
   Require all denied
-</FilesMatch>
-
-Options -Indexes
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

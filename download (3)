@@ -1,0 +1,91 @@
+# ---------------------------------------------------------------------------
+# TEK ADRES: www.sonyacollection.com  ->  sonyacollection.com
+# ---------------------------------------------------------------------------
+# Site şu an hem "sonyacollection.com" hem "www.sonyacollection.com" adresinden
+# açılıyor. Tarayıcılar bu ikisini BİRBİRİNDEN AYRI iki site sayar; yani sepet,
+# favoriler, çerez tercihi ve "uygulama gibi kurma" (PWA) önbelleği ikisinde
+# ayrı ayrı tutulur. Sonuç: bir adreste güncel sayfayı, diğerinde tarayıcıda
+# takılı kalmış eski bir kopyayı görürsün. Google da ikisini ayrı ayrı
+# indeksler (arama sonuçlarında aynı site iki kez çıkar).
+#
+# Aşağıdaki kural, www ile gelen HER isteği kalıcı olarak (301) www'suz adresin
+# ANASAYFASINA yönlendirir. Yani www.sonyacollection.com/yeni-sezon.html de
+# doğrudan sonyacollection.com/ olarak açılır — istenen davranış bu.
+#
+# Not (ileride lazım olursa): Google, bir sayfanın tamamen farklı bir sayfaya
+# yönlendirilmesini "o sayfa artık yok" gibi okur; bu yüzden www'lu adreslerin
+# arama sonuçlarındaki birikmiş değeri anasayfaya aktarılmaz, o kayıtlar zamanla
+# aramadan düşer. Bunun yerine her sayfanın kendi karşılığına gitmesi istenirse
+# aşağıdaki satırdaki "https://%1/" ifadesini "https://%1%{REQUEST_URI}" yapmak
+# yeterli — başka hiçbir değişiklik gerekmiyor.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1/ [L,R=301]
+</IfModule>
+
+# Kırık/yanlış linkler için özel 404 sayfası — ziyaretçi anasayfaya/mağazaya
+# kolayca dönebileceği şık bir ekran görsün diye.
+ErrorDocument 404 /404.html
+
+# Sonya Collection — statik dosya MIME/charset düzeltmesi
+# manifest.webmanifest, Hostinger'ın varsayılan sunucu ayarlarında
+# "text/plain" (charset belirtilmeden) olarak sunuluyor; bu da dosyanın
+# içindeki Türkçe karakterlerin (ı, ş, ğ vb.) bazı tarayıcı/araçlarda
+# bozuk görünmesine (mojibake) ve PWA yükleme denetimlerinin bu dosyayı
+# standart-dışı bulmasına yol açabiliyor. Doğru MIME tipini ve UTF-8
+# karakter kodlamasını burada tanımlıyoruz.
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+  AddCharset UTF-8 .webmanifest .json .js .css .html .htm
+</IfModule>
+
+# Servis çalışanı (sw.js) her zaman doğru MIME tipiyle sunulmalı.
+<IfModule mod_mime.c>
+  AddType application/javascript .js
+</IfModule>
+
+# Tarayıcı önbellekleme — tekrar eden ziyaretlerde sayfa daha hızlı açılsın diye.
+# İkonlar/manifest nadiren değiştiği için uzun süre önbellekleniyor. sw.js kasıtlı
+# olarak KISA tutuluyor ki PWA güncellemeleri (yeni sürüm) ziyaretçilere gecikmeden ulaşsın.
+# HTML sayfaları hiç önbelleklenmiyor — panelden yapılan ürün/fiyat/stok güncellemeleri
+# anında yansısın diye.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType application/manifest+json "access plus 7 days"
+  ExpiresByType application/javascript "access plus 0 seconds"
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# Metin dosyalarının sıkıştırılarak gönderilmesi (gzip / brotli).
+# HTML sayfaları ~350 KB metin; sıkıştırılınca ~70 KB'a iniyor, yani mobilde
+# sayfa yaklaşık 5 kat daha hızlı iniyor. Fotoğraflar (jpg/webp) zaten
+# sıkıştırılmış olduğu için listeye dahil edilmiyor — tekrar sıkıştırmak
+# boşuna işlemci harcar, dosyayı küçültmez.
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/css text/xml
+  AddOutputFilterByType BROTLI_COMPRESS application/javascript application/x-javascript text/javascript
+  AddOutputFilterByType BROTLI_COMPRESS application/json application/manifest+json application/xml
+  AddOutputFilterByType BROTLI_COMPRESS image/svg+xml
+</IfModule>
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/x-javascript text/javascript
+  AddOutputFilterByType DEFLATE application/json application/manifest+json application/xml
+  AddOutputFilterByType DEFLATE image/svg+xml
+  # Çok eski tarayıcılarda bozuk sıkıştırma yapmamak için güvenlik önlemi.
+  BrowserMatch ^Mozilla/4\.0[678] no-gzip
+  Header append Vary User-Agent env=!dont-vary
+</IfModule>
+
+# Fotoğraf klasörü: dosya adları değişmediği sürece içerikleri de değişmiyor,
+# bu yüzden uzun süreli (1 yıl) önbelleğe alınabilir. Yeni fotoğraf eklendiğinde
+# yeni bir dosya adıyla geldiği için ziyaretçi eski dosyayı görmez.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(jpg|jpeg|png|webp|gif|svg|ico)$">
+    Header set Cache-Control "public, max-age=31536000"
+  </FilesMatch>
+</IfModule>

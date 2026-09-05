@@ -1,31 +1,8 @@
-# Sonya Collection — statik dosya MIME/charset düzeltmesi
-# manifest.webmanifest, Hostinger'ın varsayılan sunucu ayarlarında
-# "text/plain" (charset belirtilmeden) olarak sunuluyor; bu da dosyanın
-# içindeki Türkçe karakterlerin (ı, ş, ğ vb.) bazı tarayıcı/araçlarda
-# bozuk görünmesine (mojibake) ve PWA yükleme denetimlerinin bu dosyayı
-# standart-dışı bulmasına yol açabiliyor. Doğru MIME tipini ve UTF-8
-# karakter kodlamasını burada tanımlıyoruz.
-<IfModule mod_mime.c>
-  AddType application/manifest+json .webmanifest
-  AddCharset UTF-8 .webmanifest .json .js .css .html .htm
-</IfModule>
+# Bu klasördeki config.php / iyzico-client.php / firestore-helper.php dosyaları
+# sadece diğer PHP dosyaları tarafından include edilmek için var — tarayıcıdan
+# doğrudan açılabilir olmamalı (içinde API anahtarları var).
+<FilesMatch "^(config|iyzico-client|firestore-helper)\.php$">
+  Require all denied
+</FilesMatch>
 
-# Servis çalışanı (sw.js) her zaman doğru MIME tipiyle sunulmalı.
-<IfModule mod_mime.c>
-  AddType application/javascript .js
-</IfModule>
-
-# Tarayıcı önbellekleme — tekrar eden ziyaretlerde sayfa daha hızlı açılsın diye.
-# İkonlar/manifest nadiren değiştiği için uzun süre önbellekleniyor. sw.js kasıtlı
-# olarak KISA tutuluyor ki PWA güncellemeleri (yeni sürüm) ziyaretçilere gecikmeden ulaşsın.
-# HTML sayfaları hiç önbelleklenmiyor — panelden yapılan ürün/fiyat/stok güncellemeleri
-# anında yansısın diye.
-<IfModule mod_expires.c>
-  ExpiresActive On
-  ExpiresByType image/png "access plus 30 days"
-  ExpiresByType image/jpeg "access plus 30 days"
-  ExpiresByType image/webp "access plus 30 days"
-  ExpiresByType application/manifest+json "access plus 7 days"
-  ExpiresByType application/javascript "access plus 0 seconds"
-  ExpiresByType text/html "access plus 0 seconds"
-</IfModule>
+Options -Indexes

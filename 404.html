@@ -1050,6 +1050,8 @@
   .auth-field label{font-size:0.72rem;font-weight:700;color:var(--espresso-70);text-transform:uppercase;letter-spacing:0.06em;}
   .auth-field input{border:1px solid var(--line);border-radius:var(--radius-m);padding:12px 14px;font-size:0.88rem;background:var(--surface);color:var(--espresso);font-family:inherit;width:100%;}
   .auth-field input:focus{outline:none;border-color:var(--caramel);}
+  .auth-field select{border:1px solid var(--line);border-radius:var(--radius-m);padding:12px 14px;font-size:0.88rem;background:var(--surface);color:var(--espresso);font-family:inherit;width:100%;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--espresso-70) 50%),linear-gradient(135deg,var(--espresso-70) 50%,transparent 50%);background-position:calc(100% - 18px) 51%,calc(100% - 13px) 51%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:36px;}
+  .auth-field select:focus{outline:none;border-color:var(--caramel);}
   .auth-error{background:#F6E4DD;color:#8A3B22;border-radius:var(--radius-m);padding:10px 14px;font-size:0.78rem;margin-bottom:14px;display:none;}
   .auth-error.show{display:block;}
   .auth-submit{width:100%;justify-content:center;margin-top:4px;}
@@ -1085,6 +1087,18 @@
   .birthday-field{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);}
   .birthday-label{display:block;font-size:0.78rem;font-weight:700;color:var(--espresso);margin-bottom:10px;}
   .birthday-hint{font-size:0.72rem;color:var(--espresso-70);margin-top:8px;}
+  /* Karşılama penceresi — doğrulama ve başarı ekranı işaretleri */
+  .welcome-success-mark, .welcome-mail-mark{
+    width:52px;height:52px;border-radius:50%;margin:0 auto 14px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .welcome-success-mark{background:var(--surface-2);color:var(--caramel-dk);}
+  .welcome-mail-mark{background:var(--surface-2);color:var(--caramel-dk);}
+  .welcome-success-mark svg, .welcome-mail-mark svg{
+    width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;
+    stroke-linecap:round;stroke-linejoin:round;
+  }
+
   .welcome-code-box{background:var(--surface-2);border-radius:var(--radius-m);padding:18px;margin-top:4px;}
   .welcome-code{font-size:1.5rem;font-weight:800;letter-spacing:0.08em;color:var(--caramel-dk);font-variant-numeric:tabular-nums;}
   .welcome-code-hint{font-size:0.74rem;color:var(--espresso-70);margin-top:8px;}
@@ -4335,6 +4349,92 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
   // Yönetici panelinde bir "karşılama kuponu" kodu tanımlanmışsa (Ayarlar → Pazarlama),
   // siteye ilk kez gelen ziyaretçiye bir kez gösterilir. E-posta bırakınca gerçek,
   // panelde tanımlı bir kupon kodu gösterilir — uydurma bir indirim değil.
+  // Türkiye 81 il ve 973 ilçe. Adres formundaki il listesi ve ilçe önerileri
+  // buradan geliyor — hiçbir dış servise bağlı değil, internet gerektirmez.
+  var TR_IL_ILCE = {
+    "Adana":["Aladağ","Ceyhan","Çukurova","Feke","İmamoğlu","Karaisalı","Karataş","Kozan","Pozantı","Saimbeyli","Sarıçam","Seyhan","Tufanbeyli","Yumurtalık","Yüreğir"],
+    "Adıyaman":["Besni","Çelikhan","Gerger","Gölbaşı","Kâhta","Merkez","Samsat","Sincik","Tut"],
+    "Afyonkarahisar":["Başmakçı","Bayat","Bolvadin","Çay","Çobanlar","Dazkırı","Dinar","Emirdağ","Evciler","Hocalar","İhsaniye","İscehisar","Kızılören","Merkez","Sandıklı","Sinanpaşa","Sultandağı","Şuhut"],
+    "Aksaray":["Ağaçören","Eskil","Gülağaç","Güzelyurt","Merkez","Ortaköy","Sarıyahşi","Sultanhanı"],
+    "Amasya":["Göynücek","Gümüşhacıköy","Hamamözü","Merkez","Merzifon","Suluova","Taşova"],
+    "Ankara":["Akyurt","Altındağ","Ayaş","Bala","Beypazarı","Çamlıdere","Çankaya","Çubuk","Elmadağ","Etimesgut","Evren","Gölbaşı","Güdül","Haymana","Kahramankazan","Kalecik","Keçiören","Kızılcahamam","Mamak","Nallıhan","Polatlı","Pursaklar","Sincan","Şereflikoçhisar","Yenimahalle"],
+    "Antalya":["Akseki","Aksu","Alanya","Demre","Döşemealtı","Elmalı","Finike","Gazipaşa","Gündoğmuş","İbradı","Kaş","Kemer","Kepez","Konyaaltı","Korkuteli","Kumluca","Manavgat","Muratpaşa","Serik"],
+    "Ardahan":["Çıldır","Damal","Göle","Hanak","Merkez","Posof"],
+    "Artvin":["Ardanuç","Arhavi","Borçka","Hopa","Kemalpaşa","Merkez","Murgul","Şavşat","Yusufeli"],
+    "Aydın":["Bozdoğan","Buharkent","Çine","Didim","Efeler","Germencik","İncirliova","Karacasu","Karpuzlu","Koçarlı","Köşk","Kuşadası","Kuyucak","Nazilli","Söke","Sultanhisar","Yenipazar"],
+    "Ağrı":["Diyadin","Doğubayazıt","Eleşkirt","Hamur","Merkez","Patnos","Taşlıçay","Tutak"],
+    "Balıkesir":["Altıeylül","Ayvalık","Balya","Bandırma","Bigadiç","Burhaniye","Dursunbey","Edremit","Erdek","Gömeç","Gönen","Havran","İvrindi","Karesi","Kepsut","Manyas","Marmara","Savaştepe","Sındırgı","Susurluk"],
+    "Bartın":["Amasra","Kurucaşile","Merkez","Ulus"],
+    "Batman":["Beşiri","Gercüş","Hasankeyf","Kozluk","Merkez","Sason"],
+    "Bayburt":["Aydıntepe","Demirözü","Merkez"],
+    "Bilecik":["Bozüyük","Gölpazarı","İnhisar","Merkez","Osmaneli","Pazaryeri","Söğüt","Yenipazar"],
+    "Bingöl":["Adaklı","Genç","Karlıova","Kiğı","Merkez","Solhan","Yayladere","Yedisu"],
+    "Bitlis":["Adilcevaz","Ahlat","Güroymak","Hizan","Merkez","Mutki","Tatvan"],
+    "Bolu":["Dörtdivan","Gerede","Göynük","Kıbrıscık","Mengen","Merkez","Mudurnu","Seben","Yeniçağa"],
+    "Burdur":["Ağlasun","Altınyayla","Bucak","Çavdır","Çeltikçi","Gölhisar","Karamanlı","Kemer","Merkez","Tefenni","Yeşilova"],
+    "Bursa":["Büyükorhan","Gemlik","Gürsu","Harmancık","İnegöl","İznik","Karacabey","Keles","Kestel","Mudanya","Mustafakemalpaşa","Nilüfer","Orhaneli","Orhangazi","Osmangazi","Yenişehir","Yıldırım"],
+    "Denizli":["Acıpayam","Babadağ","Baklan","Bekilli","Beyağaç","Bozkurt","Buldan","Çal","Çameli","Çardak","Çivril","Güney","Honaz","Kale","Merkezefendi","Pamukkale","Sarayköy","Serinhisar","Tavas"],
+    "Diyarbakır":["Bağlar","Bismil","Çermik","Çınar","Çüngüş","Dicle","Eğil","Ergani","Hani","Hazro","Kayapınar","Kocaköy","Kulp","Lice","Silvan","Sur","Yenişehir"],
+    "Düzce":["Akçakoca","Cumayeri","Çilimli","Gölyaka","Gümüşova","Kaynaşlı","Merkez","Yığılca"],
+    "Edirne":["Enez","Havsa","İpsala","Keşan","Lalapaşa","Meriç","Merkez","Süloğlu","Uzunköprü"],
+    "Elazığ":["Ağın","Alacakaya","Arıcak","Baskil","Karakoçan","Keban","Kovancılar","Maden","Merkez","Palu","Sivrice"],
+    "Erzincan":["Çayırlı","İliç","Kemah","Kemaliye","Merkez","Otlukbeli","Refahiye","Tercan","Üzümlü"],
+    "Erzurum":["Aşkale","Aziziye","Çat","Hınıs","Horasan","İspir","Karaçoban","Karayazı","Köprüköy","Narman","Oltu","Olur","Palandöken","Pasinler","Pazaryolu","Şenkaya","Tekman","Tortum","Uzundere","Yakutiye"],
+    "Eskişehir":["Alpu","Beylikova","Çifteler","Günyüzü","Han","İnönü","Mahmudiye","Mihalgazi","Mihalıççık","Odunpazarı","Sarıcakaya","Seyitgazi","Sivrihisar","Tepebaşı"],
+    "Gaziantep":["Araban","İslahiye","Karkamış","Nizip","Nurdağı","Oğuzeli","Şahinbey","Şehitkamil","Yavuzeli"],
+    "Giresun":["Alucra","Bulancak","Çamoluk","Çanakçı","Dereli","Doğankent","Espiye","Eynesil","Görele","Güce","Keşap","Merkez","Piraziz","Şebinkarahisar","Tirebolu","Yağlıdere"],
+    "Gümüşhane":["Kelkit","Köse","Kürtün","Merkez","Şiran","Torul"],
+    "Hakkâri":["Çukurca","Derecik","Merkez","Şemdinli","Yüksekova"],
+    "Hatay":["Altınözü","Antakya","Arsuz","Belen","Defne","Dörtyol","Erzin","Hassa","İskenderun","Kırıkhan","Kumlu","Payas","Reyhanlı","Samandağ","Yayladağı"],
+    "Isparta":["Aksu","Atabey","Eğirdir","Gelendost","Gönen","Keçiborlu","Merkez","Senirkent","Sütçüler","Şarkikaraağaç","Uluborlu","Yalvaç","Yenişarbademli"],
+    "Iğdır":["Aralık","Karakoyunlu","Merkez","Tuzluca"],
+    "Kahramanmaraş":["Afşin","Andırın","Çağlayancerit","Dulkadiroğlu","Ekinözü","Elbistan","Göksun","Nurhak","Onikişubat","Pazarcık","Türkoğlu"],
+    "Karabük":["Eflani","Eskipazar","Merkez","Ovacık","Safranbolu","Yenice"],
+    "Karaman":["Ayrancı","Başyayla","Ermenek","Kazımkarabekir","Merkez","Sarıveliler"],
+    "Kars":["Akyaka","Arpaçay","Digor","Kağızman","Merkez","Sarıkamış","Selim","Susuz"],
+    "Kastamonu":["Abana","Ağlı","Araç","Azdavay","Bozkurt","Cide","Çatalzeytin","Daday","Devrekani","Doğanyurt","Hanönü","İhsangazi","İnebolu","Küre","Merkez","Pınarbaşı","Seydiler","Şenpazar","Taşköprü","Tosya"],
+    "Kayseri":["Akkışla","Bünyan","Develi","Felahiye","Hacılar","İncesu","Kocasinan","Melikgazi","Özvatan","Pınarbaşı","Sarıoğlan","Sarız","Talas","Tomarza","Yahyalı","Yeşilhisar"],
+    "Kilis":["Elbeyli","Merkez","Musabeyli","Polateli"],
+    "Kocaeli":["Başiskele","Çayırova","Darıca","Derince","Dilovası","Gebze","Gölcük","İzmit","Kandıra","Karamürsel","Kartepe","Körfez"],
+    "Konya":["Ahırlı","Akören","Akşehir","Altınekin","Beyşehir","Bozkır","Cihanbeyli","Çeltik","Çumra","Derbent","Derebucak","Doğanhisar","Emirgazi","Ereğli","Güneysınır","Hadim","Halkapınar","Hüyük","Ilgın","Kadınhanı","Karapınar","Karatay","Kulu","Meram","Sarayönü","Selçuklu","Seydişehir","Taşkent","Tuzlukçu","Yalıhüyük","Yunak"],
+    "Kütahya":["Altıntaş","Aslanapa","Çavdarhisar","Domaniç","Dumlupınar","Emet","Gediz","Hisarcık","Merkez","Pazarlar","Simav","Şaphane","Tavşanlı"],
+    "Kırklareli":["Babaeski","Demirköy","Kofçaz","Lüleburgaz","Merkez","Pehlivanköy","Pınarhisar","Vize"],
+    "Kırıkkale":["Bahşılı","Balışeyh","Çelebi","Delice","Karakeçili","Keskin","Merkez","Sulakyurt","Yahşihan"],
+    "Kırşehir":["Akçakent","Akpınar","Boztepe","Çiçekdağı","Kaman","Merkez","Mucur"],
+    "Malatya":["Akçadağ","Arapgir","Arguvan","Battalgazi","Darende","Doğanşehir","Doğanyol","Hekimhan","Kale","Kuluncak","Pütürge","Yazıhan","Yeşilyurt"],
+    "Manisa":["Ahmetli","Akhisar","Alaşehir","Demirci","Gölmarmara","Gördes","Kırkağaç","Köprübaşı","Kula","Salihli","Sarıgöl","Saruhanlı","Selendi","Soma","Şehzadeler","Turgutlu","Yunusemre"],
+    "Mardin":["Artuklu","Dargeçit","Derik","Kızıltepe","Mazıdağı","Midyat","Nusaybin","Ömerli","Savur","Yeşilli"],
+    "Mersin":["Akdeniz","Anamur","Aydıncık","Bozyazı","Çamlıyayla","Erdemli","Gülnar","Mezitli","Mut","Silifke","Tarsus","Toroslar","Yenişehir"],
+    "Muğla":["Bodrum","Dalaman","Datça","Fethiye","Kavaklıdere","Köyceğiz","Marmaris","Menteşe","Milas","Ortaca","Seydikemer","Ula","Yatağan"],
+    "Muş":["Bulanık","Hasköy","Korkut","Malazgirt","Merkez","Varto"],
+    "Nevşehir":["Acıgöl","Avanos","Derinkuyu","Gülşehir","Hacıbektaş","Kozaklı","Merkez","Ürgüp"],
+    "Niğde":["Altunhisar","Bor","Çamardı","Çiftlik","Merkez","Ulukışla"],
+    "Ordu":["Akkuş","Altınordu","Aybastı","Çamaş","Çatalpınar","Çaybaşı","Fatsa","Gölköy","Gülyalı","Gürgentepe","İkizce","Kabadüz","Kabataş","Korgan","Kumru","Mesudiye","Perşembe","Ulubey","Ünye"],
+    "Osmaniye":["Bahçe","Düziçi","Hasanbeyli","Kadirli","Merkez","Sumbas","Toprakkale"],
+    "Rize":["Ardeşen","Çamlıhemşin","Çayeli","Derepazarı","Fındıklı","Güneysu","Hemşin","İkizdere","İyidere","Kalkandere","Merkez","Pazar"],
+    "Sakarya":["Adapazarı","Akyazı","Arifiye","Erenler","Ferizli","Geyve","Hendek","Karapürçek","Karasu","Kaynarca","Kocaali","Pamukova","Sapanca","Serdivan","Söğütlü","Taraklı"],
+    "Samsun":["Alaçam","Asarcık","Atakum","Ayvacık","Bafra","Canik","Çarşamba","Havza","İlkadım","Kavak","Ladik","Ondokuzmayıs","Salıpazarı","Tekkeköy","Terme","Vezirköprü","Yakakent"],
+    "Siirt":["Baykan","Eruh","Kurtalan","Merkez","Pervari","Şirvan","Tillo"],
+    "Sinop":["Ayancık","Boyabat","Dikmen","Durağan","Erfelek","Gerze","Merkez","Saraydüzü","Türkeli"],
+    "Sivas":["Akıncılar","Altınyayla","Divriği","Doğanşar","Gemerek","Gölova","Gürün","Hafik","İmranlı","Kangal","Koyulhisar","Merkez","Suşehri","Şarkışla","Ulaş","Yıldızeli","Zara"],
+    "Tekirdağ":["Çerkezköy","Çorlu","Ergene","Hayrabolu","Kapaklı","Malkara","Marmaraereğlisi","Muratlı","Saray","Süleymanpaşa","Şarköy"],
+    "Tokat":["Almus","Artova","Başçiftlik","Erbaa","Merkez","Niksar","Pazar","Reşadiye","Sulusaray","Turhal","Yeşilyurt","Zile"],
+    "Trabzon":["Akçaabat","Araklı","Arsin","Beşikdüzü","Çarşıbaşı","Çaykara","Dernekpazarı","Düzköy","Hayrat","Köprübaşı","Maçka","Of","Ortahisar","Sürmene","Şalpazarı","Tonya","Vakfıkebir","Yomra"],
+    "Tunceli":["Çemişgezek","Hozat","Mazgirt","Merkez","Nazımiye","Ovacık","Pertek","Pülümür"],
+    "Uşak":["Banaz","Eşme","Karahallı","Merkez","Sivaslı","Ulubey"],
+    "Van":["Bahçesaray","Başkale","Çaldıran","Çatak","Edremit","Erciş","Gevaş","Gürpınar","İpekyolu","Muradiye","Özalp","Saray","Tuşba"],
+    "Yalova":["Altınova","Armutlu","Çınarcık","Çiftlikköy","Merkez","Termal"],
+    "Yozgat":["Akdağmadeni","Aydıncık","Boğazlıyan","Çandır","Çayıralan","Çekerek","Kadışehri","Merkez","Saraykent","Sarıkaya","Sorgun","Şefaatli","Yenifakılı","Yerköy"],
+    "Zonguldak":["Alaplı","Çaycuma","Devrek","Ereğli","Gökçebey","Kilimli","Kozlu","Merkez"],
+    "Çanakkale":["Ayvacık","Bayramiç","Biga","Bozcaada","Çan","Eceabat","Ezine","Gelibolu","Gökçeada","Lapseki","Merkez","Yenice"],
+    "Çankırı":["Atkaracalar","Bayramören","Çerkeş","Eldivan","Ilgaz","Kızılırmak","Korgun","Kurşunlu","Merkez","Orta","Şabanözü","Yapraklı"],
+    "Çorum":["Alaca","Bayat","Boğazkale","Dodurga","İskilip","Kargı","Laçin","Mecitözü","Merkez","Oğuzlar","Ortaköy","Osmancık","Sungurlu","Uğurludağ"],
+    "İstanbul":["Adalar","Arnavutköy","Ataşehir","Avcılar","Bağcılar","Bahçelievler","Bakırköy","Başakşehir","Bayrampaşa","Beşiktaş","Beykoz","Beylikdüzü","Beyoğlu","Büyükçekmece","Çatalca","Çekmeköy","Esenler","Esenyurt","Eyüpsultan","Fatih","Gaziosmanpaşa","Güngören","Kadıköy","Kâğıthane","Kartal","Küçükçekmece","Maltepe","Pendik","Sancaktepe","Sarıyer","Silivri","Sultanbeyli","Sultangazi","Şile","Şişli","Tuzla","Ümraniye","Üsküdar","Zeytinburnu"],
+    "İzmir":["Aliağa","Balçova","Bayındır","Bayraklı","Bergama","Beydağ","Bornova","Buca","Çeşme","Çiğli","Dikili","Foça","Gaziemir","Güzelbahçe","Karabağlar","Karaburun","Karşıyaka","Kemalpaşa","Kınık","Kiraz","Konak","Menderes","Menemen","Narlıdere","Ödemiş","Seferihisar","Selçuk","Tire","Torbalı","Urla"],
+    "Şanlıurfa":["Akçakale","Birecik","Bozova","Ceylanpınar","Eyyübiye","Halfeti","Haliliye","Harran","Hilvan","Karaköprü","Siverek","Suruç","Viranşehir"],
+    "Şırnak":["Beytüşşebap","Cizre","Güçlükonak","İdil","Merkez","Silopi","Uludere"]
+  };
+  var TR_IL_LISTESI = Object.keys(TR_IL_ILCE);
   var WELCOME_SEEN_KEY = 'sonya_welcome_seen';
   var WELCOME_PENDING_EMAIL_KEY = 'sonya_welcome_email';
   var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -4358,17 +4458,20 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
 
   // İndirim kodunu gösteren ekran — hem doğrulama dönüşünde hem (kod zaten
   // alınmışsa) tekrar açıldığında aynı görünüm kullanılıyor.
+  // İndirim kodunu gösteren karşılama ekranı — doğrulama tamamlandıktan sonra.
   function renderWelcomeCodeScreen(){
     var body = document.getElementById('welcomeBody');
     if(!body) return;
     var codeLabel = SETTINGS.welcomeCouponCode;
     function paint(valueLabel){
       body.innerHTML =
-        '<span class="eyebrow welcome-eyebrow">E-postan doğrulandı ✓</span>' +
-        '<h3>Kodun Hazır</h3>' +
-        (valueLabel ? '<p>Sepette bu kodu uygulayınca <b>'+valueLabel+'</b> kazanıyorsun.</p>' : '<p>Sepette bu kodu uygula.</p>') +
-        '<div class="welcome-code-box"><div class="welcome-code">'+escapeHtmlLocal(codeLabel)+'</div><div class="welcome-code-hint">Sepet → Kupon kodu kutusuna yapıştır</div></div>' +
-        '<button type="button" class="btn welcome-copy-btn" id="welcomeCopyBtn">Kodu Kopyala</button>';
+        '<div class="welcome-success-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>' +
+        '<span class="eyebrow welcome-eyebrow">Hoş Geldin</span>' +
+        '<h3>E-postan doğrulandı</h3>' +
+        '<p>Teşekkürler, aramıza katıldın! ' + (valueLabel ? 'İlk siparişinde <b>' + valueLabel + '</b> kazandığın kodun hazır:' : 'İlk siparişine özel indirim kodun hazır:') + '</p>' +
+        '<div class="welcome-code-box"><div class="welcome-code">' + escapeHtmlLocal(codeLabel) + '</div><div class="welcome-code-hint">Sepette “Kupon kodu” kutusuna yaz, indirim uygulansın</div></div>' +
+        '<button type="button" class="btn welcome-copy-btn" id="welcomeCopyBtn">Kodu Kopyala</button>' +
+        '<button type="button" class="welcome-dismiss" id="welcomeShopBtn">Alışverişe başla ›</button>';
       var copyBtn = document.getElementById('welcomeCopyBtn');
       if(copyBtn) copyBtn.addEventListener('click', function(){
         try{
@@ -4376,6 +4479,11 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
           copyBtn.textContent = 'Kopyalandı!';
           setTimeout(function(){ copyBtn.textContent = 'Kodu Kopyala'; }, 1800);
         }catch(e){}
+      });
+      var shopBtn = document.getElementById('welcomeShopBtn');
+      if(shopBtn) shopBtn.addEventListener('click', function(){
+        var wrap = document.getElementById('welcomeWrap');
+        if(wrap) wrap.classList.remove('open');
       });
     }
     try{ localStorage.setItem(WELCOME_SEEN_KEY, '1'); }catch(e){}
@@ -4391,16 +4499,15 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
   }
 
   // ---------- E-posta doğrulama (Firebase e-posta linki) ----------
-  // Eskiden ziyaretçi herhangi bir e-posta yazınca kod anında görünüyordu; yani ne
-  // adresin gerçek olduğu ne de kişinin ona erişebildiği doğrulanıyordu. Artık kod,
-  // ancak Firebase'in gönderdiği linke kendi posta kutusundan tıklandıktan sonra
-  // görünüyor. Bu yöntem Firebase'in kendi altyapısını kullandığı için ücretsizdir ve
-  // EmailJS kotanı harcamaz.
+  // Ziyaretçi e-postasını yazar, Firebase bir bağlantı gönderir; bağlantıya kendi
+  // posta kutusundan tıkladığında siteye doğrulanmış olarak döner ve kod görünür.
+  // Firebase'in kendi altyapısını kullandığı için ücretsizdir, EmailJS kotasını harcamaz.
   //
   // KURULUM (bir kez): Firebase Console → Authentication → Sign-in method →
   // "Email/Password" sağlayıcısını aç ve altındaki "Email link (passwordless sign-in)"
-  // seçeneğini de işaretle. Bu açılmadan link gönderilemez (kullanıcıya "şu an
-  // gönderilemedi" mesajı gösterilir, site bozulmaz).
+  // seçeneğini de işaretle. E-postanın Türkçe/markalı görünmesi için
+  // Authentication → Templates → "Email address sign-in" şablonunu düzenle
+  // (hazır metin README'de).
   function welcomeActionCodeSettings(){
     return { url: location.origin + '/?hosgeldin=1', handleCodeInApp: true };
   }
@@ -4408,15 +4515,87 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
     var body = document.getElementById('welcomeBody');
     if(!body) return;
     body.innerHTML =
+      '<div class="welcome-mail-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 6 10-6"/></svg></div>' +
       '<span class="eyebrow welcome-eyebrow">Son Bir Adım</span>' +
       '<h3>Postanı Kontrol Et</h3>' +
-      '<p><b>'+escapeHtmlLocal(email)+'</b> adresine bir doğrulama bağlantısı gönderdik. Bağlantıya tıkladığında siteye geri döneceksin ve indirim kodun ekranda görünecek.</p>' +
-      '<p class="welcome-code-hint">Postayı göremiyorsan spam/gereksiz klasörüne de bakmayı unutma.</p>' +
+      '<p><b>' + escapeHtmlLocal(email) + '</b> adresine bir doğrulama bağlantısı gönderdik. Bağlantıya tıkladığında siteye geri döneceksin ve indirim kodun ekranda görünecek.</p>' +
+      '<p class="welcome-code-hint">Postayı göremiyorsan spam / gereksiz klasörüne de bakmayı unutma.</p>' +
       '<button type="button" class="welcome-dismiss" id="welcomeDismissBtn">Kapat</button>';
     var d = document.getElementById('welcomeDismissBtn');
     if(d) d.addEventListener('click', function(){
       var wrap = document.getElementById('welcomeWrap');
       if(wrap) wrap.classList.remove('open');
+    });
+  }
+  // Bağlantı, e-postanın istendiği cihazdan FARKLI bir cihaz/tarayıcıda açıldıysa
+  // adres tarayıcı hafızasında olmaz ve Firebase güvenlik gereği adresi tekrar ister.
+  // Bunu tarayıcının çirkin prompt kutusu yerine sitenin kendi penceresinde soruyoruz.
+  function renderWelcomeConfirmEmailScreen(){
+    var body = document.getElementById('welcomeBody');
+    if(!body) return;
+    body.innerHTML =
+      '<span class="eyebrow welcome-eyebrow">Son Bir Adım</span>' +
+      '<h3>E-postanı Doğrula</h3>' +
+      '<p>Bağlantıyı farklı bir cihazda veya tarayıcıda açtın. Güvenlik için, indirim kodunu isterken kullandığın e-posta adresini bir kez daha yazman gerekiyor.</p>' +
+      '<div class="welcome-form">' +
+        '<input type="email" id="welcomeConfirmEmail" placeholder="E-posta adresin" autocomplete="email">' +
+        '<button type="button" class="btn welcome-submit" id="welcomeConfirmBtn">Doğrula ve Kodumu Al</button>' +
+      '</div>' +
+      '<div class="welcome-error" id="welcomeError"></div>';
+    var input = document.getElementById('welcomeConfirmEmail');
+    var btn = document.getElementById('welcomeConfirmBtn');
+    function submit(){
+      var errEl = document.getElementById('welcomeError');
+      errEl.classList.remove('show');
+      var email = (input.value || '').trim();
+      if(!EMAIL_RE.test(email)){
+        errEl.textContent = 'Geçerli bir e-posta adresi yaz.';
+        errEl.classList.add('show');
+        return;
+      }
+      btn.disabled = true; btn.textContent = 'Doğrulanıyor…';
+      tamamlaEmailLinkGirisi(email, function(hata){
+        btn.disabled = false; btn.textContent = 'Doğrula ve Kodumu Al';
+        errEl.textContent = hata;
+        errEl.classList.add('show');
+      });
+    }
+    btn.addEventListener('click', submit);
+    input.addEventListener('keydown', function(e){ if(e.key === 'Enter') submit(); });
+  }
+  // Doğrulamayı tamamlayan ortak adım: her iki yol da (hafızadaki adres veya
+  // ziyaretçinin elle yazdığı adres) buraya bağlanıyor.
+  function tamamlaEmailLinkGirisi(email, onError){
+    firebase.auth().signInWithEmailLink(email, location.href).then(function(){
+      try{ localStorage.removeItem(WELCOME_PENDING_EMAIL_KEY); }catch(e){}
+      // Adresteki tek kullanımlık doğrulama parametrelerini temizle.
+      try{ history.replaceState(null, '', location.pathname); }catch(e){}
+      // Artık DOĞRULANMIŞ bir e-posta: pazarlama listesine şimdi yazılıyor.
+      try{
+        firebase.firestore().collection('leads').add({
+          email: email,
+          // Firestore kuralı leads belgesinde yalnızca 4 alana izin veriyor, bu yüzden
+          // "doğrulandı" bilgisini ayrı bir alan yerine kaynak adında taşıyoruz.
+          source: 'welcome-dogrulanmis',
+          page: location.pathname,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(function(){});
+      }catch(e){}
+      if(!SETTINGS.welcomeCouponCode){
+        var w = document.getElementById('welcomeWrap');
+        if(w) w.classList.remove('open');
+        return;
+      }
+      renderWelcomeCodeScreen();
+      var wrap = document.getElementById('welcomeWrap');
+      if(wrap) wrap.classList.add('open');
+    }).catch(function(err){
+      var code = (err && err.code) || '';
+      var mesaj = (code === 'auth/invalid-email' || code === 'auth/invalid-action-code')
+        ? 'Bu adres, bağlantının gönderildiği adresle eşleşmiyor. Doğrulama bağlantısını hangi adrese istediysen onu yaz.'
+        : 'Doğrulama tamamlanamadı, bağlantıyı tekrar isteyip dener misin?';
+      console.warn('E-posta doğrulama tamamlanamadı:', code, err && err.message);
+      if(onError) onError(mesaj);
     });
   }
   // Ziyaretçi posta kutusundaki bağlantıya tıklayıp siteye döndüğünde çalışır.
@@ -4426,35 +4605,20 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       if(!firebase.auth().isSignInWithEmailLink(location.href)) return;
       var email = '';
       try{ email = localStorage.getItem(WELCOME_PENDING_EMAIL_KEY) || ''; }catch(e){}
-      // Bağlantı başka bir cihazda açıldıysa e-posta hafızada olmaz; o zaman soruyoruz.
-      if(!email) email = window.prompt('Doğrulamayı tamamlamak için e-posta adresini tekrar yaz:') || '';
-      if(!EMAIL_RE.test(email)) return;
-      firebase.auth().signInWithEmailLink(email, location.href).then(function(){
-        try{ localStorage.removeItem(WELCOME_PENDING_EMAIL_KEY); }catch(e){}
-        // Adresteki tek kullanımlık doğrulama parametrelerini temizle.
-        try{ history.replaceState(null, '', location.pathname); }catch(e){}
-        // Artık DOĞRULANMIŞ bir e-posta: pazarlama listesine şimdi yazılıyor.
-        try{
-          firebase.firestore().collection('leads').add({
-            email: email,
-            // Firestore kuralı leads belgesinde yalnızca 4 alana izin veriyor, bu yüzden
-            // "doğrulandı" bilgisini ayrı bir alan yerine kaynak adında taşıyoruz —
-            // böylece güvenlik kurallarını değiştirmeye gerek kalmıyor.
-            source: 'welcome-dogrulanmis',
-            page: location.pathname,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          }).catch(function(){});
-        }catch(e){}
-        if(!SETTINGS.welcomeCouponCode) return;
-        renderWelcomeCodeScreen();
-        var wrap = document.getElementById('welcomeWrap');
-        if(wrap) wrap.classList.add('open');
-      }).catch(function(err){
-        console.warn('E-posta doğrulama tamamlanamadı:', err && err.message);
-      });
+      if(EMAIL_RE.test(email)){
+        tamamlaEmailLinkGirisi(email, function(){
+          // Hafızadaki adresle olmadıysa ziyaretçiye kendi penceremizde soralım.
+          renderWelcomeConfirmEmailScreen();
+          var wrap = document.getElementById('welcomeWrap');
+          if(wrap) wrap.classList.add('open');
+        });
+        return;
+      }
+      renderWelcomeConfirmEmailScreen();
+      var wrap = document.getElementById('welcomeWrap');
+      if(wrap) wrap.classList.add('open');
     }catch(e){ /* doğrulama akışı sitenin geri kalanını asla etkilemesin */ }
   }
-
   function renderWelcomeModal(){
     var body = document.getElementById('welcomeBody');
     body.innerHTML =
@@ -6264,6 +6428,46 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
       }
       listEl.innerHTML = currentUserAddresses.map(addressCardHtml).join('');
     }
+    // ---------- İl / ilçe yardımcıları ----------
+    // İl kapalı bir liste (81 il) olduğu için <select>. İlçe ise <datalist> ile
+    // ÖNERİ olarak sunuluyor: listede olmayan/yeni kurulmuş bir ilçe olsa bile
+    // müşteri elle yazabilir, sipariş asla engellenmez.
+    function normalizeIlAdi(s){
+      return String(s || '')
+        .replace(/İ/g, 'I').replace(/ı/g, 'i')
+        .toLowerCase()
+        .replace(/[çğöşü]/g, function(c){ return {'ç':'c','ğ':'g','ö':'o','ş':'s','ü':'u'}[c]; })
+        .replace(/[^a-z]/g, '');
+    }
+    function ilSelectHtml(secili){
+      var opts = ['<option value="">İl seç…</option>'];
+      TR_IL_LISTESI.forEach(function(il){
+        opts.push('<option value="' + escapeHtmlLocal(il) + '"' + (il === secili ? ' selected' : '') + '>' + escapeHtmlLocal(il) + '</option>');
+      });
+      return '<select id="addrCity">' + opts.join('') + '</select>';
+    }
+    function ilceOnerileriniDoldur(il){
+      var dl = document.getElementById('addrIlceList');
+      if(!dl) return;
+      dl.innerHTML = (TR_IL_ILCE[il] || []).map(function(x){
+        return '<option value="' + escapeHtmlLocal(x) + '">';
+      }).join('');
+    }
+    // Google adres tamamlamadan gelen il adını listedeki karşılığına oturtur
+    // ("Istanbul", "İSTANBUL" gibi yazımları da yakalar). Eşleşme yoksa dokunmaz.
+    function ilSeciminiAyarla(ad){
+      var sel = document.getElementById('addrCity');
+      if(!sel || !ad) return '';
+      var hedef = normalizeIlAdi(ad);
+      for(var i = 0; i < sel.options.length; i++){
+        if(sel.options[i].value && normalizeIlAdi(sel.options[i].value) === hedef){
+          sel.value = sel.options[i].value;
+          ilceOnerileriniDoldur(sel.value);
+          return sel.value;
+        }
+      }
+      return '';
+    }
     // ---------- Google adres otomatik tamamlama ----------
     // Panel → Ayarlar'a bir Google Maps API anahtarı girilene kadar bu özellik TAMAMEN
     // kapalıdır: hiçbir script yüklenmez, adres formu bugünkü gibi elle doldurulur.
@@ -6332,8 +6536,8 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
             if(!line1) line1 = p.formattedAddress || '';
             function fld(id){ return document.getElementById(id); }
             if(fld('addrLine1') && line1) fld('addrLine1').value = line1;
+            if(il) ilSeciminiAyarla(il);
             if(fld('addrDistrict') && ilce) fld('addrDistrict').value = ilce;
-            if(fld('addrCity') && il) fld('addrCity').value = il;
             if(fld('addrPostal') && posta) fld('addrPostal').value = posta;
             var hint = document.getElementById('addrAutoHint');
             if(hint) hint.textContent = 'Adres dolduruldu — kapı/daire numarası gibi eksikleri aşağıdan tamamlayabilirsin.';
@@ -6362,8 +6566,11 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
         '</div>' +
         '<div class="auth-field"><label>Açık Adres</label><input type="text" id="addrLine1" placeholder="Mahalle, sokak, no, daire..." value="'+escapeHtmlLocal(existing ? existing.line1 : '')+'"></div>' +
         '<div class="auth-row2">' +
-          '<div class="auth-field"><label>İlçe</label><input type="text" id="addrDistrict" value="'+escapeHtmlLocal(existing ? existing.district : '')+'"></div>' +
-          '<div class="auth-field"><label>İl</label><input type="text" id="addrCity" value="'+escapeHtmlLocal(existing ? existing.city : '')+'"></div>' +
+          '<div class="auth-field"><label>İl</label>' + ilSelectHtml(existing ? existing.city : '') + '</div>' +
+          '<div class="auth-field"><label>İlçe</label>' +
+            '<input type="text" id="addrDistrict" list="addrIlceList" autocomplete="off" placeholder="Seç ya da yaz" value="'+escapeHtmlLocal(existing ? existing.district : '')+'">' +
+            '<datalist id="addrIlceList"></datalist>' +
+          '</div>' +
         '</div>' +
         '<div class="auth-field"><label>Posta Kodu</label><input type="text" id="addrPostal" value="'+escapeHtmlLocal(existing ? (existing.postalCode||'') : '')+'"></div>' +
         '<div class="auth-consent"><input type="checkbox" id="addrIsDefault"' + ((existing && existing.isDefault) || !currentUserAddresses.length ? ' checked' : '') + '><label for="addrIsDefault">Varsayılan adresim yap</label></div>' +
@@ -6373,6 +6580,17 @@ var currentUserAddresses = []; // Kayıtlı adres defteri — hem checkout (sepe
           '<button type="button" class="btn ghost" id="addrCancelBtn">Vazgeç</button>' +
         '</div>';
       document.getElementById('addrCancelBtn').addEventListener('click', function(){ wrap.hidden = true; wrap.innerHTML = ''; });
+      // İl seçilince o ilin ilçeleri öneri listesine yüklenir; il değişirse eski
+      // ilçe yeni ile ait değilse temizlenir (yanlış il/ilçe eşleşmesi kalmasın).
+      var citySel = document.getElementById('addrCity');
+      if(citySel){
+        ilceOnerileriniDoldur(citySel.value);
+        citySel.addEventListener('change', function(){
+          ilceOnerileriniDoldur(citySel.value);
+          var d = document.getElementById('addrDistrict');
+          if(d && d.value && (TR_IL_ILCE[citySel.value] || []).indexOf(d.value) === -1) d.value = '';
+        });
+      }
       setupAddressAutocomplete();
       document.getElementById('addrSaveBtn').addEventListener('click', function(){
         var label = document.getElementById('addrLabel').value.trim() || 'Adres';

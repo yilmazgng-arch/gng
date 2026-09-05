@@ -1,5 +1,156 @@
 # Sonya Collection — Hostinger'a Yükleme Rehberi
 
+## Bu turda ne değişti — doğrulama e-postası artık tamamen bizim
+
+### Neden yöntem değişti
+
+Geçen turda hazırladığım Firebase e-posta şablonunu yapıştıracağın yeri aradık ama listede yoktu. Sebebini araştırdım: **Firebase, e-posta bağlantısıyla giriş (passwordless) e-postasının içeriğini düzenlemeye izin vermiyor.** Konsolda yalnızca üç şablon düzenlenebiliyor (şifre sıfırlama, e-posta değişikliği, e-posta doğrulama) — bizim kullandığımız dördüncüsü listede hiç yok. Firebase'in kendi hata/istek kayıtlarında da bunun için açılmış, hâlâ kapanmamış bir talep duruyor. Yani o yol kapalıydı; sana yanlış yönlendirme yaptığım için kusura bakma.
+
+Sen de "kendi sistemimizi kuralım" dedin — kurdum.
+
+### Yeni akış
+
+1. Ziyaretçi hoş geldin penceresine e-postasını yazar.
+2. **Sitenin kendi sunucusu** ona 6 haneli bir kod gönderir. E-posta senin alan adındaki hesaptan çıkar (örn. `siparis@sonyacollection.com`), tasarımı ve metni tamamen bize aittir: Sonya Collection başlığı, marka renkleri, Türkçe kurumsal metin, ortada büyük puntoyla kod.
+3. Ziyaretçi kodu pencereye yazar — 6. haneyi yazdığı an otomatik kontrol edilir, ayrıca butona basmasına gerek yok.
+4. Doğrulanınca yeşil onay işaretiyle **"E-postan doğrulandı / Teşekkürler, aramıza katıldın!"** ekranı ve indirim kodu çıkar.
+
+Artık Firebase'e, e-posta bağlantısına ve tarayıcı pencerelerine hiç ihtiyaç yok. Bağlantıya tıklayıp siteye dönme adımı da ortadan kalktı — kodu yazması yeterli, çok daha az kişi yolda kayboluyor.
+
+### Spam sorunu da bu şekilde çözülüyor
+
+Gmail'in "gereksiz e-posta" demesinin sebebi metin değil, **gönderen adresiydi**: Firebase kendi adresinden (`noreply@sonyacollection-62544.firebaseapp.com`) gönderiyordu. Artık e-posta senin kendi alan adından çıkacağı için bu uyuşmazlık kalmıyor.
+
+### ⚠️ Senin yapman gereken tek iş: e-posta hesabı ve şifresi
+
+1. **hPanel → E-postalar → E-posta Hesapları → "E-posta Hesabı Oluştur"**
+   Adres olarak `siparis@sonyacollection.com` öner(il)iyor; şifresini sen belirliyorsun. (Bu adres zaten varsa yeniden oluşturma, mevcut şifresini kullan.)
+2. Zip'teki `dogrulama/ayarlar.php` dosyasını **Not Defteri** ile aç ve şu iki satırı doldur:
+
+   ```
+   'smtp_kullanici' => 'siparis@sonyacollection.com',
+   'smtp_sifre'     => 'buraya o hesabın şifresi',
+   ```
+
+   Tırnak işaretlerini silme, sadece aralarını doldur. Dosyadaki başka hiçbir satıra dokunma.
+3. Dosyayı kaydet, sonra `dogrulama` klasörünü **olduğu gibi** `public_html` içine yükle.
+
+Şifre yazılı olduğu için `ayarlar.php` dosyasını kimseye gönderme; sunucuda zaten tarayıcıdan açılamayacak şekilde kilitli.
+
+> Şifreyi girmeden de site sorunsuz çalışır — sadece hoş geldin kuponu penceresi "e-posta şu an gönderilemedi" der. Yani acele etmene gerek yok, ama kupon çalışmaz.
+
+### Güvenlik tarafı (bilgin olsun diye)
+
+- Kod 6 haneli ve **15 dakika** geçerli; kullanıldıktan sonra anında siliniyor.
+- Aynı e-postaya **saatte en fazla 3**, aynı bağlantıdan saatte en fazla 15 kod gönderiliyor — kimse senin e-posta hesabını spam makinesine çeviremiyor.
+- **5 yanlış denemeden** sonra kod iptal oluyor, yeni kod istemek gerekiyor.
+- Kod sunucuda düz metin olarak durmuyor, şifrelenmiş hâlde tutuluyor.
+- Geçici kayıt dosyaları tarayıcıdan açılsa bile boş görünüyor; süresi dolanlar kendiliğinden siliniyor.
+- Kupon kodu yine **yalnızca doğrulamadan sonra** veriliyor.
+
+### Firebase'de artık gerek kalmayanlar
+
+Authentication → Sign-in method'daki **"Email link (passwordless sign-in)"** ayarını açık bırakabilirsin, zararı yok; artık kullanılmıyor. Firebase yalnızca üye girişi ve veritabanı için duruyor.
+
+Geçen turdaki `firebase-eposta-sablonu.html` dosyası bu zip'ten **çıkarıldı** — Firebase o şablonu kabul etmediği için işe yaramıyordu.
+
+### Yapılan testler
+
+- 15 HTML dosyasında JavaScript sözdizimi kontrolü (55 blok) — **0 hata**.
+- Sunucu tarafı PHP dosyalarının hepsi sözdizimi denetiminden geçti.
+- Uçtan uca test edildi: kod gönderiliyor, yanlış kod reddediliyor ("4 deneme hakkın kaldı" gibi Türkçe uyarıyla), doğru kod kabul ediliyor, aynı kod ikinci kez kullanılamıyor.
+- Sınırlar tek tek denendi: 4. istekte "çok istek" cevabı, 6. yanlış denemede kod iptali, GET ile çağırınca reddediliyor, ayar dosyası dışarıdan okunamıyor.
+- Tarayıcıda üç ekranın hepsi açıldı ve görüntülendi — metinler doğru, tasarım marka renklerinde, **sayfa hatası yok**.
+- Gönderilecek e-postanın görüntüsü kontrol edildi.
+- `admin.html` ile `panel/index.html` bayt bayt aynı.
+- Servis çalışanı sürümü **v12**'ye yükseltildi.
+
+
+## Bir önceki round (2026-09-05 — karşılama ekranları markalandı)
+
+İki şikâyet vardı: gelen doğrulama e-postası **düz ve İngilizce**, siteye dönünce de **çıplak bir tarayıcı kutusu** çıkıyordu. İkisi de çözüldü.
+
+### 1) Siteye dönüşteki ekranlar (bu zip'te, ek kurulum yok)
+
+Artık ziyaretçi dört ekran görüyor, hepsi Sonya Collection tasarımında, hepsi Türkçe:
+
+- **E-posta iste** — kodun e-postana geleceği net anlatılıyor.
+- **"Postanı Kontrol Et"** — zarf simgesi, hangi adrese gönderildiği yazıyor, gereksiz/spam klasörü uyarısı var.
+- **Doğrulandı** — yeşil onay işareti, *"HOŞ GELDİN — E-postan doğrulandı"*, *"Teşekkürler, aramıza katıldın!"*, altında kod kutusu, **Kodu Kopyala** ve **Alışverişe başla ›** butonları.
+- **E-posta doğrulama (farklı cihaz)** — bağlantıyı e-postayı istediğin cihazdan başka bir cihazda açarsan, çıplak tarayıcı kutusu yerine yine site tasarımında bir form çıkıyor.
+
+**Tarayıcının o çirkin `prompt` kutusu koddan tamamen kaldırıldı.** Hatalı bağlantı, süresi geçmiş bağlantı, yanlış yazılmış e-posta gibi durumlarda da İngilizce Firebase hatası değil, Türkçe ve anlaşılır bir mesaj çıkıyor.
+
+Kod hâlâ **yalnızca doğrulamadan sonra** veriliyor; doğrulanmamış e-postaya kod gitmiyor.
+
+### 2) Gelen e-postanın kendisi — `firebase-eposta-sablonu.html` (senin bir kere yapman gereken iş)
+
+Zip'in içinde `firebase-eposta-sablonu.html` diye bir dosya var. Bu dosya **siteye yüklenmez** — içeriği Firebase Console'a yapıştırılır. Beş dakikalık iş:
+
+1. [console.firebase.google.com](https://console.firebase.google.com) → `sonyacollection-62544` projesi
+2. Sol menü **Authentication** → üstteki **Templates** sekmesi
+3. Açılır listeden **"Email address sign-in"** (E-posta adresiyle oturum açma) şablonunu seç
+4. Sağdaki **kalem** (düzenle) simgesine bas ve şunları gir:
+
+   | Alan | Yazılacak |
+   |---|---|
+   | Sender name | `Sonya Collection` |
+   | Reply-to | `siparis@sonyacollection.com` |
+   | Subject | `Sonya Collection — e-posta adresini doğrula` |
+
+5. **Message** kutusundaki İngilizce metnin **hepsini sil**, yerine `firebase-eposta-sablonu.html` dosyasını Not Defteri ile açıp **en üstteki açıklama bloğunun altında kalan** kısmı (`<table` ile başlayan yer) kopyalayıp yapıştır.
+6. **Save** / Kaydet.
+
+Bundan sonra müşteriye giden e-posta: Sonya Collection başlığı, marka renkleri, Türkçe kurumsal metin ve yuvarlak **"E-postamı Doğrula"** butonu. Buton çalışmazsa diye altında kopyalanabilir bağlantı da var.
+
+> E-postada dış görsel (logo dosyası) **kasten** kullanılmadı: e-posta programlarının çoğu dış görselleri varsayılan olarak engelliyor, o zaman e-posta kırık görünür. Marka yazı tipi ve renklerle kuruldu — her yerde aynı görünüyor.
+
+### 3) E-posta "Gereksiz e-posta" (spam) klasörüne düşüyorsa
+
+Ekran görüntünde Gmail *"Bu ileti gereksiz e-posta olarak tanımlandı"* demiş. Sebebi şu ve **dürüst olmak gerekirse şablonla çözülmüyor**: e-postanın gönderen adresi Firebase'e ait — `noreply@sonyacollection-62544.firebaseapp.com`. Yani adres senin alan adın değil; Gmail de "Sonya Collection diyor ama sonyacollection.com'dan gelmiyor" diye şüpheleniyor.
+
+Üç seçenek var:
+
+- **Şimdilik hiçbir şey yapma.** Görsel olarak markalı ve Türkçe olduğu için müşteri artık "bu ne" demiyor; spam'e düşse bile tanıyıp açıyor. Şablona geçtikten sonra durumun düzelme ihtimali de var, çünkü içeriği anlaşılır bir e-posta spam puanı almaz.
+- **Kalıcı çözüm:** Firebase Authentication'da **özel alan adı (custom domain)** tanımlamak. Firebase Console → Authentication → Templates → sağ üstte "Customize domain". Firebase sana birkaç DNS kaydı veriyor, onları Hostinger → DNS bölümüne ekliyorsun; sonra e-postalar `noreply@sonyacollection.com` adresinden gidiyor ve spam sorunu ortadan kalkıyor. İstersen bir sonraki turda adım adım birlikte yaparız.
+- Müşteriye "gereksiz klasörüne bakın" demeyi ekrandaki metin zaten yapıyor.
+
+### Yapılan testler
+
+- 15 HTML dosyasında JavaScript sözdizimi kontrolü (55 blok) — **0 hata**.
+- Dört karşılama ekranı da tarayıcıda tek tek açılıp görüntülendi: metinler doğru, tasarım marka renklerinde, sayfa hatası yok.
+- `window.prompt` kodda hiç kalmadı — arandı, 0 sonuç.
+- `admin.html` ile `panel/index.html` bayt bayt aynı (md5 eşit).
+- Servis çalışanı sürümü v10 → **v11**'e yükseltildi; ziyaretçilerin tarayıcısında eski sayfa takılı kalmayacak.
+
+
+## Bir önceki round (2026-09-05 — adres formunda il/ilçe listesi)
+
+Google adres tamamlama için Google, Türkiye'deki hesabından **tek seferlik 500 ₺ ön ödeme** istedi. Bu para hesabına kredi olarak yüklenip ancak Cloud fatura hesabını kapatınca iade ediliyor; adres tamamlamanın senin hacmindeki gerçek maliyeti ise sıfıra yakın. Yani 500 ₺ yıllarca kullanılmadan orada duracaktı — o yüzden bundan vazgeçip **hiçbir dış servise ihtiyaç duymayan** sürümü kurduk.
+
+**Ne değişti:**
+
+- **İl** artık serbest yazı değil, **81 ilin bulunduğu açılır liste**. "istanbul / İstanbul / Istambul" gibi farklı yazımlar ve yazım hataları tamamen ortadan kalkıyor — kargo etiketindeki en kritik alan bu.
+- **İlçe** için o ilin ilçeleri **öneri olarak** çıkıyor (toplam 973 ilçe). Müşteri yazmaya başlayınca liste süzülüyor, tıklayıp seçebiliyor.
+- İl ve ilçenin sırası da değişti: önce **İl**, sonra **İlçe** — çünkü ilçe listesi seçilen ile göre doluyor.
+- İl değiştirilirse, o ile ait olmayan ilçe otomatik temizleniyor (İstanbul/Çankaya gibi imkânsız eşleşmeler kalmasın diye).
+- Kayıtlı bir adres düzenlenirken il doğru seçili geliyor, ilçe önerileri de otomatik yükleniyor.
+
+**Önemli tasarım kararı:** ilçe alanı kapalı bir liste (`select`) değil, **öneri listesi** (`datalist`). Sebebi şu: Türkiye'de zaman zaman yeni ilçe kuruluyor ve listede eksik bir ilçe olsaydı o ilçedeki müşteri **adresini hiç giremezdi**, yani sipariş veremezdi. Öneri listesinde ise eksik bir isim olsa bile müşteri elle yazıp devam edebiliyor. Yazım hatalarının büyük kısmı önleniyor ama hiçbir müşteri kilitlenmiyor.
+
+Veri tamamen sitenin içinde: internet bağlantısı, hesap, kart, API anahtarı gerekmiyor. Sayfa boyutuna etkisi ~11 KB.
+
+**Google tarafı silinmedi.** Adres tamamlama kodu yerinde duruyor ve kapalı bekliyor; ileride bir gün Google'ın ön ödeme koşulunu aşmak istersen panele anahtarı girdiğin an devreye girer. O zaman Google'dan gelen il adı ("Istanbul", "İSTANBUL" gibi farklı yazımlar dahil) listedeki doğru ile otomatik oturtuluyor — bunu da test ettim.
+
+**Ayrıca bu zip'te:** bir önceki turdaki `favicon.ico` ve `.htaccess` (www yönlendirmesi) değişiklikleri de duruyor. **`.htaccess` hâlâ sunucuya çıkmadı** — Dosya Yöneticisi'nde "Gizli dosyaları göster"i açıp `public_html`'e yüklemen gerekiyor.
+
+### Yapılan testler
+
+- 15 HTML dosyasında JavaScript sözdizimi kontrolü — temiz.
+- Adres formu tarayıcıda test edildi: 81 il listeleniyor; İstanbul seçilince 39, Ankara'da 25, İzmir'de 30 ilçe önerisi geliyor; il değişince uyumsuz ilçe temizleniyor; listede olmayan bir ilçe elle yazılabiliyor; kayıtlı adres düzenlemede il/ilçe doğru geliyor.
+- Google anahtarı girilmemişken "Adres Ara" alanı gizli ve Google'a hiç istek gitmiyor — doğrulandı.
+- İl adı eşleştirme: "Istanbul", "İSTANBUL", "Izmir", "Kahramanmaras" yazımlarının hepsi doğru ile eşleşiyor.
+
 ## ⚠️ Önce şunu kontrol et: .htaccess sunucuya çıkmamış
 
 Az önce canlı siteyi denetledim: `www.sonyacollection.com/yeni-sezon.html` hâlâ Yeni Sezon sayfasını açıyor. Yani **bir önceki turdaki www yönlendirmesi sunucuya hiç ulaşmamış.** Sebebi neredeyse kesin: `.htaccess` nokta ile başladığı için Hostinger Dosya Yöneticisi'nde varsayılan olarak **görünmez** ve zip'i açarken atlanmış oluyor.
