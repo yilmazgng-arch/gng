@@ -2,6 +2,12 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
+<!-- www YEDEK YONLENDIRMESI
+     Asil yonlendirme sunucudaki .htaccess dosyasinda. O dosya bir sekilde
+     yerinde degilse ya da sunucu ayari devre disiysa, ziyaretci yine de tek
+     adreste toplansin diye bu kucuk yedek burada duruyor. .htaccess calisiyorsa
+     bu kod hic devreye girmez (istek zaten sunucuda yonlendirilmis olur). -->
+<script>(function(){try{var h=location.hostname;if(h.lastIndexOf("www.",0)===0){location.replace(location.protocol+"//"+h.slice(4)+"/");}}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sonya Collection — Yönetici Paneli</title>
 <meta name="robots" content="noindex, nofollow">
@@ -400,6 +406,19 @@ a{color:inherit;}
 .order-card .oc-tracking{margin-top:8px;}
 .oc-referral-badge{color:#b5732a;font-weight:700;}
 
+/* ---------- Pazarlama listesi ---------- */
+.mkt-filter{display:inline-flex;align-items:center;gap:7px;font-size:.85rem;white-space:nowrap;}
+.mkt-filter input{width:16px;height:16px;}
+.mkt-row{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line);}
+.mkt-main{flex:1;min-width:0;}
+.mkt-name{font-weight:600;font-size:.92rem;word-break:break-word;}
+.mkt-contact{font-size:.82rem;opacity:.85;word-break:break-all;margin-top:2px;}
+.mkt-meta{font-size:.76rem;opacity:.65;margin-top:3px;}
+.mkt-izin{flex:none;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+.mkt-izin.evet{background:#DDEBDC;color:#2F5D33;}
+.mkt-izin.hayir{background:#F1E3DC;color:#8A4A2C;}
+.mkt-izin.bilinmiyor{background:#EDE6DA;color:#6B5B45;}
+
 /* ---------- CSV içe/dışa aktarma ---------- */
 .csv-summary{background:var(--surface-2);border-radius:var(--radius-m);padding:12px 14px;margin-bottom:14px;font-size:0.84rem;color:var(--espresso);line-height:1.6;}
 .csv-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:0.82rem;flex-wrap:wrap;}
@@ -546,7 +565,7 @@ a{color:inherit;}
   <div class="fs-card">
     <div class="fs-logo">S</div>
     <h1>Şifre Sıfırlama</h1>
-    <p class="fs-sub">E-posta adresine sıfırlama bağlantısı gönderelim.</p>
+    <p class="fs-sub">E-posta adresinize sıfırlama bağlantısı gönderelim.</p>
     <div class="form-error" id="forgotError"></div>
     <form id="forgotForm">
       <div class="field">
@@ -566,7 +585,7 @@ a{color:inherit;}
   <div class="fs-card">
     <div class="fs-logo">S</div>
     <h1>Yetkiniz Yok</h1>
-    <p class="fs-sub" id="deniedSub">Bu hesabın yönetici paneline erişim yetkisi bulunmuyor.</p>
+    <p class="fs-sub" id="deniedSub">Bu hesabınız yönetici paneline erişim yetkisi bulunmuyor.</p>
     <div class="legal-hint" style="text-align:left;">
       Erişim, Firebase Console'daki <strong>admins</strong> koleksiyonunda kullanıcı kimliğinizin (UID) manuel olarak eklenmesiyle açılır. Site sahibinden bu hesabı yetkilendirmesini isteyin.
     </div>
@@ -706,7 +725,7 @@ a{color:inherit;}
       <div class="panel-head">
         <div>
           <h2>Kuponlar</h2>
-          <div class="sub">Müşteriler sepette bu kodu girip indirim uygulayabilir. Yüzde ya da sabit tutar olarak ayarlayabilirsin.</div>
+          <div class="sub">Müşteriler sepette bu kodu girip indirim uygulayabilir. Yüzde ya da sabit tutar olarak ayarlayabilirsiniz.</div>
         </div>
       </div>
       <div class="card">
@@ -738,7 +757,7 @@ a{color:inherit;}
         </div>
       </div>
       <div class="card">
-        <div class="empty-state" style="margin-bottom:14px;">Tükenen bir ürünü "haberim olsun" diyerek e-posta bırakan müşteriler burada listelenir. Ürün stoğa girince kendin e-posta/mesaj ile haber verip talebi kaldırabilirsin — otomatik gönderim yapılmaz.</div>
+        <div class="empty-state" style="margin-bottom:14px;">Tükenen bir ürünü "haberim olsun" diyerek e-posta bırakan müşteriler burada listelenir. Ürün stoğa girince kendiniz e-posta/mesaj ile haber verip talebi kaldırabilirsiniz — otomatik gönderim yapılmaz.</div>
         <div id="restockList"></div>
       </div>
     </section>
@@ -804,6 +823,53 @@ a{color:inherit;}
       </div>
       <div class="card">
         <div class="settings-section">
+          <h3>Terk Edilen Sepetler</h3>
+          <p class="sec-sub">Sepetinize ürün ekleyip e-postasını bırakan ama siparişi tamamlamayan ziyaretçiler. E-ticarette geri kazanım oranı en yüksek adım budur.</p>
+          <p class="sec-sub" id="cartMailLabel">Yükleniyor…</p>
+          <div class="add-inline" style="flex-wrap:wrap;align-items:center;">
+            <label class="mkt-filter">Kaç saat beklesin:
+              <input type="number" id="cartMailHours" min="1" max="720" value="4" style="width:70px;">
+            </label>
+            <button type="button" class="btn btn-ghost btn-sm" id="cartMailRefreshBtn" style="width:auto;">Listeyi Yenile</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="cartMailSendBtn" style="width:auto;">İzinlilere Hatırlat</button>
+          </div>
+          <div id="cartMailList"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="settings-section">
+          <h3>Yorum Daveti</h3>
+          <p class="sec-sub">Teslim edilen siparişleriniz sahiplerine, aldıkları ürünlere yorum bırakmalarını isteyen kısa bir e-posta gönderir. Yorum sayısı arttıkça yeni müşterinin tereddüdü azalır — sosyal kanıt satışın en ucuz yakıtıdır.</p>
+          <div class="field">
+            <label for="mailPanelKey">Panel e-posta anahtarı</label>
+            <input type="password" id="mailPanelKey" placeholder="dogrulama/ayarlar.php içindeki 'panel_anahtari' ile aynı olmalı">
+            <div class="legal-hint" style="margin-top:6px;">Bu anahtar sunucudan e-posta gönderebilmek için gerekli ve <strong>yalnızca bu tarayıcıda</strong> saklanır — Firestore'a yazılmaz. Başka bir cihazdan girdiğinde tekrar yazmanız gerekir.</div>
+          </div>
+          <p class="sec-sub" id="reviewMailLabel">Yükleniyor…</p>
+          <div class="add-inline" style="flex-wrap:wrap;align-items:center;">
+            <label class="mkt-filter">Teslimattan kaç gün sonra:
+              <input type="number" id="reviewMailDays" min="0" max="60" value="3" style="width:70px;">
+            </label>
+            <button type="button" class="btn btn-ghost btn-sm" id="reviewMailSendBtn" style="width:auto;">Davetleri Gönder</button>
+          </div>
+          <div id="reviewMailList"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="settings-section">
+          <h3>Pazarlama Listesi</h3>
+          <p class="sec-sub">Kupon için e-postasını doğrulayanlar ve sipariş verenler tek listede birleştirildi. Aynı kişi birden fazla kaynakta varsa tek satır olarak görünür. Kampanya e-postası / SMS'i göndermeden önce <b>İzin</b> sütununu okuyun.</p>
+          <p class="sec-sub" id="mktCountLabel">Yükleniyor…</p>
+          <div class="add-inline" style="flex-wrap:wrap;align-items:center;">
+            <input type="text" id="mktSearch" placeholder="İsim, e-posta veya telefon ara…">
+            <label class="mkt-filter"><input type="checkbox" id="mktOnlyConsent"> Sadece izin verenler</label>
+            <button type="button" class="btn btn-ghost btn-sm" id="mktCsvBtn" style="width:auto;">CSV Dışa Aktar</button>
+          </div>
+          <div id="mktList"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="settings-section">
           <h3>Toplanan E-postalar</h3>
           <p class="sec-sub" id="leadCountLabel">Yükleniyor…</p>
           <div id="leadList"></div>
@@ -812,7 +878,7 @@ a{color:inherit;}
       <div class="card">
         <div class="settings-section">
           <h3>Instagram Vitrini</h3>
-          <p class="sec-sub">Ana sayfaya, seçtiğin gerçek Instagram gönderilerinden oluşan bir vitrin ekler. Otomatik/canlı bir akış değildir (Instagram'ın kendi API'sine bağlanmak ayrı bir başvuru süreci gerektirir) — istediğin gönderinin fotoğrafını buradan yükleyip, istersen gönderinin linkini de ekleyerek elle ekliyorsun. Hiç gönderi eklemezsen bu bölüm sitede hiç görünmez.</p>
+          <p class="sec-sub">Ana sayfaya, seçtiğiniz gerçek Instagram gönderilerinden oluşan bir vitrin ekler. Otomatik/canlı bir akış değildir (Instagram'ın kendi API'sine bağlanmak ayrı bir başvuru süreci gerektirir) — istediğiniz gönderinin fotoğrafını buradan yükleyip, isterseniz gönderinin linkini de ekleyerek elle ekliyorsunuz. Hiç gönderi eklemezsen bu bölüm sitede hiç görünmez.</p>
           <div id="instaPostList"></div>
           <div class="add-inline" style="flex-wrap:wrap;align-items:flex-start;">
             <button type="button" class="btn btn-ghost" id="instaAddPhotoBtn" style="width:auto;">+ Fotoğraf Seç</button>
@@ -925,7 +991,7 @@ a{color:inherit;}
 
         <div class="settings-section">
           <h3>Kapıda Ödeme &amp; Havale/EFT</h3>
-          <p class="sec-sub">İkisi de gerçek bir ödeme altyapısı gerektirmez — sipariş normal akışla (WhatsApp/Instagram siparişleri gibi) kaydedilir, ödeme teslimatta ya da havale sonrası elle onaylanır. Kapıda ödeme kutusunu işaretlediğinde checkout'ta seçenek görünür; havale/EFT için üç alanı da doldurman yeterli.</p>
+          <p class="sec-sub">İkisi de gerçek bir ödeme altyapısı gerektirmez — sipariş normal akışla (WhatsApp/Instagram siparişleri gibi) kaydedilir, ödeme teslimatta ya da havale sonrası elle onaylanır. Kapıda ödeme kutusunu işaretlediğinde checkout'ta seçenek görünür; havale/EFT için üç alanı da doldurmanız yeterli.</p>
           <label class="variant-toggle-label" for="setCodEnabled">
             <input type="checkbox" id="setCodEnabled"> Kapıda ödeme sitede aktif
           </label>
@@ -992,7 +1058,7 @@ a{color:inherit;}
 
         <div class="settings-section">
           <h3>Hediye Paketi</h3>
-          <p class="sec-sub">Açarsan, checkout'ta "Hediye paketiyle gönder" seçeneği görünür — gerçek bir otomasyon yok, siparişte bu işaretliyse elle hediye paketi yapman gerekir.</p>
+          <p class="sec-sub">Açarsan, checkout'ta "Hediye paketiyle gönder" seçeneği görünür — gerçek bir otomasyon yok, siparişte bu işaretliyse elle hediye paketi yapmanız gerekir.</p>
           <label class="variant-toggle-label" for="setGiftWrapEnabled">
             <input type="checkbox" id="setGiftWrapEnabled"> Hediye paketi seçeneği sitede aktif
           </label>
@@ -1015,6 +1081,56 @@ a{color:inherit;}
             <label for="setGoogleMapsKey">Google Maps API Anahtarı</label>
             <input type="text" id="setGoogleMapsKey" placeholder="AIza...">
             <div class="hint">Bu anahtar sitenin kaynak kodunda görünür (Google'ın tasarımı böyle) — bu yüzden yukarıdaki adres kısıtlamasını eklemek önemli, aksi halde başkası anahtarını kullanabilir.</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Şirket Bilgileri</h3>
+          <div class="legal-hint">
+            Şirketiniz kurulduğunda burayı doldurmanız yeterli. Girdiğiniz bilgiler
+            <strong>Ön Bilgilendirme Formu</strong> ve <strong>Mesafeli Satış Sözleşmesi</strong>
+            başındaki resmî satıcı künyesine ve yasal metinlerdeki köşeli parantezli
+            boşluklara <strong>kendiliğinden</strong> yerleşir. Boş bıraktığınız alanlar sitede hiç görünmez.
+          </div>
+          <div class="field">
+            <label for="setCoName">Ticaret unvanı / Şahıs adı</label>
+            <input type="text" id="setCoName" placeholder="Örn: Ayşe Yılmaz — Sonya Collection">
+          </div>
+          <div class="field">
+            <label for="setCoAddress">Açık adres</label>
+            <input type="text" id="setCoAddress" placeholder="Mahalle, sokak, no, ilçe/il">
+          </div>
+          <div class="field">
+            <label for="setCoPhone">Telefon</label>
+            <input type="text" id="setCoPhone" placeholder="0XXX XXX XX XX">
+          </div>
+          <div class="field">
+            <label for="setCoEmail">İletişim e-postası</label>
+            <input type="text" id="setCoEmail" placeholder="Boş bırakılırsa siparis@sonyacollection.com kullanılır">
+          </div>
+          <div class="field">
+            <label for="setCoTaxOffice">Vergi dairesi</label>
+            <input type="text" id="setCoTaxOffice" placeholder="Örn: Kadıköy V.D.">
+          </div>
+          <div class="field">
+            <label for="setCoTaxNo">Vergi no / TC kimlik no</label>
+            <input type="text" id="setCoTaxNo" placeholder="Şahıs şirketinde TC kimlik no yazılır">
+          </div>
+          <div class="field">
+            <label for="setCoMersis">MERSİS no</label>
+            <input type="text" id="setCoMersis" placeholder="Varsa; şahıs şirketlerinde genelde boş kalır">
+          </div>
+          <div class="field">
+            <label for="setCoEtbisNo">ETBİS kayıt numarası</label>
+            <input type="text" id="setCoEtbisNo" placeholder="Doldurulunca site altında ETBİS rozeti görünür">
+          </div>
+          <div class="field">
+            <label for="setCoEtbisUrl">ETBİS doğrulama bağlantısı</label>
+            <input type="text" id="setCoEtbisUrl" placeholder="ETBİS'in verdiği doğrulama adresi (opsiyonel)">
+          </div>
+          <div class="field">
+            <label for="setCoReturnShipping">İade kargo masrafını kim karşılıyor?</label>
+            <input type="text" id="setCoReturnShipping" placeholder="Örn: tarafımızca karşılanır / alıcıya aittir">
           </div>
         </div>
 
@@ -1058,9 +1174,22 @@ a{color:inherit;}
             <textarea id="setCerez"></textarea>
           </div>
           <div class="field">
-            <label for="setBeden">Beden Rehberi</label>
-            <textarea id="setBeden"></textarea>
+            <label for="setSizeChart">Beden Ölçü Tablosu</label>
+            <textarea id="setSizeChart"></textarea>
+            <div class="hint">Sitede <strong>gerçek bir tablo</strong> olarak görünür. Her satır bir beden, sütunlar <strong>|</strong> işaretiyle ayrılır; <strong>ilk satır başlıktır</strong>. Sütun sayısını değiştirebilir (ör. "Kol boyu" ekleyebilir), satır ekleyip çıkarabilirsiniz. Boş bırakırsanız tablo hiç görünmez, yalnızca aşağıdaki açıklama metni çıkar.</div>
           </div>
+          <div class="field">
+            <label for="setBeden">Beden Rehberi — Açıklama</label>
+            <textarea id="setBeden"></textarea>
+            <div class="hint">Tablonun altında görünen açıklama: ölçü nasıl alınır, kalıp notu vb. Buradaki "S (36) / Göğüs: ..." biçimindeki eski ölçü blokları, tablo dolu olduğunda sitede otomatik gizlenir — aynı bilgi iki kez görünmesin diye.</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Veri Yedekleme</h3>
+          <p class="sec-sub">Ürünler, siparişler, kuponlar, kategoriler, yorumlar, sorular, iade talepleri, stok bildirimleri, e-posta listesi ve ayarlar — hepsi tek bir dosyaya indirilir. <strong>Ayda bir almanız yeterli.</strong> Dosyayı bilgisayarınızda ya da bir bulut klasöründe saklayın; içinde müşteri bilgileri olduğu için kimseyle paylaşmayın.</p>
+          <div class="migration-status" id="yedekDurum"></div>
+          <button type="button" class="btn btn-ghost" id="yedekAlBtn" style="width:auto;">Tüm Veriyi Yedekle</button>
         </div>
 
         <div class="settings-section">
@@ -1183,7 +1312,7 @@ a{color:inherit;}
           <input type="text" id="colorLabel" placeholder="Renk adı (opsiyonel, örn. Kahverengi)">
           <button type="button" class="btn btn-ghost btn-sm" id="addColorBtn">Ekle</button>
         </div>
-        <div class="hint">Her rengin yanındaki "+ Foto" ile o renge özel bir fotoğraf ekleyebilirsin — eklersen müşteri sitede o rengi seçtiğinde ürün fotoğrafı otomatik değişir. Eklemezsen ürünün genel fotoğrafı gösterilmeye devam eder, sorun olmaz.</div>
+        <div class="hint">Her rengin yanındaki "+ Foto" ile o renge özel bir fotoğraf ekleyebilirsiniz — eklersen müşteri sitede o rengi seçtiğinde ürün fotoğrafı otomatik değişir. Eklemezsen ürünün genel fotoğrafı gösterilmeye devam eder, sorun olmaz.</div>
         <input type="file" id="colorPhotoInput" accept="image/*" class="visually-hidden">
       </div>
 
@@ -1203,7 +1332,24 @@ a{color:inherit;}
       </div>
 
       <div class="field">
-        <label for="prodFabric">Kumaş (opsiyonel)</label>
+        <label for="prodFabricDetail">Kumaş içeriği (opsiyonel)</label>
+        <input type="text" id="prodFabricDetail" placeholder="Örn: %70 yün, %30 viskon" maxlength="120">
+      </div>
+      <div class="field">
+        <label for="prodModelInfo">Model bilgisi (opsiyonel)</label>
+        <input type="text" id="prodModelInfo" placeholder="Örn: Modelin boyu 1.72 cm, S beden giyiyor" maxlength="120">
+      </div>
+      <div class="field">
+        <label for="prodMeasurements">Ürün ölçüleri (opsiyonel)</label>
+        <textarea id="prodMeasurements" style="min-height:80px;" placeholder="Her satıra bir beden yazın:&#10;S: Göğüs 96 cm · Boy 84 cm&#10;M: Göğüs 100 cm · Boy 86 cm"></textarea>
+        <div class="legal-hint" style="margin-top:6px;">Her satır sitede ayrı bir ölçü satırı olarak görünür. “Beden: ölçüler” biçiminde yazarsanız beden kalın gösterilir. <strong>Kadın giyiminde satın almayı durduran bir numaralı soru “bana olur mu?” — bu alan hem satışı artırır hem iadeyi düşürür.</strong></div>
+      </div>
+      <div class="field">
+        <label for="prodCare">Yıkama / bakım (opsiyonel)</label>
+        <input type="text" id="prodCare" placeholder="Örn: 30°C'de ters yüz yıkayın, kurutma makinesine girmez" maxlength="160">
+      </div>
+      <div class="field">
+        <label for="prodFabric">Kumaş türü — filtre için (opsiyonel)</label>
         <input type="text" id="prodFabric" placeholder="Örn: Keten, Viskon, Kadife" maxlength="40">
         <div class="hint">Doldurursan sitede otomatik bir "Kumaş" filtresi belirir. Boş bırakırsan hiçbir şey değişmez.</div>
       </div>
@@ -1345,7 +1491,7 @@ a{color:inherit;}
   function uploadVideoToCloudinary(file, onProgress, folder){
     return new Promise(function(resolve, reject){
       if(file.size > MAX_PRODUCT_VIDEO_BYTES){
-        reject(new Error('Video çok büyük (en fazla 25MB). Daha kısa/sıkıştırılmış bir video dener misin?'));
+        reject(new Error('Video çok büyük (en fazla 25MB). Daha kısa/sıkıştırılmış bir video dener misiniz?'));
         return;
       }
       var xhr = new XMLHttpRequest();
@@ -1391,6 +1537,9 @@ a{color:inherit;}
     {id:12, cat:"Elbiseler", name:"Pudra Drape Elbise", price:1790, colors:["#C79768","#F6EFE4"], sizes:["S","M","L","XL"], stock:0, desc:"Yumuşak pudra tonunda, drape detaylı zarif midi elbise."}
   ];
   var DEFAULT_REAL_CATEGORIES = ["Pelerinler","Kimonolar","Takımlar","Elbiseler"];
+  // Şirket kimlik bilgileri — hepsi boş başlar, kurulunca panelden doldurulur.
+  var SIRKET_ALANLARI = ['name', 'address', 'phone', 'email', 'taxOffice', 'taxNo',
+                         'mersis', 'etbisNo', 'etbisUrl', 'returnShipping'];
   var DEFAULT_SETTINGS = {
     whatsapp: "90XXXXXXXXXX",
     instagram: "sonyacollectiion",
@@ -1421,17 +1570,28 @@ a{color:inherit;}
     goldEarlyAccessHours: 24,
     topSellerIds: [],
     legal: {
-      gizlilik: "Sonya Collection olarak ([Şirket/Şahıs Adı]) müşterilerimizin gizliliğine önem veriyoruz. Bu sayfa, siteyi kullanırken hangi bilgilerin toplandığını ve nasıl kullanıldığını açıklar.\n\nHangi bilgileri topluyoruz?\nHesap oluşturduğunda: ad soyad ve e-posta adresin (Firebase Authentication üzerinden). Sipariş verdiğinde: sepetindeki ürünler, beden ve tutar bilgisi — bu bilgiler WhatsApp/Instagram üzerinden bize ilettiğin mesajın içinde yer alır. Sepet ve favori listen, tarayıcının hafızasında (localStorage) senin cihazında saklanır; bize otomatik olarak gönderilmez.\n\nBilgilerini kimlerle paylaşıyoruz?\nHesap bilgilerin Google/Firebase altyapısında saklanır. Sipariş mesajların WhatsApp ve Instagram (Meta) üzerinden bize ulaşır ve bu platformların kendi gizlilik politikaları geçerlidir. Bilgilerini bu iki amaç dışında üçüncü taraflarla paylaşmıyor, satmıyoruz.\n\nHaklarınız\nKişisel verilerinle ilgili sorular veya silme talepleri için siparis@sonyacollection.com adresinden bize ulaşabilirsin.",
-      kvkk: "Veri Sorumlusu: [Şirket/Şahıs Adı], [Adres] (\"Sonya Collection\")\n\n6698 sayılı Kişisel Verilerin Korunması Kanunu (\"KVKK\") uyarınca, kişisel verilerin işlenmesine ilişkin olarak seni bilgilendirmek isteriz.\n\nİşlenen kişisel veriler\nKimlik ve iletişim bilgileri: ad soyad, e-posta adresi. Sipariş bilgileri: ürün, beden, adet, tutar, teslimat bilgileri.\n\nİşleme amaçları\nHesabının oluşturulması ve yönetilmesi. Siparişlerinin alınması ve iletişimin sürdürülmesi. Yasal yükümlülüklerin yerine getirilmesi.\n\nAktarım\nVerilerin, hesap altyapısı için Google/Firebase'e ve sipariş iletişimi için WhatsApp/Instagram (Meta) platformlarına, yalnızca bu hizmetlerin çalışması için gerekli ölçüde aktarılabilir.\n\nKVKK md. 11 kapsamındaki hakların\nKişisel verilerinin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, düzeltilmesini veya silinmesini isteme hakkına sahipsin. Taleplerin için siparis@sonyacollection.com adresine yazabilirsin.",
-      iade: "Cayma hakkı\nMesafeli Sözleşmeler Yönetmeliği kapsamında, ürünü teslim aldığın tarihten itibaren 14 gün içinde herhangi bir gerekçe göstermeden cayma hakkına sahipsin.\n\nİade şartları\nÜrün kullanılmamış, yıkanmamış ve etiketleri çıkarılmamış olmalı. Mümkünse orijinal ambalajıyla birlikte gönderilmeli. İç giyim, mayo/bikini gibi hijyen bandı sökülmüş ürünlerde iade kabul edilmeyebilir.\n\nNasıl iade/değişim talep edilir?\nSipariş numaranla birlikte Instagram ya da WhatsApp üzerinden bize ulaş; iade adresini ve süreci seninle birlikte netleştirelim.\n\nKargo ücreti\n[Kargo ücretini kim karşılıyor buraya eklenecek — örn. \"İade kargo ücreti alıcıya aittir\" ya da \"İlk iadede kargo ücretsizdir.\"]",
-      uyelik: "İşbu Üyelik Sözleşmesi, Sonya Collection (\"[Şirket/Şahıs Adı]\", \"biz\") ile siteye üye olan kullanıcı (\"Üye\", \"sen\") arasında, sitenin kullanım şartlarını belirlemek amacıyla düzenlenmiştir.\n\nÜyelik\nÜye olmak için ad soyad ve e-posta adresi ile bir hesap oluşturulur. Üye, kayıt sırasında verdiği bilgilerin doğru ve güncel olduğunu kabul eder. Hesap bilgileri (e-posta, şifre) üçüncü kişilerle paylaşılmamalıdır; hesap üzerinden yapılan işlemlerden Üye sorumludur.\n\nSiparişler\nSitede oluşturulan sepet, WhatsApp veya Instagram üzerinden bize iletilen bir sipariş talebidir; ödeme ve teslimat detayları bu iletişim kanalları üzerinden ayrıca netleştirilir.\n\nFesih\nÜye, dilediği zaman hesabının silinmesini talep edebilir. Bu talepler için siparis@sonyacollection.com adresinden bize ulaşabilirsin.\n\nDeğişiklikler\nBu sözleşme, güncellenen koşulları yansıtmak amacıyla zaman zaman güncellenebilir; güncel hali her zaman bu sayfada yer alır.",
-      ileti: "Bu onay, Sonya Collection tarafından kampanya, indirim ve yeni ürün duyurularının e-posta ve/veya kayıt sırasında paylaştığın telefon numarası üzerinden (SMS/WhatsApp) tarafına iletilmesi içindir.\n\n6563 sayılı Elektronik Ticaretin Düzenlenmesi Hakkında Kanun ve ilgili Ticari İletişim ve Ticari Elektronik İletiler Hakkında Yönetmelik uyarınca, ticari elektronik ileti gönderimi ancak açık onayınla mümkündür.\n\nBu onayı vermek tamamen isteğe bağlıdır; onay vermemen üyeliğini veya sipariş verebilmeni hiçbir şekilde etkilemez. Dilediğin zaman gönderdiğimiz iletilerdeki \"Ret\" bağlantısını kullanarak ya da siparis@sonyacollection.com adresine yazarak bu onayı geri alabilirsin.",
-      cerez: "Bu site hangi çerezleri kullanır?\nAlışveriş deneyimini iyileştirmek, tercihlerini hatırlamak, site trafiğini analiz etmek ve kampanyalarımızı ölçmek için çerezler ve benzeri teknolojiler (localStorage) kullanıyoruz.\n\nZorunlu çerezler\nSepetin, favori listen ve oturum bilgilerin tarayıcının hafızasında (localStorage) saklanır. Bunlar sitenin çalışması için gereklidir, kapatılamaz.\n\nAnaliz ve reklam çerezleri\nİzin verirsen Google Analytics (GA4) ve Meta Pixel ile site trafiğini analiz eder, reklam performansımızı ölçeriz. Bu çerezler yalnızca \"Tümünü Kabul Et\" seçeneğini onayladığında yüklenir; \"Sadece Zorunlu Çerezler\"i seçersen hiç çalışmazlar.\n\nTercihini değiştirme\nDilediğin zaman sayfanın altındaki \"Çerez Tercihleri\" bağlantısına tıklayarak seçimini değiştirebilirsin.",
-      onbilgi: "Satıcı bilgileri\nUnvan: Sonya Collection — [Şirket/Şahıs Adı]. Adres: [Adres]. Telefon: [Telefon]. E-posta: siparis@sonyacollection.com. İnternet sitesi: sonyacollection.com\n\nBu form nedir?\n6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği uyarınca, siparişini onaylamadan önce aşağıdaki bilgileri okuduğunu ve anladığını teyit etmen gerekir.\n\nSipariş konusu ürünler ve fiyat\nSipariş ettiğin ürünlerin adı, adedi, bedeni ve birim fiyatı sepet ekranında ve sipariş özetinde ayrı ayrı gösterilir. Sitedeki tüm fiyatlar Türk Lirası cinsinden ve KDV dahildir.\n\nKargo ücreti\nVarsa kargo ücreti, siparişi onaylamadan önce sepet özetinde \"Kargo\" satırında ayrıca gösterilir ve toplam tutara eklenir. Ücretsiz kargo eşiği ve üzerindeki siparişlerde kargo ücreti alınmaz.\n\nÖdeme\nÖdeme, sitede sunulan yöntemlerden seçtiğin yöntemle yapılır. Kartla ödemede kart bilgilerin bu siteye hiçbir şekilde iletilmez; ödeme, lisanslı ödeme kuruluşu iyzico'nun kendi güvenli sayfası üzerinden alınır.\n\nTeslimat\nSiparişler genellikle 1-3 iş günü içinde kargoya verilir; teslim süresi kargo firmasına ve teslimat adresine göre değişir. Yasal azami teslim süresi 30 gündür. Ürün, sipariş sırasında bildirdiğin teslimat adresine gönderilir.\n\nCayma hakkı\nÜrünü teslim aldığın tarihten itibaren 14 gün içinde hiçbir gerekçe göstermeden ve cezai şart ödemeden sözleşmeden cayma hakkına sahipsin. Cayma bildirimini siparis@sonyacollection.com adresine ya da yukarıdaki iletişim kanallarından bize ulaştırman yeterlidir.\n\nCayma hakkının kullanılamayacağı durumlar\nMesafeli Sözleşmeler Yönetmeliği'nin 15. maddesi uyarınca; kişiye özel hazırlanan ürünlerde ve iç giyim, mayo/bikini gibi hijyen bandı sökülmüş ürünlerde cayma hakkı kullanılamaz.\n\nİade masrafı ve geri ödeme\nCayma hakkını kullanman durumunda iade kargo masrafı [iade kargo masrafını kimin karşıladığını yazın: ör. tarafımızca karşılanır / alıcıya aittir]. Ödemen, cayma bildirimin bize ulaştıktan ve ürün tarafımıza döndükten sonra en geç 14 gün içinde, ödeme yaptığın yöntemle iade edilir.\n\nŞikâyet ve itiraz\nSipariş ve ürünle ilgili tüm talep ve şikâyetlerini yukarıdaki iletişim kanallarından bize iletebilirsin. Uyuşmazlık durumunda, Ticaret Bakanlığı'nca her yıl ilan edilen parasal sınırlar çerçevesinde ürünü satın aldığın veya ikametgâhının bulunduğu yerdeki Tüketici Hakem Heyetine ya da Tüketici Mahkemesine başvurabilirsin.",
+      gizlilik: "Sonya Collection olarak ([Şirket/Şahıs Adı]) müşterilerimizin gizliliğine önem veriyoruz. Bu sayfa, siteyi kullanırken hangi bilgilerin toplandığını ve nasıl kullanıldığını açıklar.\n\nHangi bilgileri topluyoruz?\nHesap oluşturduğunuzda: ad soyad ve e-posta adresiniz (Firebase Authentication üzerinden). Sipariş verdiğinizde: sepetinizdeki ürünler, beden ve tutar bilgisi — bu bilgiler WhatsApp/Instagram üzerinden bize ilettiğiniz mesajın içinde yer alır. Sepet ve favori listeniz, tarayıcınızın hafızasında (localStorage) kendi cihazınızda saklanır. E-posta adresinizi bıraktıysanız (üye girişi, sipariş formu ya da indirim kuponu), sepetinizdeki ürünler sepet hatırlatması gönderebilmemiz için sunucumuzda en fazla 45 gün saklanır ve siparişinizi tamamladığınızda silinir; hatırlatma e-postası yalnızca kampanya ve sepet hatırlatma kutusunu işaretlediyseniz gönderilir.\n\nBilgilerinizi kimlerle paylaşıyoruz?\nHesap bilgileriniz Google/Firebase altyapısında saklanır. Sipariş mesajlarınız WhatsApp ve Instagram (Meta) üzerinden bize ulaşır; bu platformların kendi gizlilik politikaları geçerlidir. Bilgilerinizi bu iki amaç dışında üçüncü taraflarla paylaşmıyor, satmıyoruz.\n\nHaklarınız\nKişisel verilerinizle ilgili sorularınız veya silme talepleriniz için siparis@sonyacollection.com adresinden bize ulaşabilirsiniz.",
+      kvkk: "Veri Sorumlusu: [Şirket/Şahıs Adı], [Adres] (\"Sonya Collection\")\n\n6698 sayılı Kişisel Verilerin Korunması Kanunu (\"KVKK\") uyarınca, kişisel verilerinizin işlenmesine ilişkin olarak sizi bilgilendirmek isteriz.\n\nİşlenen kişisel veriler\nKimlik ve iletişim bilgileri: ad soyad, e-posta adresi. Sipariş bilgileri: ürün, beden, adet, tutar, teslimat bilgileri. Tamamlanmamış sepet bilgisi: e-posta adresinizi bıraktıysanız sepetinizdeki ürünler, sepet hatırlatması amacıyla en fazla 45 gün saklanır.\n\nİşleme amaçları\nHesabınızın oluşturulması ve yönetilmesi. Siparişlerinizin alınması ve iletişimin sürdürülmesi. Yasal yükümlülüklerin yerine getirilmesi.\n\nAktarım\nVerileriniz, hesap altyapısı için Google/Firebase\x27e ve sipariş iletişimi için WhatsApp/Instagram (Meta) platformlarına, yalnızca bu hizmetlerin çalışması için gerekli ölçüde aktarılabilir.\n\nKVKK md. 11 kapsamındaki haklarınız\nKişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, düzeltilmesini veya silinmesini isteme hakkına sahipsiniz. Talepleriniz için siparis@sonyacollection.com adresine yazabilirsiniz.",
+      iade: "Cayma hakkı\nMesafeli Sözleşmeler Yönetmeliği kapsamında, ürünü teslim aldığınız tarihten itibaren 14 gün içinde herhangi bir gerekçe göstermeden cayma hakkına sahipsiniz.\n\nİade şartları\nÜrün kullanılmamış, yıkanmamış ve etiketleri çıkarılmamış olmalıdır. Mümkünse orijinal ambalajıyla birlikte gönderilmelidir. İç giyim, mayo ve bikini gibi hijyen bandı sökülmüş ürünlerde iade kabul edilmeyebilir.\n\nNasıl iade veya değişim talep edilir?\nSayfanın altındaki \"İade / Değişim Talebi\" bağlantısına tıklayın; sipariş numaranız ve e-posta adresinizle siparişinizi bulun ve talebinizi oluşturun. Talebiniz bize ulaştığında size e-posta gönderiyoruz ve 1 iş günü içinde dönüş yapıyoruz. Sipariş numaranızı bulamıyorsanız Instagram ya da WhatsApp üzerinden de yazabilirsiniz.\n\nKargo ücreti\n[Kargo ücretini kim karşılıyor buraya eklenecek — örn. \"İade kargo ücreti alıcıya aittir\" ya da \"İlk iadede kargo ücretsizdir.\"]",
+      uyelik: "İşbu Üyelik Sözleşmesi, Sonya Collection (\"[Şirket/Şahıs Adı]\", \"biz\") ile siteye üye olan kullanıcı (\"Üye\", \"siz\") arasında, sitenin kullanım şartlarını belirlemek amacıyla düzenlenmiştir.\n\nÜyelik\nÜye olmak için ad soyad ve e-posta adresi ile bir hesap oluşturulur. Üye, kayıt sırasında verdiği bilgilerin doğru ve güncel olduğunu kabul eder. Hesap bilgileri (e-posta, şifre) üçüncü kişilerle paylaşılmamalıdır; hesap üzerinden yapılan işlemlerden Üye sorumludur.\n\nSiparişler\nSitede oluşturulan sepet, WhatsApp veya Instagram üzerinden bize iletilen bir sipariş talebidir; ödeme ve teslimat ayrıntıları bu iletişim kanalları üzerinden ayrıca netleştirilir.\n\nFesih\nÜye, dilediği zaman hesabının silinmesini talep edebilir. Bu talepler için siparis@sonyacollection.com adresinden bize ulaşabilirsiniz.\n\nDeğişiklikler\nBu sözleşme, güncellenen koşulları yansıtmak amacıyla zaman zaman güncellenebilir; güncel hâli her zaman bu sayfada yer alır.",
+      ileti: "Bu onay, Sonya Collection tarafından kampanya, indirim ve yeni ürün duyurularının e-posta ve/veya kayıt sırasında paylaştığınız telefon numarası üzerinden (SMS/WhatsApp) tarafınıza iletilmesi içindir.\n\n6563 sayılı Elektronik Ticaretin Düzenlenmesi Hakkında Kanun ve ilgili Ticari İletişim ve Ticari Elektronik İletiler Hakkında Yönetmelik uyarınca, ticari elektronik ileti gönderimi ancak açık onayınızla mümkündür.\n\nBu onayı vermek tamamen isteğe bağlıdır; onay vermemeniz üyeliğinizi veya sipariş verebilmenizi hiçbir şekilde etkilemez. Dilediğiniz zaman gönderdiğimiz iletilerdeki \"Ret\" bağlantısını kullanarak ya da siparis@sonyacollection.com adresine yazarak bu onayı geri alabilirsiniz.",
+      cerez: "Bu site hangi çerezleri kullanır?\nAlışveriş deneyiminizi iyileştirmek, tercihlerinizi hatırlamak, site trafiğini analiz etmek ve kampanyalarımızı ölçmek için çerezler ve benzeri teknolojiler (localStorage) kullanıyoruz.\n\nZorunlu çerezler\nSepetiniz, favori listeniz ve oturum bilgileriniz tarayıcınızın hafızasında (localStorage) saklanır. Bunlar sitenin çalışması için gereklidir, kapatılamaz.\n\nAnaliz ve reklam çerezleri\nİzin verirseniz Google Analytics (GA4) ve Meta Pixel ile site trafiğini analiz eder, reklam performansımızı ölçeriz. Bu çerezler yalnızca \"Tümünü Kabul Et\" seçeneğini onayladığınızda yüklenir; \"Sadece Zorunlu Çerezler\"i seçerseniz hiç çalışmazlar.\n\nTercihinizi değiştirme\nDilediğiniz zaman sayfanın altındaki \"Çerez Tercihleri\" bağlantısına tıklayarak seçiminizi değiştirebilirsiniz.",
+      onbilgi: "Satıcı bilgileri\nUnvan: Sonya Collection — [Şirket/Şahıs Adı]. Adres: [Adres]. Telefon: [Telefon]. E-posta: siparis@sonyacollection.com. İnternet sitesi: sonyacollection.com\n\nBu form nedir?\n6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği uyarınca, siparişinizi onaylamadan önce aşağıdaki bilgileri okuduğunuzu ve anladığınızı teyit etmeniz gerekir.\n\nSipariş konusu ürünler ve fiyat\nSipariş ettiğiniz ürünlerin adı, adedi, bedeni ve birim fiyatı sepet ekranında ve sipariş özetinde ayrı ayrı gösterilir. Sitedeki tüm fiyatlar Türk Lirası cinsinden ve KDV dahildir.\n\nKargo ücreti\nVarsa kargo ücreti, siparişi onaylamadan önce sepet özetinde \"Kargo\" satırında ayrıca gösterilir ve toplam tutara eklenir. Ücretsiz kargo eşiği ve üzerindeki siparişlerde kargo ücreti alınmaz.\n\nÖdeme\nÖdeme, sitede sunulan yöntemlerden seçtiğiniz yöntemle yapılır. Kartla ödemede kart bilgileriniz bu siteye hiçbir şekilde iletilmez; ödeme, lisanslı ödeme kuruluşu iyzico\x27nun kendi güvenli sayfası üzerinden alınır.\n\nTeslimat\nSiparişler genellikle 1-3 iş günü içinde kargoya verilir; teslim süresi kargo firmasına ve teslimat adresine göre değişir. Yasal azami teslim süresi 30 gündür. Ürün, sipariş sırasında bildirdiğiniz teslimat adresine gönderilir.\n\nCayma hakkı\nÜrünü teslim aldığınız tarihten itibaren 14 gün içinde hiçbir gerekçe göstermeden ve cezai şart ödemeden sözleşmeden cayma hakkına sahipsiniz. Cayma bildiriminizi siparis@sonyacollection.com adresine ya da yukarıdaki iletişim kanallarından bize ulaştırmanız yeterlidir.\n\nCayma hakkının kullanılamayacağı durumlar\nMesafeli Sözleşmeler Yönetmeliği\x27nin 15. maddesi uyarınca; kişiye özel hazırlanan ürünlerde ve iç giyim, mayo/bikini gibi hijyen bandı sökülmüş ürünlerde cayma hakkı kullanılamaz.\n\nİade masrafı ve geri ödeme\nCayma hakkınızı kullanmanız durumunda iade kargo masrafı [iade kargo masrafını kimin karşıladığını yazın: ör. tarafımızca karşılanır / alıcıya aittir]. Ödemeniz, cayma bildiriminiz bize ulaştıktan ve ürün tarafımıza döndükten sonra en geç 14 gün içinde, ödeme yaptığınız yöntemle iade edilir.\n\nŞikâyet ve itiraz\nSipariş ve ürünle ilgili tüm talep ve şikâyetlerinizi yukarıdaki iletişim kanallarından bize iletebilirsiniz. Uyuşmazlık durumunda, Ticaret Bakanlığı\x27nca her yıl ilan edilen parasal sınırlar çerçevesinde ürünü satın aldığınız veya ikametgâhınızın bulunduğu yerdeki Tüketici Hakem Heyetine ya da Tüketici Mahkemesine başvurabilirsiniz.",
       mesafeli: "Taraflar\nSATICI: Sonya Collection — [Şirket/Şahıs Adı]. Adres: [Adres]. Telefon: [Telefon]. E-posta: siparis@sonyacollection.com\nALICI: Sipariş sırasında ad soyad, teslimat adresi ve iletişim bilgilerini bildiren kişi.\n\nKonu\nİşbu sözleşmenin konusu, ALICI'nın sonyacollection.com üzerinden elektronik ortamda siparişini verdiği ürünlerin satışı ve teslimi ile ilgili olarak tarafların hak ve yükümlülüklerinin belirlenmesidir.\n\nSözleşme konusu ürün, fiyat ve ödeme\nÜrünlerin adı, adedi, bedeni, birim fiyatı, varsa kargo ücreti ve ödenecek toplam tutar; sipariş onayından önce sepet özetinde gösterilir ve siparişten sonra iletilen sipariş bilgisiyle birlikte işbu sözleşmenin ayrılmaz parçasını oluşturur. Tüm fiyatlar KDV dahildir.\n\nGenel hükümler\nALICI, siparişi onaylamadan önce Ön Bilgilendirme Formu'nu okuduğunu; ürünün temel nitelikleri, satış fiyatı, ödeme şekli, teslimat koşulları ve cayma hakkı konusunda bilgilendirildiğini kabul eder. ALICI, siparişi onaylamakla ödeme yükümlülüğü altına girdiğini kabul eder.\n\nTeslimat\nÜrün, ALICI'nın bildirdiği teslimat adresine kargo ile gönderilir. Teslim süresi, siparişin onaylanmasından itibaren yasal azami 30 günü aşmaz. Ürünün kargo firmasına tesliminden sonra kargo firmasından kaynaklanan gecikmelerden SATICI sorumlu tutulamaz.\n\nCayma hakkı\nALICI, ürünü teslim aldığı tarihten itibaren 14 gün içinde hiçbir gerekçe göstermeden ve cezai şart ödemeden sözleşmeden cayabilir. Cayma bildirimi yukarıdaki iletişim kanallarından SATICI'ya yöneltilir. Cayma hakkının kullanılabilmesi için ürünün kullanılmamış, yıkanmamış ve etiketleri sökülmemiş olması gerekir. Kişiye özel üretilen ürünlerde ve hijyen bandı sökülmüş iç giyim/mayo ürünlerinde cayma hakkı kullanılamaz.\n\nUyuşmazlık\nİşbu sözleşmenin uygulanmasında, Ticaret Bakanlığı'nca her yıl ilan edilen parasal sınırlar dâhilinde ALICI'nın ürünü satın aldığı veya ikametgâhının bulunduğu yerdeki Tüketici Hakem Heyetleri ile Tüketici Mahkemeleri yetkilidir.\n\nYürürlük\nALICI'nın site üzerinden siparişini onaylaması ile işbu sözleşme kurulmuş sayılır ve taraflar arasında yürürlüğe girer.",
-      beden: "S (36)\nGöğüs: 84-88 cm · Bel: 64-68 cm · Kalça: 90-94 cm\n\nM (38)\nGöğüs: 88-92 cm · Bel: 68-72 cm · Kalça: 94-98 cm\n\nL (40)\nGöğüs: 92-96 cm · Bel: 72-76 cm · Kalça: 98-102 cm\n\nXL (42)\nGöğüs: 96-100 cm · Bel: 76-80 cm · Kalça: 102-106 cm\n\nÖlçü nasıl alınır?\nGöğüs: Göğsün en geniş noktasından, mezura yere paralel olacak şekilde ölçün. Bel: Belin en ince noktasından ölçün. Kalça: Kalçanın en geniş noktasından ölçün.\n\nNot\nParçalarımız genelde rahat ve salaş bir kesime sahiptir; iki beden arasında kalırsan küçük olanı tercih edebilirsin. Ürüne özel kumaş/kesim farkı olabileceğinden, ürün açıklamasındaki notları da kontrol etmeni öneririz."
+      sizeChart: "Beden | Göğüs (cm) | Bel (cm) | Kalça (cm)\nS (36) | 84-88 | 64-68 | 90-94\nM (38) | 88-92 | 68-72 | 94-98\nL (40) | 92-96 | 72-76 | 98-102\nXL (42) | 96-100 | 76-80 | 102-106",
+      beden: "Ölçü nasıl alınır?\nGöğüs: Göğsün en geniş noktasından, mezura yere paralel olacak şekilde ölçün. Bel: Belin en ince noktasından ölçün. Kalça: Kalçanın en geniş noktasından ölçün.\n\nKalıp notu\nParçalarımız genelde rahat ve salaş bir kesime sahiptir; iki beden arasında kalırsanız küçük olanı tercih edebilirsiniz. Ürüne özel kumaş ve kesim farkı olabileceğinden, ürün açıklamasındaki notları da incelemenizi öneririz."
     }
   };
+
+  // Listedeki küçük önizlemeler için Cloudinary'den küçültülmüş görsel isteniyor.
+  // 30 ürünlük listede 30 adet tam boy telefon fotoğrafı indirmenin anlamı yok:
+  // hem panel geç açılıyor hem de Cloudinary'nin aylık trafik hakkı boşa gidiyor.
+  function cldKucult(url, genislik){
+    if(!url || typeof url !== 'string' || url.indexOf('res.cloudinary.com') === -1) return url;
+    if(url.indexOf('/upload/') === -1) return url;
+    if(url.indexOf('/upload/f_auto') !== -1) return url;
+    return url.replace('/upload/', '/upload/f_auto,q_auto,c_limit,w_' + (genislik || 200) + '/');
+  }
 
   // ---------- State ----------
   var state = {
@@ -1486,6 +1646,37 @@ a{color:inherit;}
   try{
     if(statusEmailConfigured() && typeof emailjs !== 'undefined') emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
   }catch(e){ /* bildirim olmadan da panel çalışmaya devam etmeli */ }
+  // Durum e-postası önce kendi sunucumuzdan gider (kargo takip bağlantısıyla),
+  // olmazsa EmailJS'e düşer. Panel e-posta anahtarı girilmemişse doğrudan EmailJS.
+  function durumPostasiniGonder(order, newStatus){
+    var anahtar = (typeof panelMailAnahtari === 'function') ? panelMailAnahtari() : '';
+    if(!anahtar || !order.userEmail){ sendStatusUpdateEmail(order, newStatus); return; }
+    var statusLabel = ORDER_STATUSES[newStatus] || newStatus;
+    var aciklamalar = {
+      confirmed: 'Siparişinizi aldık ve hazırlamaya başladık.',
+      shipped: 'Siparişiniz kargoya verildi. Takip bilgileri aşağıda.',
+      delivered: 'Siparişiniz teslim edildi. Afiyet olsun — beğendiyseniz bize yorum bırakmayı unutma!',
+      cancelled: 'Siparişiniz iptal edildi. Bir sorun olduysa bize yazabilirsiniz.'
+    };
+    fetch('/eposta/siparis.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        islem: 'durum', anahtar: anahtar,
+        eposta: order.userEmail, ad: order.userName || '',
+        durum: statusLabel,
+        aciklama: aciklamalar[newStatus] || '',
+        kargoFirma: order.trackingCarrier || '',
+        kargoKod: order.trackingCode || ''
+      })
+    }).then(function(r){ return r.json().catch(function(){ return {ok:false}; }); })
+      .catch(function(){ return {ok:false}; })
+      .then(function(cevap){
+        if(cevap && cevap.ok) return;
+        console.warn('Durum e-postası sunucudan gönderilemedi, EmailJS deneniyor.');
+        sendStatusUpdateEmail(order, newStatus);
+      });
+  }
   function sendStatusUpdateEmail(order, newStatus){
     try{
       if(!statusEmailConfigured() || typeof emailjs === 'undefined' || !order.userEmail) return;
@@ -1595,7 +1786,7 @@ a{color:inherit;}
         showScreen(null);
         loadAll();
       } else {
-        $('deniedSub').textContent = 'Bu hesabın (' + (user.email || '') + ') yönetici paneline erişim yetkisi bulunmuyor.';
+        $('deniedSub').textContent = 'Bu hesabınız (' + (user.email || '') + ') yönetici paneline erişim yetkisi bulunmuyor.';
         showScreen('screenDenied');
       }
     }).catch(function(err){
@@ -1637,6 +1828,93 @@ a{color:inherit;}
     });
   }
 
+  // ---------- Otomatik stok düşümü ----------
+  // NEDEN: sipariş geldiğinde hiçbir yerde stok azalmıyordu; aynı tek parçalık
+  // ürün art arda birkaç kişiye satılabiliyordu. Artık sipariş "Onaylandı"
+  // yapıldığında stok düşüyor, "İptal" yapıldığında geri ekleniyor.
+  // Firestore transaction kullanılıyor: iki sipariş aynı anda onaylansa bile
+  // stok yanlış hesaplanmıyor.
+  // yon: -1 düş, +1 geri ekle
+  function siparisStokUygula(order, yon){
+    var kalemler = (order && Array.isArray(order.items)) ? order.items : [];
+    // Ürün başına topla: aynı üründen iki farklı beden varsa tek işlemde uygulanır.
+    var gruplar = {};
+    kalemler.forEach(function(it){
+      if(!it || it.productId == null) return;
+      var adet = (typeof it.qty === 'number' && it.qty > 0) ? it.qty : 0;
+      if(!adet) return;
+      var pid = String(it.productId);
+      if(!gruplar[pid]) gruplar[pid] = [];
+      gruplar[pid].push({ beden: it.size || '', renk: it.color || '', adet: adet });
+    });
+    var idler = Object.keys(gruplar);
+    if(!idler.length) return Promise.resolve({ uygulanan: 0, hata: 0 });
+
+    var uygulanan = 0, hatali = 0;
+    return Promise.all(idler.map(function(pid){
+      var ref = db.collection('products').doc(pid);
+      return db.runTransaction(function(t){
+        return t.get(ref).then(function(doc){
+          if(!doc.exists) return; // ürün silinmiş — sessizce atla
+          var d = doc.data() || {};
+          var varyantli = d.variantStock && typeof d.variantStock === 'object' && Object.keys(d.variantStock).length;
+          if(varyantli){
+            var vs = JSON.parse(JSON.stringify(d.variantStock));
+            gruplar[pid].forEach(function(k){
+              var renk = k.renk;
+              // Renk kaydedilmemişse stoğu olan ilk renkten düşülür.
+              if(!renk || !vs[renk]){
+                var adaylar = Object.keys(vs).filter(function(c){
+                  return vs[c] && typeof vs[c][k.beden] === 'number' && (yon < 0 ? vs[c][k.beden] > 0 : true);
+                });
+                renk = adaylar.length ? adaylar[0] : Object.keys(vs)[0];
+              }
+              if(!renk || !vs[renk]) return;
+              var mevcut = typeof vs[renk][k.beden] === 'number' ? vs[renk][k.beden] : 0;
+              var yeni = mevcut + (yon * k.adet);
+              vs[renk][k.beden] = yeni < 0 ? 0 : yeni;
+            });
+            t.update(ref, { variantStock: vs });
+          } else {
+            var toplamAdet = gruplar[pid].reduce(function(s, k){ return s + k.adet; }, 0);
+            var eski = typeof d.stock === 'number' ? d.stock : 0;
+            var sonuc = eski + (yon * toplamAdet);
+            t.update(ref, { stock: sonuc < 0 ? 0 : sonuc });
+          }
+        });
+      }).then(function(){ uygulanan++; }).catch(function(err){
+        hatali++;
+        console.warn('Stok güncellenemedi (ürün ' + pid + '):', err && err.message);
+      });
+    })).then(function(){ return { uygulanan: uygulanan, hata: hatali }; });
+  }
+
+  // Durum değişiminde stoğu doğru yöne uygular ve siparişe damga koyar.
+  function siparisStokSenkron(order, yeniDurum){
+    if(!order) return Promise.resolve();
+    var dusmeli = (yeniDurum === 'confirmed' || yeniDurum === 'shipped' || yeniDurum === 'delivered');
+    var geriAlmali = (yeniDurum === 'cancelled');
+    if(dusmeli && !order.stokDusuldu){
+      return siparisStokUygula(order, -1).then(function(r){
+        order.stokDusuldu = true;
+        return db.collection('orders').doc(order.docId).update({ stokDusuldu: true }).catch(function(){});
+      }).then(function(){
+        showToast('Stok güncellendi — siparişteki ürünler stoktan düşüldü.');
+        return loadProducts().then(function(){ renderProducts(); renderAnalytics(); });
+      });
+    }
+    if(geriAlmali && order.stokDusuldu){
+      return siparisStokUygula(order, +1).then(function(){
+        order.stokDusuldu = false;
+        return db.collection('orders').doc(order.docId).update({ stokDusuldu: false }).catch(function(){});
+      }).then(function(){
+        showToast('Sipariş iptal edildi — ürünler stoğa geri eklendi.');
+        return loadProducts().then(function(){ renderProducts(); renderAnalytics(); });
+      });
+    }
+    return Promise.resolve();
+  }
+
   function loadOrders(){
     return db.collection('orders').get().then(function(snap){
       var list = [];
@@ -1658,6 +1936,14 @@ a{color:inherit;}
           giftNote: d.giftNote || null,
           giftWrap: !!d.giftWrap,
           status: d.status || 'pending',
+          // Sipariş ekranındaki kampanya izni kutusu (pazarlama listesi bunu okuyor).
+          marketingConsent: (typeof d.marketingConsent === 'boolean') ? d.marketingConsent : null,
+          // Durum en son ne zaman değişti — "teslim edileli kaç gün oldu" hesabı için.
+          statusUpdatedAt: d.statusUpdatedAt || null,
+          takipKodu: d.takipKodu || '',
+          // Stok bu siparişten düşüldü mü? Aynı siparişte iki kez düşmesini
+          // (ör. durumu onaylı → kargoda → tekrar onaylı yapmak) engelliyor.
+          stokDusuldu: !!d.stokDusuldu,
           adminNote: d.adminNote || '',
           trackingCarrier: d.trackingCarrier || '',
           trackingCode: d.trackingCode || ''
@@ -1669,6 +1955,8 @@ a{color:inherit;}
         return tb - ta;
       });
       state.orders = list;
+      try{ renderMarketing(); }catch(e){}
+      try{ reviewMailMetaYukle().then(renderReviewMail); }catch(e){}
     }).catch(function(){ state.orders = []; });
   }
 
@@ -1720,6 +2008,12 @@ a{color:inherit;}
           productName: d.productName || '',
           orderId: d.orderId || '',
           reason: d.reason || '',
+          // Yeni alanlar: müşteriye ulaşmak ve değişimde hangi bedeni
+          // göndereceğini bilmek için. (Panel eşlemesine eklenmezse listede
+          // sessizce boş görünürler — daha önce marketingConsent'te bu olmuştu.)
+          name: d.name || '',
+          phone: d.phone || '',
+          wantedSize: d.wantedSize || '',
           status: d.status || 'Alındı',
           createdAt: d.createdAt
         });
@@ -1781,6 +2075,7 @@ a{color:inherit;}
         });
       });
       state.leads = list;
+      try{ renderMarketing(); }catch(e){}
     }).catch(function(){ state.leads = []; });
   }
 
@@ -2148,7 +2443,17 @@ a{color:inherit;}
           statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(function(){
           showToast('Sipariş durumu güncellendi: ' + orderStatusLabel(newStatus));
-          sendStatusUpdateEmail(o, newStatus);
+          // Herkese açık takip belgesini de güncelle — müşteri siteden durumu görsün.
+          if(o && o.takipKodu){
+            db.collection('orderTracking').doc(o.takipKodu).set({
+              status: newStatus,
+              trackingCarrier: o.trackingCarrier || '',
+              trackingCode: o.trackingCode || '',
+              statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true }).catch(function(){});
+          }
+          durumPostasiniGonder(o, newStatus);
+          siparisStokSenkron(o, newStatus);
           renderOrders();
           renderAnalytics();
         }).catch(function(err){
@@ -2354,12 +2659,16 @@ a{color:inherit;}
             '<span class="name">' + escapeHtml(r.type === 'degisim' ? 'Değişim' : 'İade') + (r.productName ? ' — ' + escapeHtml(r.productName) : '') + '</span>' +
             '<span class="count">' + escapeHtml(date) + '</span>' +
           '</div>' +
-          '<div class="sub" style="margin-bottom:8px;">' + escapeHtml(r.email) + (r.orderId ? ' · Sipariş: ' + escapeHtml(r.orderId) : '') + '</div>' +
+          '<div class="sub" style="margin-bottom:4px;">' + (r.orderId ? '<b>Sipariş ' + escapeHtml(r.orderId) + '</b> · ' : '') + escapeHtml(r.email) + '</div>' +
+          ((r.name || r.phone) ? '<div class="sub" style="margin-bottom:4px;">' + escapeHtml(r.name) +
+            (r.phone ? ' · <a href="tel:' + escapeHtml(r.phone.replace(/[^0-9+]/g, '')) + '">' + escapeHtml(r.phone) + '</a>' : '') + '</div>' : '') +
+          (r.wantedSize ? '<div class="sub" style="margin-bottom:4px;">İstenen beden: <b>' + escapeHtml(r.wantedSize) + '</b></div>' : '') +
           (r.reason ? '<div class="sub" style="margin-bottom:8px;">"' + escapeHtml(r.reason) + '"</div>' : '') +
           '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
             '<select data-returnstatus="' + r.docId + '">' + statusOptionsHtml(r.status) + '</select>' +
             '<button type="button" class="btn-ghost" data-delreturn="' + r.docId + '">Sil</button>' +
           '</div>' +
+          '<div class="hint" style="margin-top:6px;">Durumu değiştirdiğinizde müşteriye otomatik bilgilendirme e-postası gider (Ayarlar\u2019daki panel anahtarı girilmişse).</div>' +
         '</div>'
       );
     }).join('');
@@ -2368,7 +2677,7 @@ a{color:inherit;}
         var id = sel.dataset.returnstatus;
         db.collection('returnRequests').doc(id).update({ status: sel.value }).then(function(){
           var r = state.returnRequests.find(function(x){ return x.docId === id; });
-          if(r) r.status = sel.value;
+          if(r){ r.status = sel.value; iadeDurumPostasiniGonder(r, sel.value); }
           renderReturnRequests();
           showToast('Durum güncellendi.');
         }).catch(function(err){ showToast('Güncellenemedi: ' + err.message, true); });
@@ -2384,6 +2693,28 @@ a{color:inherit;}
         }).catch(function(err){ showToast('Silinemedi: ' + err.message, true); });
       });
     });
+  }
+
+  // İade/değişim durumu değiştiğinde müşteriye bilgilendirme. Kurumsal markalarda
+  // iade süreci sessiz ilerlemez; her adımda müşteriye yazılı bilgi gider.
+  // Panel anahtarı girilmemişse sessizce atlanır (e-posta gönderilemez, hata da vermez).
+  function iadeDurumPostasiniGonder(talep, yeniDurum){
+    var anahtar = (typeof panelMailAnahtari === 'function') ? panelMailAnahtari() : '';
+    if(!anahtar || !talep || !talep.email) return;
+    fetch('/eposta/iade.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        islem: 'durum', anahtar: anahtar,
+        eposta: talep.email, siparisNo: talep.orderId || '',
+        tur: talep.type === 'degisim' ? 'degisim' : 'iade',
+        durum: yeniDurum, not: ''
+      })
+    }).then(function(r){ return r.json().catch(function(){ return {ok:false}; }); })
+      .catch(function(){ return {ok:false}; })
+      .then(function(c){
+        if(!c || !c.ok) console.warn('İade durum e-postası gönderilemedi.');
+      });
   }
 
   function productNameById(id){
@@ -2501,6 +2832,465 @@ a{color:inherit;}
     });
   }
 
+  // ============ Terk edilen sepetler ============
+  // Sepetler Firestore'da değil, kendi sunucumuzdaki geçici kayıtlarda tutuluyor
+  // (bkz. eposta/sepet.php) — bu yüzden Firestore kuralı değişikliği gerekmedi.
+  // Liste ve gönderim panel e-posta anahtarıyla korunuyor.
+  var cartMailList = [];
+  var cartMailBusy = false;
+
+  function cartMailSaat(){
+    var v = parseInt(($('cartMailHours') && $('cartMailHours').value) || '4', 10);
+    if(!isFinite(v) || v < 1) v = 4;
+    return v;
+  }
+  function cartMailYukle(){
+    var anahtar = panelMailAnahtari();
+    var listEl = $('cartMailList');
+    if(!anahtar){
+      cartMailList = [];
+      if(listEl) listEl.innerHTML = '<div class="empty-state">Önce yukarıdaki “Panel e-posta anahtarı” alanını doldur.</div>';
+      var l0 = $('cartMailLabel');
+      if(l0) l0.textContent = 'Anahtar girilmedi';
+      return Promise.resolve();
+    }
+    return fetch('/eposta/sepet.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ islem: 'liste', anahtar: anahtar, saat: cartMailSaat() })
+    }).then(function(r){ return r.json().catch(function(){ return {ok:false}; }); })
+      .catch(function(){ return {ok:false, hata:'baglanti'}; })
+      .then(function(cevap){
+        if(cevap && cevap.ok){
+          cartMailList = cevap.sepetler || [];
+        } else {
+          cartMailList = [];
+          if(cevap && cevap.hata === 'anahtar-hatali') showToast('Panel e-posta anahtarı sunucudakiyle uyuşmuyor.', true);
+          else if(cevap && cevap.hata === 'anahtar-tanimsiz') showToast('Sunucuda panel anahtarı tanımlı değil.', true);
+        }
+        renderCartMail();
+      });
+  }
+  function renderCartMail(){
+    var listEl = $('cartMailList');
+    if(!listEl) return;
+    var izinli = cartMailList.filter(function(s){ return s.izin; });
+    var label = $('cartMailLabel');
+    if(label){
+      label.textContent = cartMailList.length + ' bekleyen sepet · ' + izinli.length +
+        ' tanesine hatırlatma gönderilebilir';
+    }
+    var btn = $('cartMailSendBtn');
+    if(btn) btn.disabled = cartMailBusy || !izinli.length;
+    if(!cartMailList.length){
+      listEl.innerHTML = '<div class="empty-state">Bekleyen sepet yok. Ziyaretçi sepetinize ürün ekleyip e-postasını bıraktığında ve belirlediğin süre geçtiğinde burada görünür.</div>';
+      return;
+    }
+    listEl.innerHTML = cartMailList.map(function(s){
+      var urunler = (s.urunler || []).map(function(u){
+        return u.ad + (u.beden ? ' (' + u.beden + ')' : '') + (u.adet > 1 ? ' ×' + u.adet : '');
+      }).join(', ');
+      var saat = Math.max(1, Math.round((Date.now() / 1000 - s.guncelleme) / 3600));
+      return '<div class="mkt-row">' +
+        '<div class="mkt-main">' +
+          '<div class="mkt-name">' + escapeHtml(s.ad || '(isim yok)') + '</div>' +
+          '<div class="mkt-contact">' + escapeHtml(s.eposta) + '</div>' +
+          '<div class="mkt-meta">' + escapeHtml(urunler.slice(0, 100)) +
+            ' · ' + money(s.toplam) + ' · ' + saat + ' saat önce</div>' +
+        '</div>' +
+        (s.izin
+          ? '<button type="button" class="btn btn-ghost btn-sm" style="width:auto;" data-cartmail="' + escapeHtml(s.eposta) + '">Hatırlat</button>'
+          : '<span class="mkt-izin hayir">İzin yok</span>') +
+      '</div>';
+    }).join('');
+    listEl.querySelectorAll('[data-cartmail]').forEach(function(b){
+      b.addEventListener('click', function(){ cartMailGonder([b.dataset.cartmail]); });
+    });
+  }
+  function cartMailGonder(adresler){
+    if(cartMailBusy) return;
+    var anahtar = panelMailAnahtari();
+    if(!anahtar){ showToast('Önce panel e-posta anahtarını gir.', true); return; }
+    if(!adresler.length) return;
+    if(adresler.length > 1 && !confirm(adresler.length + ' kişiye sepet hatırlatması gönderilecek. Onaylıyor musunuz?')) return;
+
+    cartMailBusy = true;
+    var btn = $('cartMailSendBtn');
+    if(btn){ btn.disabled = true; btn.textContent = 'Gönderiliyor…'; }
+    var basarili = 0, basarisiz = 0;
+
+    function sirayla(i){
+      if(i >= adresler.length){
+        cartMailBusy = false;
+        if(btn) btn.textContent = 'İzinlilere Hatırlat';
+        showToast(basarili + ' hatırlatma gönderildi' + (basarisiz ? ', ' + basarisiz + ' gönderilemedi' : '') + '.', !!basarisiz);
+        cartMailYukle();
+        return;
+      }
+      fetch('/eposta/sepet.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ islem: 'hatirlat', anahtar: anahtar, eposta: adresler[i] })
+      }).then(function(r){ return r.json().catch(function(){ return {ok:false}; }); })
+        .catch(function(){ return {ok:false}; })
+        .then(function(cevap){
+          if(cevap && cevap.ok) basarili++; else basarisiz++;
+          setTimeout(function(){ sirayla(i + 1); }, 400);
+        });
+    }
+    sirayla(0);
+  }
+  (function cartMailKontrolleriBagla(){
+    function bagla(){
+      var yenile = document.getElementById('cartMailRefreshBtn');
+      if(yenile) yenile.addEventListener('click', cartMailYukle);
+      var saat = document.getElementById('cartMailHours');
+      if(saat) saat.addEventListener('change', cartMailYukle);
+      var gonder = document.getElementById('cartMailSendBtn');
+      if(gonder) gonder.addEventListener('click', function(){
+        cartMailGonder(cartMailList.filter(function(s){ return s.izin; }).map(function(s){ return s.eposta; }));
+      });
+      // Anahtar girilir girilmez listeyi çekelim.
+      var key = document.getElementById('mailPanelKey');
+      if(key) key.addEventListener('change', function(){ setTimeout(cartMailYukle, 100); });
+      setTimeout(cartMailYukle, 1200);
+    }
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bagla);
+    else bagla();
+  })();
+
+  // ============ Yorum daveti ============
+  // Kimlere gönderildiği settings/reviewMailMeta belgesinde tutuluyor: bu belgeye
+  // yalnızca yönetici yazabiliyor (Firestore kuralı), yani kural değişikliği
+  // gerekmedi. İçinde e-posta adresi DEĞİL, sipariş numarası ve tarih var.
+  var REVIEW_MAIL_KEY = 'sonya_panel_mail_key';
+  var reviewMailSent = {};   // { siparisId: zamanDamgasi }
+  var reviewMailBusy = false;
+
+  function panelMailAnahtari(){
+    try{ return localStorage.getItem(REVIEW_MAIL_KEY) || ''; }catch(e){ return ''; }
+  }
+  function panelMailAnahtariniKaydet(v){
+    try{
+      if(v) localStorage.setItem(REVIEW_MAIL_KEY, v);
+      else localStorage.removeItem(REVIEW_MAIL_KEY);
+    }catch(e){}
+  }
+  function reviewMailMetaYukle(){
+    return db.collection('settings').doc('reviewMailMeta').get().then(function(doc){
+      var d = (doc.exists && doc.data()) || {};
+      reviewMailSent = (d.sent && typeof d.sent === 'object') ? d.sent : {};
+    }).catch(function(){ reviewMailSent = {}; });
+  }
+  function reviewMailMetaKaydet(){
+    // Belge sonsuza kadar büyümesin: en yeni 500 kayıt tutuluyor.
+    var anahtarlar = Object.keys(reviewMailSent);
+    if(anahtarlar.length > 500){
+      anahtarlar.sort(function(a,b){ return (reviewMailSent[b]||0) - (reviewMailSent[a]||0); });
+      var yeni = {};
+      anahtarlar.slice(0, 500).forEach(function(k){ yeni[k] = reviewMailSent[k]; });
+      reviewMailSent = yeni;
+    }
+    return db.collection('settings').doc('reviewMailMeta')
+      .set({ sent: reviewMailSent }, { merge: true }).catch(function(){});
+  }
+  function reviewMailGunSayisi(){
+    var v = parseInt(($('reviewMailDays') && $('reviewMailDays').value) || '3', 10);
+    if(!isFinite(v) || v < 0) v = 3;
+    return v;
+  }
+  // Davet gönderilecek siparişler: teslim edilmiş, üzerinden yeterli gün geçmiş,
+  // e-postası olan ve daha önce davet gönderilmemiş olanlar.
+  function reviewMailAdaylari(){
+    var gun = reviewMailGunSayisi();
+    var sinir = Date.now() - gun * 86400000;
+    return (state.orders || []).filter(function(o){
+      if(o.status !== 'delivered') return false;
+      if(!o.userEmail) return false;
+      if(reviewMailSent[o.docId]) return false;
+      var t = mktTarih(o.statusUpdatedAt) || mktTarih(o.createdAt);
+      if(!t) return false;
+      return t.getTime() <= sinir;
+    });
+  }
+  function renderReviewMail(){
+    var listEl = $('reviewMailList');
+    if(!listEl) return;
+    var adaylar = reviewMailAdaylari();
+    var gonderilen = Object.keys(reviewMailSent).length;
+    var label = $('reviewMailLabel');
+    if(label){
+      label.textContent = adaylar.length + ' sipariş davet bekliyor · bugüne kadar ' +
+        gonderilen + ' davet gönderildi';
+    }
+    var btn = $('reviewMailSendBtn');
+    if(btn) btn.disabled = reviewMailBusy || !adaylar.length;
+    if(!adaylar.length){
+      listEl.innerHTML = '<div class="empty-state">Şu an davet bekleyen sipariş yok. Bir siparişi “Teslim Edildi” yaptıktan ve ayarladığın gün sayısı geçtikten sonra burada görünür.</div>';
+      return;
+    }
+    listEl.innerHTML = adaylar.map(function(o){
+      var t = mktTarih(o.statusUpdatedAt) || mktTarih(o.createdAt);
+      var urunler = (o.items || []).map(function(it){ return it.name || 'Ürün'; }).join(', ');
+      return '<div class="mkt-row">' +
+        '<div class="mkt-main">' +
+          '<div class="mkt-name">' + escapeHtml(o.userName || '(isim yok)') + '</div>' +
+          '<div class="mkt-contact">' + escapeHtml(o.userEmail) + '</div>' +
+          '<div class="mkt-meta">' + escapeHtml(urunler.slice(0, 90)) + ' · teslim ' + mktTarihYaz(t) + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+  function reviewMailGonder(){
+    if(reviewMailBusy) return;
+    var anahtar = panelMailAnahtari();
+    if(!anahtar){
+      showToast('Önce panel e-posta anahtarını gir.', true);
+      return;
+    }
+    var adaylar = reviewMailAdaylari();
+    if(!adaylar.length) return;
+    if(!confirm(adaylar.length + ' müşteriye yorum daveti gönderilecek. Onaylıyor musunuz?')) return;
+
+    reviewMailBusy = true;
+    var btn = $('reviewMailSendBtn');
+    if(btn){ btn.disabled = true; btn.textContent = 'Gönderiliyor…'; }
+
+    var basarili = 0, basarisiz = 0;
+    // Sunucuyu boğmamak için sırayla gönderiliyor.
+    function sirayla(i){
+      if(i >= adaylar.length){
+        reviewMailBusy = false;
+        if(btn) btn.textContent = 'Davetleri Gönder';
+        reviewMailMetaKaydet().then(renderReviewMail);
+        showToast(basarili + ' davet gönderildi' + (basarisiz ? ', ' + basarisiz + ' gönderilemedi' : '') + '.', !!basarisiz);
+        return;
+      }
+      var o = adaylar[i];
+      fetch('/eposta/yorum-daveti.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          anahtar: anahtar,
+          eposta: o.userEmail,
+          ad: o.userName || '',
+          siparisNo: o.docId,
+          urunler: (o.items || []).slice(0, 10).map(function(it){
+            return { ad: it.name || 'Ürün', id: it.productId || '' };
+          })
+        })
+      }).then(function(r){ return r.json().catch(function(){ return {ok:false}; }); })
+        .catch(function(){ return {ok:false}; })
+        .then(function(cevap){
+          if(cevap && cevap.ok){
+            basarili++;
+            reviewMailSent[o.docId] = Date.now();
+          } else {
+            basarisiz++;
+            if(cevap && cevap.hata === 'anahtar-hatali'){
+              showToast('Panel e-posta anahtarı sunucudakiyle uyuşmuyor.', true);
+            } else if(cevap && cevap.hata === 'anahtar-tanimsiz'){
+              showToast('Sunucuda panel anahtarı tanımlı değil (dogrulama/ayarlar.php).', true);
+            } else if(cevap && cevap.hata === 'yakin-zamanda-gonderildi'){
+              // Bu adrese yakın zamanda gönderilmiş; tekrar denenmesin diye işaretle.
+              reviewMailSent[o.docId] = Date.now();
+            }
+          }
+          setTimeout(function(){ sirayla(i + 1); }, 400);
+        });
+    }
+    sirayla(0);
+  }
+  (function reviewMailKontrolleriBagla(){
+    function bagla(){
+      var key = document.getElementById('mailPanelKey');
+      if(key){
+        key.value = panelMailAnahtari();
+        key.addEventListener('change', function(){ panelMailAnahtariniKaydet(key.value.trim()); });
+        key.addEventListener('blur', function(){ panelMailAnahtariniKaydet(key.value.trim()); });
+      }
+      var gun = document.getElementById('reviewMailDays');
+      if(gun) gun.addEventListener('input', renderReviewMail);
+      var btn = document.getElementById('reviewMailSendBtn');
+      if(btn) btn.addEventListener('click', reviewMailGonder);
+    }
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bagla);
+    else bagla();
+  })();
+
+  // ============ Pazarlama listesi ============
+  // İki kaynak birleştiriliyor:
+  //   1) leads       — karşılama kuponu için e-postasını DOĞRULAYAN ziyaretçiler
+  //   2) orders      — sipariş verenler (ad, e-posta, telefon)
+  // Üye olup hiç sipariş vermemiş kişiler burada YOKTUR: Firestore kuralları
+  // gereği bir kullanıcının profil belgesini yalnızca kendisi okuyabiliyor,
+  // yönetici bile listeleyemiyor (bilerek böyle — gizlilik).
+  //
+  // İzin sütunu:
+  //   Evet        -> kişi kampanya kutusunu işaretlemiş (sipariş ekranında ya da
+  //                  karşılama penceresinde)
+  //   Hayır       -> kutu gösterilmiş ama işaretlenmemiş
+  //   Bilinmiyor  -> kutu eklenmeden önce toplanmış eski kayıt
+  function mktAnahtar(eposta, telefon){
+    var e = String(eposta || '').trim().toLowerCase();
+    if(e) return 'e:' + e;
+    var t = String(telefon || '').replace(/\D+/g, '');
+    if(t.length >= 10) return 't:' + t.slice(-10);
+    return '';
+  }
+  function mktTarih(v){
+    if(!v) return null;
+    if(typeof v.toDate === 'function'){ try{ return v.toDate(); }catch(e){ return null; } }
+    if(v instanceof Date) return v;
+    return null;
+  }
+  function mktIzinBirlestir(mevcut, yeni){
+    // "Evet" her zaman kazanır: kişi bir kez izin verdiyse izinli sayılır.
+    if(mevcut === 'evet' || yeni === 'evet') return 'evet';
+    if(mevcut === 'hayir' || yeni === 'hayir') return 'hayir';
+    return 'bilinmiyor';
+  }
+  function mktListesiniOlustur(){
+    var harita = {};
+    function ekle(kayit){
+      var anahtar = mktAnahtar(kayit.eposta, kayit.telefon);
+      if(!anahtar) return;
+      var k = harita[anahtar];
+      if(!k){
+        k = harita[anahtar] = {
+          ad: '', eposta: '', telefon: '', izin: 'bilinmiyor',
+          kaynaklar: [], ilk: null, son: null, siparis: 0
+        };
+      }
+      if(kayit.ad && !k.ad) k.ad = kayit.ad;
+      if(kayit.eposta && !k.eposta) k.eposta = kayit.eposta;
+      if(kayit.telefon && !k.telefon) k.telefon = kayit.telefon;
+      k.izin = mktIzinBirlestir(k.izin, kayit.izin);
+      if(kayit.kaynak && k.kaynaklar.indexOf(kayit.kaynak) === -1) k.kaynaklar.push(kayit.kaynak);
+      if(kayit.tarih){
+        if(!k.ilk || kayit.tarih < k.ilk) k.ilk = kayit.tarih;
+        if(!k.son || kayit.tarih > k.son) k.son = kayit.tarih;
+      }
+      if(kayit.siparisMi) k.siparis++;
+    }
+    (state.leads || []).forEach(function(l){
+      ekle({
+        eposta: l.email,
+        izin: (l.source === 'welcome-izinli') ? 'evet' : (l.source === 'welcome-dogrulanmis' ? 'hayir' : 'bilinmiyor'),
+        kaynak: 'Kupon',
+        tarih: mktTarih(l.createdAt)
+      });
+    });
+    (state.orders || []).forEach(function(o){
+      var izin = 'bilinmiyor';
+      if(o.marketingConsent === true) izin = 'evet';
+      else if(o.marketingConsent === false) izin = 'hayir';
+      ekle({
+        ad: o.userName || '',
+        eposta: o.userEmail || '',
+        telefon: o.userPhone || '',
+        izin: izin,
+        kaynak: 'Sipariş',
+        tarih: mktTarih(o.createdAt),
+        siparisMi: true
+      });
+    });
+    var liste = Object.keys(harita).map(function(k){ return harita[k]; });
+    // En yeni temas en üstte olsun.
+    liste.sort(function(a, b){
+      var ta = a.son ? a.son.getTime() : 0;
+      var tb = b.son ? b.son.getTime() : 0;
+      return tb - ta;
+    });
+    return liste;
+  }
+  function mktSuzulmus(){
+    var liste = mktListesiniOlustur();
+    var q = ($('mktSearch') && $('mktSearch').value || '').trim().toLowerCase();
+    var sadeceIzinli = !!($('mktOnlyConsent') && $('mktOnlyConsent').checked);
+    return liste.filter(function(k){
+      if(sadeceIzinli && k.izin !== 'evet') return false;
+      if(!q) return true;
+      return (k.ad + ' ' + k.eposta + ' ' + k.telefon).toLowerCase().indexOf(q) !== -1;
+    });
+  }
+  function mktIzinEtiketi(izin){
+    if(izin === 'evet') return '<span class="mkt-izin evet">İzin var</span>';
+    if(izin === 'hayir') return '<span class="mkt-izin hayir">İzin yok</span>';
+    return '<span class="mkt-izin bilinmiyor">Bilinmiyor</span>';
+  }
+  function mktTarihYaz(d){
+    if(!d) return '—';
+    try{ return d.toLocaleDateString('tr-TR'); }catch(e){ return '—'; }
+  }
+  function renderMarketing(){
+    var listEl = $('mktList');
+    if(!listEl) return;
+    var tumu = mktListesiniOlustur();
+    var liste = mktSuzulmus();
+    var izinli = tumu.filter(function(k){ return k.izin === 'evet'; }).length;
+    var telefonlu = tumu.filter(function(k){ return !!k.telefon; }).length;
+    var label = $('mktCountLabel');
+    if(label){
+      label.textContent = tumu.length + ' kişi · ' + izinli + ' kampanya izni var · ' +
+        telefonlu + ' telefon numarası' + (liste.length !== tumu.length ? ' · ekranda ' + liste.length + ' kayıt' : '');
+    }
+    if(!liste.length){
+      listEl.innerHTML = '<div class="empty-state">' +
+        (tumu.length ? 'Aramana uyan kayıt yok.' : 'Henüz kimse listeye girmedi. Kupon penceresinden e-posta bırakan ya da sipariş veren herkes burada birikir.') +
+        '</div>';
+      return;
+    }
+    listEl.innerHTML = liste.map(function(k){
+      var iletisim = [];
+      if(k.eposta) iletisim.push(escapeHtml(k.eposta));
+      if(k.telefon) iletisim.push(escapeHtml(k.telefon));
+      var meta = k.kaynaklar.join(' + ');
+      if(k.siparis) meta += ' · ' + k.siparis + ' sipariş';
+      meta += ' · son temas ' + mktTarihYaz(k.son);
+      return '<div class="mkt-row">' +
+        '<div class="mkt-main">' +
+          '<div class="mkt-name">' + escapeHtml(k.ad || '(isim yok)') + '</div>' +
+          '<div class="mkt-contact">' + (iletisim.join(' · ') || '—') + '</div>' +
+          '<div class="mkt-meta">' + escapeHtml(meta) + '</div>' +
+        '</div>' +
+        mktIzinEtiketi(k.izin) +
+      '</div>';
+    }).join('');
+  }
+  function mktCsvIndir(){
+    var liste = mktSuzulmus();
+    if(!liste.length){ showToast('Dışa aktarılacak kayıt yok.', true); return; }
+    var basliklar = ['Ad Soyad', 'E-posta', 'Telefon', 'Kampanya İzni', 'Kaynak', 'Sipariş Sayısı', 'İlk Temas', 'Son Temas'];
+    var satirlar = liste.map(function(k){
+      return [
+        k.ad || '',
+        k.eposta || '',
+        k.telefon || '',
+        k.izin === 'evet' ? 'Evet' : (k.izin === 'hayir' ? 'Hayır' : 'Bilinmiyor'),
+        k.kaynaklar.join(' + '),
+        k.siparis || 0,
+        mktTarihYaz(k.ilk),
+        mktTarihYaz(k.son)
+      ];
+    });
+    var bugun = new Date().toISOString().slice(0, 10);
+    downloadCsvFile('sonya-pazarlama-listesi-' + bugun + '.csv', buildCsv(basliklar, satirlar));
+    showToast(liste.length + ' kayıt dışa aktarıldı.');
+  }
+  (function mktKontrolleriBagla(){
+    function bagla(){
+      var ara = document.getElementById('mktSearch');
+      var kutu = document.getElementById('mktOnlyConsent');
+      var btn = document.getElementById('mktCsvBtn');
+      if(ara) ara.addEventListener('input', renderMarketing);
+      if(kutu) kutu.addEventListener('change', renderMarketing);
+      if(btn) btn.addEventListener('click', mktCsvIndir);
+    }
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bagla);
+    else bagla();
+  })();
+
   function renderLeads(){
     var listEl = $('leadList');
     var countLabel = $('leadCountLabel');
@@ -2542,7 +3332,7 @@ a{color:inherit;}
     if(!listEl) return;
     var posts = state.instagramPosts || [];
     if(!posts.length){
-      listEl.innerHTML = '<div class="empty-state" style="margin-bottom:14px;">Henüz gönderi eklenmedi — aşağıdan bir fotoğraf seçerek başlayabilirsin.</div>';
+      listEl.innerHTML = '<div class="empty-state" style="margin-bottom:14px;">Henüz gönderi eklenmedi — aşağıdan bir fotoğraf seçerek başlayabilirsiniz.</div>';
       return;
     }
     listEl.innerHTML = posts.map(function(post){
@@ -2649,6 +3439,10 @@ a{color:inherit;}
           videoURL: d.videoURL || null,
           priceHistory: Array.isArray(d.priceHistory) ? d.priceHistory : [],
           fabric: d.fabric || null,
+          fabricDetail: d.fabricDetail || '',
+          modelInfo: d.modelInfo || '',
+          measurements: d.measurements || '',
+          care: d.care || '',
           flashSaleEndsAt: d.flashSaleEndsAt || null,
           earlyAccessUntil: d.earlyAccessUntil || null
         });
@@ -2697,12 +3491,20 @@ a{color:inherit;}
       }
       if(results[1].exists){
         var legal = results[1].data() || {};
+        s.company = s.company || {};
+        SIRKET_ALANLARI.forEach(function(k){ s.company[k] = ''; });
+        if(legal.company && typeof legal.company === 'object'){
+          SIRKET_ALANLARI.forEach(function(k){
+            if(typeof legal.company[k] === 'string') s.company[k] = legal.company[k];
+          });
+        }
         if(legal.gizlilik) s.legal.gizlilik = legal.gizlilik;
         if(legal.kvkk) s.legal.kvkk = legal.kvkk;
         if(legal.iade) s.legal.iade = legal.iade;
         if(legal.uyelik) s.legal.uyelik = legal.uyelik;
         if(legal.ileti) s.legal.ileti = legal.ileti;
         if(legal.beden) s.legal.beden = legal.beden;
+        if(typeof legal.sizeChart === 'string') s.legal.sizeChart = legal.sizeChart;
         if(legal.cerez) s.legal.cerez = legal.cerez;
         if(legal.onbilgi) s.legal.onbilgi = legal.onbilgi;
         if(legal.mesafeli) s.legal.mesafeli = legal.mesafeli;
@@ -2721,7 +3523,7 @@ a{color:inherit;}
     }
     listEl.innerHTML = state.products.map(function(p){
       var thumb = p.photoURL
-        ? '<img class="prod-thumb" src="' + escapeHtml(p.photoURL) + '" alt="">'
+        ? '<img class="prod-thumb" src="' + escapeHtml(cldKucult(p.photoURL, 200)) + '" alt="" loading="lazy" decoding="async">'
         : '<div class="prod-thumb empty">Foto yok</div>';
       var priceHtml = (p.oldPrice ? '<span class="old">' + money(p.oldPrice) + '</span>' : '') + money(p.price);
       var stockBadge = p.stock <= 0
@@ -2882,6 +3684,10 @@ a{color:inherit;}
     $('prodOldPrice').value = p && p.oldPrice ? p.oldPrice : '';
     $('prodDesc').value = p ? p.desc : '';
     $('prodFabric').value = p ? (p.fabric || '') : '';
+    $('prodFabricDetail').value = p ? (p.fabricDetail || '') : '';
+    $('prodModelInfo').value = p ? (p.modelInfo || '') : '';
+    $('prodMeasurements').value = p ? (p.measurements || '') : '';
+    $('prodCare').value = p ? (p.care || '') : '';
     $('prodFlashSaleEndsAt').value = p ? (p.flashSaleEndsAt || '') : '';
     $('prodEarlyAccessUntil').value = p ? (p.earlyAccessUntil || '') : '';
 
@@ -3124,7 +3930,7 @@ a{color:inherit;}
     if(!files.length) return;
     var slots = MAX_GALLERY_PHOTOS - state.pendingPhotos.length;
     if(slots <= 0){
-      showToast('En fazla ' + MAX_GALLERY_PHOTOS + ' fotoğraf ekleyebilirsin — önce birini kaldır.', true);
+      showToast('En fazla ' + MAX_GALLERY_PHOTOS + ' fotoğraf ekleyebilirsiniz — önce birini kaldır.', true);
       this.value = '';
       return;
     }
@@ -3273,6 +4079,10 @@ a{color:inherit;}
       if(priceHistory.length > 50) priceHistory = priceHistory.slice(priceHistory.length - 50);
     }
     var fabric = $('prodFabric') ? $('prodFabric').value.trim() : '';
+    var fabricDetail = $('prodFabricDetail') ? $('prodFabricDetail').value.trim() : '';
+    var modelInfo = $('prodModelInfo') ? $('prodModelInfo').value.trim() : '';
+    var measurements = $('prodMeasurements') ? $('prodMeasurements').value.trim() : '';
+    var care = $('prodCare') ? $('prodCare').value.trim() : '';
     var flashSaleEndsAt = $('prodFlashSaleEndsAt') ? $('prodFlashSaleEndsAt').value.trim() : '';
     var earlyAccessUntil = $('prodEarlyAccessUntil') ? $('prodEarlyAccessUntil').value.trim() : '';
     var data = {
@@ -3286,6 +4096,10 @@ a{color:inherit;}
       videoURL: state.pendingVideoURL || null,
       priceHistory: priceHistory.length ? priceHistory : null,
       fabric: fabric || null,
+      fabricDetail: fabricDetail || null,
+      modelInfo: modelInfo || null,
+      measurements: measurements || null,
+      care: care || null,
       flashSaleEndsAt: flashSaleEndsAt || null,
       earlyAccessUntil: earlyAccessUntil || null
     };
@@ -3367,6 +4181,100 @@ a{color:inherit;}
     rowsArr.forEach(function(r){ lines.push(r.map(csvEscapeField).join(',')); });
     return lines.join('\r\n');
   }
+  // ---------- Tüm veriyi yedekleme ----------
+  // Firestore tek kopya çalışıyor; yanlış bir silmenin geri dönüşü yok.
+  // Bu fonksiyon bütün koleksiyonları okuyup tarihli tek bir JSON dosyası
+  // indirir. Tarih alanları okunabilir olsun diye ISO metnine çevriliyor.
+  var YEDEK_KOLEKSIYONLAR = [
+    'products', 'orders', 'orderTracking', 'coupons', 'categories', 'reviews',
+    'productQuestions', 'returnRequests', 'restockRequests', 'leads',
+    'settings', 'giftCardRequests', 'instagramPosts', 'admins'
+  ];
+  // Bilerek dışarıda: users (kural gereği yalnızca sahibi okuyabilir, admin
+  // listeleyemez), pushTokens / productViews / recentSales (geçici veri,
+  // yedeklemenin bir faydası yok, dosyayı şişirir).
+  function yedekDegeriCevir(v){
+    if(v === null || v === undefined) return v;
+    if(typeof v.toDate === 'function'){
+      try{ return { _tarih: v.toDate().toISOString() }; }catch(e){ return null; }
+    }
+    if(Array.isArray(v)) return v.map(yedekDegeriCevir);
+    if(typeof v === 'object'){
+      var o = {};
+      Object.keys(v).forEach(function(k){ o[k] = yedekDegeriCevir(v[k]); });
+      return o;
+    }
+    return v;
+  }
+  function yedekDosyasiIndir(ad, metin){
+    var blob = new Blob([metin], { type: 'application/json;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = ad;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+  function yedekAl(){
+    var btn = $('yedekAlBtn');
+    var durum = $('yedekDurum');
+    function yaz(metin){ if(durum) durum.textContent = metin; }
+    btn.disabled = true;
+    var eskiMetin = btn.textContent;
+    btn.textContent = 'Yedek alınıyor…';
+    yaz('Koleksiyonlar okunuyor…');
+
+    var yedek = {
+      olusturma: new Date().toISOString(),
+      site: 'sonyacollection.com',
+      surum: 1,
+      veriler: {}
+    };
+    var okunan = 0, hataliKoleksiyon = [];
+
+    var sira = Promise.resolve();
+    YEDEK_KOLEKSIYONLAR.forEach(function(ad){
+      sira = sira.then(function(){
+        yaz(ad + ' okunuyor… (' + okunan + '/' + YEDEK_KOLEKSIYONLAR.length + ')');
+        return db.collection(ad).get().then(function(snap){
+          var kayitlar = [];
+          snap.forEach(function(doc){
+            kayitlar.push(Object.assign({ _id: doc.id }, yedekDegeriCevir(doc.data() || {})));
+          });
+          yedek.veriler[ad] = kayitlar;
+          okunan++;
+        }).catch(function(err){
+          // Bir koleksiyon okunamazsa (kural izni yoksa) yedek yine de alınır;
+          // hangisinin eksik olduğu dosyada ve ekranda açıkça yazar.
+          hataliKoleksiyon.push(ad);
+          yedek.veriler[ad] = { _hata: (err && err.message) ? err.message : 'okunamadi' };
+          okunan++;
+        });
+      });
+    });
+
+    sira.then(function(){
+      var toplam = 0;
+      Object.keys(yedek.veriler).forEach(function(k){
+        if(Array.isArray(yedek.veriler[k])) toplam += yedek.veriler[k].length;
+      });
+      yedek.kayitSayisi = toplam;
+      yedek.okunamayan = hataliKoleksiyon;
+      var d = new Date();
+      function iki(n){ return (n < 10 ? '0' : '') + n; }
+      var ad = 'sonya-yedek-' + d.getFullYear() + iki(d.getMonth() + 1) + iki(d.getDate())
+             + '-' + iki(d.getHours()) + iki(d.getMinutes()) + '.json';
+      yedekDosyasiIndir(ad, JSON.stringify(yedek, null, 2));
+      yaz('Yedek indirildi: ' + ad + ' — ' + toplam + ' kayıt'
+        + (hataliKoleksiyon.length ? ' (okunamayan: ' + hataliKoleksiyon.join(', ') + ')' : ''));
+      showToast('Yedek indirildi — ' + toplam + ' kayıt.');
+      btn.disabled = false; btn.textContent = eskiMetin;
+    }).catch(function(err){
+      yaz('Yedek alınamadı: ' + ((err && err.message) ? err.message : err));
+      showToast('Yedek alınamadı.', true);
+      btn.disabled = false; btn.textContent = eskiMetin;
+    });
+  }
+
   function downloadCsvFile(filename, csvText){
     // Başına BOM ekleniyor — Excel'in Türkçe karakterleri (ş,ğ,ü,ı...) doğru göstermesi için.
     var blob = new Blob(['﻿' + csvText], {type: 'text/csv;charset=utf-8;'});
@@ -3639,11 +4547,23 @@ a{color:inherit;}
     $('setBirthdayCouponPercent').value = s.birthdayCouponPercent || '';
     $('setGiftWrapEnabled').checked = !!s.giftWrapEnabled;
     $('setGoldEarlyAccessHours').value = s.goldEarlyAccessHours || '';
+    var co = s.company || {};
+    $('setCoName').value = co.name || '';
+    $('setCoAddress').value = co.address || '';
+    $('setCoPhone').value = co.phone || '';
+    $('setCoEmail').value = co.email || '';
+    $('setCoTaxOffice').value = co.taxOffice || '';
+    $('setCoTaxNo').value = co.taxNo || '';
+    $('setCoMersis').value = co.mersis || '';
+    $('setCoEtbisNo').value = co.etbisNo || '';
+    $('setCoEtbisUrl').value = co.etbisUrl || '';
+    $('setCoReturnShipping').value = co.returnShipping || '';
     $('setGizlilik').value = s.legal.gizlilik || '';
     $('setKvkk').value = s.legal.kvkk || '';
     $('setIade').value = s.legal.iade || '';
     $('setUyelik').value = s.legal.uyelik || '';
     $('setIleti').value = s.legal.ileti || '';
+    $('setSizeChart').value = s.legal.sizeChart || '';
     $('setBeden').value = s.legal.beden || '';
     $('setCerez').value = s.legal.cerez || '';
     $('setOnbilgi').value = s.legal.onbilgi || '';
@@ -3670,6 +4590,9 @@ a{color:inherit;}
     btn.disabled = count === 0;
   }
 
+  if($('yedekAlBtn')){
+    $('yedekAlBtn').addEventListener('click', yedekAl);
+  }
   if($('migratePhotosBtn')){
     $('migratePhotosBtn').addEventListener('click', function(){
       var btn = this;
@@ -3748,11 +4671,24 @@ a{color:inherit;}
       goldEarlyAccessHours: parseFloat($('setGoldEarlyAccessHours').value) || 0
     };
     var legalData = {
+      company: {
+        name: $('setCoName').value.trim(),
+        address: $('setCoAddress').value.trim(),
+        phone: $('setCoPhone').value.trim(),
+        email: $('setCoEmail').value.trim(),
+        taxOffice: $('setCoTaxOffice').value.trim(),
+        taxNo: $('setCoTaxNo').value.trim(),
+        mersis: $('setCoMersis').value.trim(),
+        etbisNo: $('setCoEtbisNo').value.trim(),
+        etbisUrl: $('setCoEtbisUrl').value.trim(),
+        returnShipping: $('setCoReturnShipping').value.trim()
+      },
       gizlilik: $('setGizlilik').value,
       kvkk: $('setKvkk').value,
       iade: $('setIade').value,
       uyelik: $('setUyelik').value,
       ileti: $('setIleti').value,
+      sizeChart: $('setSizeChart').value,
       beden: $('setBeden').value,
       cerez: $('setCerez').value,
       onbilgi: $('setOnbilgi').value,
@@ -3763,6 +4699,7 @@ a{color:inherit;}
       db.collection('settings').doc('site').set(siteData, {merge:true}),
       db.collection('settings').doc('legal').set(legalData, {merge:true})
     ]).then(function(){
+      state.settings.company = legalData.company;
       state.settings.whatsapp = siteData.whatsapp;
       state.settings.instagram = siteData.instagram;
       state.settings.phone = siteData.phone;
