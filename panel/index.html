@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sonya Collection — Yönetici Paneli</title>
 <meta name="robots" content="noindex, nofollow">
+<!-- Arama motorları ve paylaşım önizlemeleri için GERÇEK dosya olarak sunulan ikonlar.
+     Google, site simgesini ancak indirebildiği bir dosyadan alabiliyor ve SVG'yi
+     desteklenen biçimler arasında saymıyor; aşağıdaki data: URI ile gömülü SVG bu
+     yüzden yalnızca tarayıcı sekmesi için duruyor, arama sonucundaki simgeyi bu iki
+     satır sağlıyor. Sıralama önemli: gerçek dosyalar önce geliyor. -->
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Ccircle%20cx%3D%2732%27%20cy%3D%2732%27%20r%3D%2732%27%20fill%3D%27rgb%2889%2C68%2C47%29%27/%3E%3Ctext%20x%3D%2732%27%20y%3D%2744%27%20font-family%3D%27Georgia%2C%20serif%27%20font-size%3D%2734%27%20font-weight%3D%27600%27%20fill%3D%27rgb%28251%2C244%2C232%29%27%20text-anchor%3D%27middle%27%3ES%3C/text%3E%3C/svg%3E">
 <style>
 /* ============ Fonts ============ */
@@ -20,10 +27,10 @@
   --surface:    #FFFFFF;
   --surface-2:  #F4EEE3;
   --page-bg:    #F6F1E8;
-  --espresso:   #4A392A;
-  --espresso-70:#4A392AB3;
-  --caramel:    #928273;
-  --caramel-dk: #706358;
+  --espresso:   #6E5744;
+  --espresso-70:#6E5744CC;
+  --caramel:    #946C44;
+  --caramel-dk: #7E5E3A;
   --latte:      #DCB78E;
   --line:       #E7DBC7;
   --line-soft:  #F0E8D9;
@@ -33,8 +40,8 @@
   --danger-line:#EFC9C0;
   --success:    #4B7B5A;
   --success-bg: #EAF3EC;
-  --shadow-s:   0 8px 20px -12px rgba(74,57,42,0.22);
-  --shadow-m:   0 20px 45px -25px rgba(74,57,42,0.28);
+  --shadow-s:   0 8px 20px -12px rgba(110,87,68,0.22);
+  --shadow-m:   0 20px 45px -25px rgba(110,87,68,0.28);
   --radius-s: 6px;
   --radius-m: 12px;
   --radius-l: 20px;
@@ -711,7 +718,13 @@ a{color:inherit;}
             <option value="amount">Sabit Tutar (₺)</option>
           </select>
           <input type="number" id="newCouponValue" placeholder="Değer" min="1" step="1">
+          <input type="number" id="newCouponMinAmount" placeholder="Min. sepet ₺ (ops.)" min="0" step="10" title="Bu tutarın altındaki sepetlerde kupon geçersiz olur. Boş bırakırsanız sınır yoktur.">
+          <input type="date" id="newCouponExpiresAt" title="Son kullanma tarihi (o günün sonuna kadar geçerli). Boş bırakırsanız süresiz geçerlidir.">
           <button type="button" class="btn btn-ghost" id="addCouponBtn">Ekle</button>
+        </div>
+        <div class="legal-hint" style="margin-top:12px;">
+          <strong>Min. sepet</strong> ve <strong>son kullanma tarihi</strong> isteğe bağlıdır; boş bırakılırsa kupon sınırsız ve süresiz çalışır. Bu iki kural hem sitede hem de kartla ödemede sunucu tarafında ayrıca doğrulanır.
+          Bir kod istemediğiniz yerlere yayılırsa <strong>Pasif Yap</strong> ile anında kapatabilirsiniz.
         </div>
       </div>
     </section>
@@ -846,6 +859,14 @@ a{color:inherit;}
             <div class="field">
               <label for="setShipping">Ücretsiz Kargo Eşiği (₺)</label>
               <input type="number" id="setShipping" min="0" step="10">
+              <div class="hint">Bu tutar ve üzerindeki siparişlerde kargo ücreti alınmaz.</div>
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="setShippingFee">Kargo Ücreti (₺)</label>
+              <input type="number" id="setShippingFee" min="0" step="1">
+              <div class="hint"><strong>0 girerseniz hiçbir siparişten kargo ücreti alınmaz</strong> ve site "tüm siparişlerde ücretsiz kargo" der. Bir tutar girerseniz, yukarıdaki eşiğin ALTINDAKİ siparişlere bu ücret eklenir — hem sepette hem kartla ödemede. Altın üyelerde her zaman ücretsizdir.</div>
             </div>
           </div>
           <div class="field">
@@ -987,6 +1008,17 @@ a{color:inherit;}
         </div>
 
         <div class="settings-section">
+          <h3>Adres Otomatik Tamamlama (Google)</h3>
+          <p class="sec-sub">Müşteri adres eklerken sokak/mahalle yazmaya başladığında Google'dan gerçek adres önerileri çıkar; birini seçtiğinde il, ilçe ve posta kodu kendiliğinden dolar. Yanlış/eksik adres yüzünden geri dönen kargoları azaltır.</p>
+          <p class="sec-sub"><strong>Kutu boş olduğu sürece bu özellik tamamen kapalıdır</strong> — sitede hiçbir Google kodu yüklenmez, adres formu bugünkü gibi elle doldurulur. Kurulum: <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">console.cloud.google.com</a> → yeni proje → <strong>Places API (New)</strong> ve <strong>Maps JavaScript API</strong> servislerini etkinleştir → Kimlik Bilgileri'nden bir API anahtarı oluştur. Anahtarı mutlaka kısıtla: "Uygulama kısıtlamaları" → HTTP yönlendirenleri → <code>sonyacollection.com/*</code>. Google'ın aylık ücretsiz kullanım kotası küçük bir mağaza için fazlasıyla yeterlidir.</p>
+          <div class="field">
+            <label for="setGoogleMapsKey">Google Maps API Anahtarı</label>
+            <input type="text" id="setGoogleMapsKey" placeholder="AIza...">
+            <div class="hint">Bu anahtar sitenin kaynak kodunda görünür (Google'ın tasarımı böyle) — bu yüzden yukarıdaki adres kısıtlamasını eklemek önemli, aksi halde başkası anahtarını kullanabilir.</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
           <h3>Yasal Metinler</h3>
           <div class="legal-hint">
             Paragrafları ayırmak için aralarında <strong>boş bir satır</strong> bırakın. Bir paragrafın ilk satırını yeni satıra geçip devamını yazarsanız, ilk satır sitede <strong>kalın başlık</strong> olarak görünür.
@@ -1010,6 +1042,20 @@ a{color:inherit;}
           <div class="field">
             <label for="setIleti">Ticari Elektronik İleti Onayı</label>
             <textarea id="setIleti"></textarea>
+          </div>
+          <div class="field">
+            <label for="setOnbilgi">Ön Bilgilendirme Formu</label>
+            <textarea id="setOnbilgi"></textarea>
+            <div class="hint">Mesafeli satışta zorunlu. İçindeki <strong>[köşeli parantezli]</strong> alanları (şirket/şahıs adı, adres, telefon, iade kargo masrafını kimin karşıladığı) kendi bilgilerinizle doldurun.</div>
+          </div>
+          <div class="field">
+            <label for="setMesafeli">Mesafeli Satış Sözleşmesi</label>
+            <textarea id="setMesafeli"></textarea>
+            <div class="hint">Mesafeli satışta zorunlu. Buradaki <strong>[köşeli parantezli]</strong> alanları da doldurmayı unutmayın.</div>
+          </div>
+          <div class="field">
+            <label for="setCerez">Çerez Politikası</label>
+            <textarea id="setCerez"></textarea>
           </div>
           <div class="field">
             <label for="setBeden">Beden Rehberi</label>
@@ -1339,7 +1385,7 @@ a{color:inherit;}
     {id:6, cat:"Kimonolar", name:"İpek Karışımlı Uzun Kimono", price:1890, colors:["#3B2A1D"], sizes:["S","M","L"], stock:2, desc:"Yere yakın boyda, ipek karışımlı akıcı kimono. Hem ev hem dışarı için şık bir seçenek."},
     {id:7, cat:"Takımlar", name:"Keten İki Parça Takım", price:2150, oldPrice:2390, colors:["#EFE4D3","#3B2A1D"], sizes:["S","M","L"], stock:16, desc:"Keten karışımlı blazer ve pantolon takımı. Yazdan sonbahara geçiş parçası."},
     {id:8, cat:"Takımlar", name:"Simli Bluz & Pantolon Takımı", price:2390, colors:["#6E4526","#F6EFE4"], sizes:["S","M","L"], stock:7, desc:"Hafif simli dokulu bluz ve yüksek bel pantolondan oluşan davet takımı."},
-    {id:9, cat:"Takımlar", name:"Örme Two-Piece Set", price:1980, oldPrice:2640, colors:["#6E4526","#F6EFE4"], sizes:["S","M","L","XL"], stock:19, desc:"Kazak ve etek ikilisi, rahat ve şık bir günlük kombin."},
+    {id:9, cat:"Takımlar", name:"Örme İkili Takım", price:1980, oldPrice:2640, colors:["#6E4526","#F6EFE4"], sizes:["S","M","L","XL"], stock:19, desc:"Kazak ve etek ikilisi, rahat ve şık bir günlük kombin."},
     {id:10, cat:"Elbiseler", name:"Saten Midi Elbise", price:1690, oldPrice:2410, colors:["#3B2A1D","#C79768"], sizes:["S","M","L"], stock:13, desc:"Kayan saten dokulu, ince askılı midi elbise. Davetler için ideal."},
     {id:11, cat:"Elbiseler", name:"Krem Dantelli Elbise", price:2290, colors:["#F6EFE4"], sizes:["S","M","L"], stock:5, desc:"El işi dantel detaylı, uzun kollu zarif elbise."},
     {id:12, cat:"Elbiseler", name:"Pudra Drape Elbise", price:1790, colors:["#C79768","#F6EFE4"], sizes:["S","M","L","XL"], stock:0, desc:"Yumuşak pudra tonunda, drape detaylı zarif midi elbise."}
@@ -1350,6 +1396,8 @@ a{color:inherit;}
     instagram: "sonyacollectiion",
     phone: "",
     shippingThreshold: 1500,
+    shippingFee: 0,
+    googleMapsKey: "",
     iyzicoEnabled: false,
     welcomeCouponCode: "",
     deliveryEstimate: "",
@@ -1378,6 +1426,9 @@ a{color:inherit;}
       iade: "Cayma hakkı\nMesafeli Sözleşmeler Yönetmeliği kapsamında, ürünü teslim aldığın tarihten itibaren 14 gün içinde herhangi bir gerekçe göstermeden cayma hakkına sahipsin.\n\nİade şartları\nÜrün kullanılmamış, yıkanmamış ve etiketleri çıkarılmamış olmalı. Mümkünse orijinal ambalajıyla birlikte gönderilmeli. İç giyim, mayo/bikini gibi hijyen bandı sökülmüş ürünlerde iade kabul edilmeyebilir.\n\nNasıl iade/değişim talep edilir?\nSipariş numaranla birlikte Instagram ya da WhatsApp üzerinden bize ulaş; iade adresini ve süreci seninle birlikte netleştirelim.\n\nKargo ücreti\n[Kargo ücretini kim karşılıyor buraya eklenecek — örn. \"İade kargo ücreti alıcıya aittir\" ya da \"İlk iadede kargo ücretsizdir.\"]",
       uyelik: "İşbu Üyelik Sözleşmesi, Sonya Collection (\"[Şirket/Şahıs Adı]\", \"biz\") ile siteye üye olan kullanıcı (\"Üye\", \"sen\") arasında, sitenin kullanım şartlarını belirlemek amacıyla düzenlenmiştir.\n\nÜyelik\nÜye olmak için ad soyad ve e-posta adresi ile bir hesap oluşturulur. Üye, kayıt sırasında verdiği bilgilerin doğru ve güncel olduğunu kabul eder. Hesap bilgileri (e-posta, şifre) üçüncü kişilerle paylaşılmamalıdır; hesap üzerinden yapılan işlemlerden Üye sorumludur.\n\nSiparişler\nSitede oluşturulan sepet, WhatsApp veya Instagram üzerinden bize iletilen bir sipariş talebidir; ödeme ve teslimat detayları bu iletişim kanalları üzerinden ayrıca netleştirilir.\n\nFesih\nÜye, dilediği zaman hesabının silinmesini talep edebilir. Bu talepler için siparis@sonyacollection.com adresinden bize ulaşabilirsin.\n\nDeğişiklikler\nBu sözleşme, güncellenen koşulları yansıtmak amacıyla zaman zaman güncellenebilir; güncel hali her zaman bu sayfada yer alır.",
       ileti: "Bu onay, Sonya Collection tarafından kampanya, indirim ve yeni ürün duyurularının e-posta ve/veya kayıt sırasında paylaştığın telefon numarası üzerinden (SMS/WhatsApp) tarafına iletilmesi içindir.\n\n6563 sayılı Elektronik Ticaretin Düzenlenmesi Hakkında Kanun ve ilgili Ticari İletişim ve Ticari Elektronik İletiler Hakkında Yönetmelik uyarınca, ticari elektronik ileti gönderimi ancak açık onayınla mümkündür.\n\nBu onayı vermek tamamen isteğe bağlıdır; onay vermemen üyeliğini veya sipariş verebilmeni hiçbir şekilde etkilemez. Dilediğin zaman gönderdiğimiz iletilerdeki \"Ret\" bağlantısını kullanarak ya da siparis@sonyacollection.com adresine yazarak bu onayı geri alabilirsin.",
+      cerez: "Bu site hangi çerezleri kullanır?\nAlışveriş deneyimini iyileştirmek, tercihlerini hatırlamak, site trafiğini analiz etmek ve kampanyalarımızı ölçmek için çerezler ve benzeri teknolojiler (localStorage) kullanıyoruz.\n\nZorunlu çerezler\nSepetin, favori listen ve oturum bilgilerin tarayıcının hafızasında (localStorage) saklanır. Bunlar sitenin çalışması için gereklidir, kapatılamaz.\n\nAnaliz ve reklam çerezleri\nİzin verirsen Google Analytics (GA4) ve Meta Pixel ile site trafiğini analiz eder, reklam performansımızı ölçeriz. Bu çerezler yalnızca \"Tümünü Kabul Et\" seçeneğini onayladığında yüklenir; \"Sadece Zorunlu Çerezler\"i seçersen hiç çalışmazlar.\n\nTercihini değiştirme\nDilediğin zaman sayfanın altındaki \"Çerez Tercihleri\" bağlantısına tıklayarak seçimini değiştirebilirsin.",
+      onbilgi: "Satıcı bilgileri\nUnvan: Sonya Collection — [Şirket/Şahıs Adı]. Adres: [Adres]. Telefon: [Telefon]. E-posta: siparis@sonyacollection.com. İnternet sitesi: sonyacollection.com\n\nBu form nedir?\n6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği uyarınca, siparişini onaylamadan önce aşağıdaki bilgileri okuduğunu ve anladığını teyit etmen gerekir.\n\nSipariş konusu ürünler ve fiyat\nSipariş ettiğin ürünlerin adı, adedi, bedeni ve birim fiyatı sepet ekranında ve sipariş özetinde ayrı ayrı gösterilir. Sitedeki tüm fiyatlar Türk Lirası cinsinden ve KDV dahildir.\n\nKargo ücreti\nVarsa kargo ücreti, siparişi onaylamadan önce sepet özetinde \"Kargo\" satırında ayrıca gösterilir ve toplam tutara eklenir. Ücretsiz kargo eşiği ve üzerindeki siparişlerde kargo ücreti alınmaz.\n\nÖdeme\nÖdeme, sitede sunulan yöntemlerden seçtiğin yöntemle yapılır. Kartla ödemede kart bilgilerin bu siteye hiçbir şekilde iletilmez; ödeme, lisanslı ödeme kuruluşu iyzico'nun kendi güvenli sayfası üzerinden alınır.\n\nTeslimat\nSiparişler genellikle 1-3 iş günü içinde kargoya verilir; teslim süresi kargo firmasına ve teslimat adresine göre değişir. Yasal azami teslim süresi 30 gündür. Ürün, sipariş sırasında bildirdiğin teslimat adresine gönderilir.\n\nCayma hakkı\nÜrünü teslim aldığın tarihten itibaren 14 gün içinde hiçbir gerekçe göstermeden ve cezai şart ödemeden sözleşmeden cayma hakkına sahipsin. Cayma bildirimini siparis@sonyacollection.com adresine ya da yukarıdaki iletişim kanallarından bize ulaştırman yeterlidir.\n\nCayma hakkının kullanılamayacağı durumlar\nMesafeli Sözleşmeler Yönetmeliği'nin 15. maddesi uyarınca; kişiye özel hazırlanan ürünlerde ve iç giyim, mayo/bikini gibi hijyen bandı sökülmüş ürünlerde cayma hakkı kullanılamaz.\n\nİade masrafı ve geri ödeme\nCayma hakkını kullanman durumunda iade kargo masrafı [iade kargo masrafını kimin karşıladığını yazın: ör. tarafımızca karşılanır / alıcıya aittir]. Ödemen, cayma bildirimin bize ulaştıktan ve ürün tarafımıza döndükten sonra en geç 14 gün içinde, ödeme yaptığın yöntemle iade edilir.\n\nŞikâyet ve itiraz\nSipariş ve ürünle ilgili tüm talep ve şikâyetlerini yukarıdaki iletişim kanallarından bize iletebilirsin. Uyuşmazlık durumunda, Ticaret Bakanlığı'nca her yıl ilan edilen parasal sınırlar çerçevesinde ürünü satın aldığın veya ikametgâhının bulunduğu yerdeki Tüketici Hakem Heyetine ya da Tüketici Mahkemesine başvurabilirsin.",
+      mesafeli: "Taraflar\nSATICI: Sonya Collection — [Şirket/Şahıs Adı]. Adres: [Adres]. Telefon: [Telefon]. E-posta: siparis@sonyacollection.com\nALICI: Sipariş sırasında ad soyad, teslimat adresi ve iletişim bilgilerini bildiren kişi.\n\nKonu\nİşbu sözleşmenin konusu, ALICI'nın sonyacollection.com üzerinden elektronik ortamda siparişini verdiği ürünlerin satışı ve teslimi ile ilgili olarak tarafların hak ve yükümlülüklerinin belirlenmesidir.\n\nSözleşme konusu ürün, fiyat ve ödeme\nÜrünlerin adı, adedi, bedeni, birim fiyatı, varsa kargo ücreti ve ödenecek toplam tutar; sipariş onayından önce sepet özetinde gösterilir ve siparişten sonra iletilen sipariş bilgisiyle birlikte işbu sözleşmenin ayrılmaz parçasını oluşturur. Tüm fiyatlar KDV dahildir.\n\nGenel hükümler\nALICI, siparişi onaylamadan önce Ön Bilgilendirme Formu'nu okuduğunu; ürünün temel nitelikleri, satış fiyatı, ödeme şekli, teslimat koşulları ve cayma hakkı konusunda bilgilendirildiğini kabul eder. ALICI, siparişi onaylamakla ödeme yükümlülüğü altına girdiğini kabul eder.\n\nTeslimat\nÜrün, ALICI'nın bildirdiği teslimat adresine kargo ile gönderilir. Teslim süresi, siparişin onaylanmasından itibaren yasal azami 30 günü aşmaz. Ürünün kargo firmasına tesliminden sonra kargo firmasından kaynaklanan gecikmelerden SATICI sorumlu tutulamaz.\n\nCayma hakkı\nALICI, ürünü teslim aldığı tarihten itibaren 14 gün içinde hiçbir gerekçe göstermeden ve cezai şart ödemeden sözleşmeden cayabilir. Cayma bildirimi yukarıdaki iletişim kanallarından SATICI'ya yöneltilir. Cayma hakkının kullanılabilmesi için ürünün kullanılmamış, yıkanmamış ve etiketleri sökülmemiş olması gerekir. Kişiye özel üretilen ürünlerde ve hijyen bandı sökülmüş iç giyim/mayo ürünlerinde cayma hakkı kullanılamaz.\n\nUyuşmazlık\nİşbu sözleşmenin uygulanmasında, Ticaret Bakanlığı'nca her yıl ilan edilen parasal sınırlar dâhilinde ALICI'nın ürünü satın aldığı veya ikametgâhının bulunduğu yerdeki Tüketici Hakem Heyetleri ile Tüketici Mahkemeleri yetkilidir.\n\nYürürlük\nALICI'nın site üzerinden siparişini onaylaması ile işbu sözleşme kurulmuş sayılır ve taraflar arasında yürürlüğe girer.",
       beden: "S (36)\nGöğüs: 84-88 cm · Bel: 64-68 cm · Kalça: 90-94 cm\n\nM (38)\nGöğüs: 88-92 cm · Bel: 68-72 cm · Kalça: 94-98 cm\n\nL (40)\nGöğüs: 92-96 cm · Bel: 72-76 cm · Kalça: 98-102 cm\n\nXL (42)\nGöğüs: 96-100 cm · Bel: 76-80 cm · Kalça: 102-106 cm\n\nÖlçü nasıl alınır?\nGöğüs: Göğsün en geniş noktasından, mezura yere paralel olacak şekilde ölçün. Bel: Belin en ince noktasından ölçün. Kalça: Kalçanın en geniş noktasından ölçün.\n\nNot\nParçalarımız genelde rahat ve salaş bir kesime sahiptir; iki beden arasında kalırsan küçük olanı tercih edebilirsin. Ürüne özel kumaş/kesim farkı olabileceğinden, ürün açıklamasındaki notları da kontrol etmeni öneririz."
     }
   };
@@ -1631,7 +1682,9 @@ a{color:inherit;}
           code: doc.id,
           type: d.type === 'amount' ? 'amount' : 'percent',
           value: typeof d.value === 'number' ? d.value : 0,
-          active: d.active !== false
+          active: d.active !== false,
+          minAmount: (typeof d.minAmount === 'number' && d.minAmount > 0) ? d.minAmount : null,
+          expiresAt: (typeof d.expiresAt === 'string' && d.expiresAt) ? d.expiresAt : null
         });
       });
       list.sort(function(a,b){ return a.code < b.code ? -1 : (a.code > b.code ? 1 : 0); });
@@ -2153,6 +2206,12 @@ a{color:inherit;}
     } else {
       listEl.innerHTML = coupons.map(function(c){
         var valueLabel = c.type === 'amount' ? (money(c.value) + ' indirim') : ('%' + c.value + ' indirim');
+      // Süresi dolan kupon listede görünür biçimde işaretlensin — "neden çalışmıyor?" sorusunu önler.
+      var expired = c.expiresAt && (new Date(c.expiresAt + 'T23:59:59').getTime() < Date.now());
+      var limits = [];
+      if(c.minAmount) limits.push('min. ' + money(c.minAmount));
+      if(c.expiresAt) limits.push((expired ? 'süresi doldu: ' : 'son gün: ') + c.expiresAt);
+      if(limits.length) valueLabel += ' <span style="opacity:.7;font-size:0.85em;">(' + limits.join(' · ') + ')</span>';
         return (
           '<div class="coupon-row' + (c.active ? '' : ' inactive') + '" data-docid="' + c.docId + '">' +
             '<div class="code">' + escapeHtml(c.code) + '</div>' +
@@ -2193,6 +2252,8 @@ a{color:inherit;}
       var code = codeInput.value.trim().toUpperCase();
       var type = $('newCouponType').value;
       var value = parseFloat($('newCouponValue').value);
+      var minAmount = parseFloat($('newCouponMinAmount').value);
+      var expiresAt = ($('newCouponExpiresAt').value || '').trim();
       if(!code || !/^[A-Z0-9_-]{3,20}$/.test(code)){
         showToast('Kod sadece harf/rakam olmalı (3-20 karakter).', true); return;
       }
@@ -2201,13 +2262,17 @@ a{color:inherit;}
       if(state.coupons.some(function(c){ return c.code === code; })){ showToast('Bu kod zaten var.', true); return; }
       var addBtn = $('addCouponBtn');
       addBtn.disabled = true;
-      db.collection('coupons').doc(code).set({
+      var couponDoc = {
         type: type, value: value, active: true, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(function(){
-        state.coupons.push({docId: code, code: code, type: type, value: value, active: true});
+      };
+      if(!isNaN(minAmount) && minAmount > 0) couponDoc.minAmount = minAmount;
+      if(expiresAt) couponDoc.expiresAt = expiresAt;
+      db.collection('coupons').doc(code).set(couponDoc).then(function(){
+        state.coupons.push({docId: code, code: code, type: type, value: value, active: true, minAmount: couponDoc.minAmount || null, expiresAt: couponDoc.expiresAt || null});
         state.coupons.sort(function(a,b){ return a.code < b.code ? -1 : (a.code > b.code ? 1 : 0); });
         renderCoupons();
         codeInput.value = ''; $('newCouponValue').value = '';
+        $('newCouponMinAmount').value = ''; $('newCouponExpiresAt').value = '';
         showToast('Kupon eklendi.');
       }).catch(function(err){
         showToast('Eklenemedi: ' + err.message, true);
@@ -2605,6 +2670,8 @@ a{color:inherit;}
         if(site.instagram) s.instagram = site.instagram;
         if(typeof site.phone === 'string') s.phone = site.phone;
         if(typeof site.shippingThreshold === 'number') s.shippingThreshold = site.shippingThreshold;
+        if(typeof site.shippingFee === 'number') s.shippingFee = site.shippingFee;
+        if(typeof site.googleMapsKey === 'string') s.googleMapsKey = site.googleMapsKey;
         if(typeof site.iyzicoEnabled === 'boolean') s.iyzicoEnabled = site.iyzicoEnabled;
         if(typeof site.deliveryEstimate === 'string') s.deliveryEstimate = site.deliveryEstimate;
         if(typeof site.welcomeCouponCode === 'string') s.welcomeCouponCode = site.welcomeCouponCode;
@@ -2636,6 +2703,9 @@ a{color:inherit;}
         if(legal.uyelik) s.legal.uyelik = legal.uyelik;
         if(legal.ileti) s.legal.ileti = legal.ileti;
         if(legal.beden) s.legal.beden = legal.beden;
+        if(legal.cerez) s.legal.cerez = legal.cerez;
+        if(legal.onbilgi) s.legal.onbilgi = legal.onbilgi;
+        if(legal.mesafeli) s.legal.mesafeli = legal.mesafeli;
       }
       state.settings = s;
     });
@@ -3546,6 +3616,8 @@ a{color:inherit;}
     $('setInstagram').value = s.instagram || '';
     $('setPhone').value = s.phone || '';
     $('setShipping').value = s.shippingThreshold || 0;
+    $('setShippingFee').value = (typeof s.shippingFee === 'number') ? s.shippingFee : 0;
+    $('setGoogleMapsKey').value = s.googleMapsKey || '';
     $('setDeliveryEstimate').value = s.deliveryEstimate || '';
     $('setBundleMinItems').value = s.bundleMinItems || '';
     $('setBundlePercent').value = s.bundlePercent || '';
@@ -3573,6 +3645,9 @@ a{color:inherit;}
     $('setUyelik').value = s.legal.uyelik || '';
     $('setIleti').value = s.legal.ileti || '';
     $('setBeden').value = s.legal.beden || '';
+    $('setCerez').value = s.legal.cerez || '';
+    $('setOnbilgi').value = s.legal.onbilgi || '';
+    $('setMesafeli').value = s.legal.mesafeli || '';
     renderMigrationStatus();
   }
 
@@ -3648,6 +3723,8 @@ a{color:inherit;}
       instagram: $('setInstagram').value.trim(),
       phone: $('setPhone').value.trim(),
       shippingThreshold: parseFloat($('setShipping').value) || 0,
+      shippingFee: parseFloat($('setShippingFee').value) || 0,
+      googleMapsKey: $('setGoogleMapsKey').value.trim(),
       deliveryEstimate: $('setDeliveryEstimate').value.trim(),
       bundleMinItems: parseInt($('setBundleMinItems').value, 10) || 0,
       bundlePercent: parseFloat($('setBundlePercent').value) || 0,
@@ -3676,7 +3753,10 @@ a{color:inherit;}
       iade: $('setIade').value,
       uyelik: $('setUyelik').value,
       ileti: $('setIleti').value,
-      beden: $('setBeden').value
+      beden: $('setBeden').value,
+      cerez: $('setCerez').value,
+      onbilgi: $('setOnbilgi').value,
+      mesafeli: $('setMesafeli').value
     };
 
     Promise.all([
@@ -3687,6 +3767,8 @@ a{color:inherit;}
       state.settings.instagram = siteData.instagram;
       state.settings.phone = siteData.phone;
       state.settings.shippingThreshold = siteData.shippingThreshold;
+      state.settings.shippingFee = siteData.shippingFee;
+      state.settings.googleMapsKey = siteData.googleMapsKey;
       state.settings.deliveryEstimate = siteData.deliveryEstimate;
       state.settings.bundleMinItems = siteData.bundleMinItems;
       state.settings.bundlePercent = siteData.bundlePercent;
