@@ -1,6 +1,25 @@
 # Sonya Collection — Hostinger'a Yükleme Rehberi
 
-## Bu turda ne değişti (2026-09-04 — www yönlendirmesi, adres tamamlama, puan düzeltmesi, e-posta doğrulama)
+## ⚠️ Önce şunu kontrol et: .htaccess sunucuya çıkmamış
+
+Az önce canlı siteyi denetledim: `www.sonyacollection.com/yeni-sezon.html` hâlâ Yeni Sezon sayfasını açıyor. Yani **bir önceki turdaki www yönlendirmesi sunucuya hiç ulaşmamış.** Sebebi neredeyse kesin: `.htaccess` nokta ile başladığı için Hostinger Dosya Yöneticisi'nde varsayılan olarak **görünmez** ve zip'i açarken atlanmış oluyor.
+
+hPanel → Dosyalar → Dosya Yöneticisi → sağ üstteki ayarlar menüsünden **"Gizli dosyaları göster"** (Show hidden files) seçeneğini aç, sonra `public_html` içine bu zip'teki `.htaccess` dosyasını yükle. Yönlendirme ancak o zaman devreye girer.
+
+## Bu turda ne değişti (2026-09 — arama sonucundaki site simgesi)
+
+Arama sonuçlarında `sonyacollection.com` satırında genel bir dünya ikonu, `www.sonyacollection.com` satırında ise senin "S" logon çıkıyordu. Sebebini buldum:
+
+Sitenin sekme ikonu, sayfanın içine **gömülü bir SVG** olarak tanımlıydı (`data:image/svg+xml,...`). Google'ın kendi kuralları bunu kabul etmiyor: site simgesinin **indirilebilir ayrı bir dosya** olması gerekiyor ve Google'ın desteklediği biçimler arasında **SVG yok** (ICO, PNG, JPEG, GIF, BMP var). Sitede ayrıca `/favicon.ico` diye bir dosya da hiç yoktu. Yani Google'ın kullanabileceği tek dosya `apple-touch-icon.png`'ydi; onu da bir ana bilgisayar adında bulup diğerinde bulamamış.
+
+Yapılanlar:
+
+- `icon-512.png`'den gerçek bir **`favicon.ico`** üretildi (16/32/48/64 boyutlarını birlikte içeren tek dosya) ve zip'e eklendi.
+- 15 sayfanın tamamına, gömülü SVG'den **önce** gelecek şekilde iki gerçek dosya bağlantısı eklendi: `/favicon.ico` ve `/icon-192.png`. Gömülü SVG silinmedi — tarayıcı sekmesinde keskin durduğu için orada kalmaya devam ediyor; Google ise artık gerçek dosyayı görüyor.
+
+Google simgeyi ana bilgisayar adı başına önbelleğe aldığı için değişikliğin arama sonucuna yansıması birkaç hafta sürebilir. www yönlendirmesi devreye girince zaten tek bir adres kalacağı için tek bir simge görünecek.
+
+## Bir önceki round (2026-09-04 — www yönlendirmesi, adres tamamlama, puan düzeltmesi, e-posta doğrulama)
 
 ### 1. www adresi artık doğrudan anasayfaya gidiyor
 
